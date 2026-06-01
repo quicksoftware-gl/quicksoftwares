@@ -1949,6 +1949,32 @@
     if (state.coupon.type === "flat_inr") return `Flat ${formatPrice(state.coupon.value)} (${state.couponCode})`;
     return `− ${Math.round(state.coupon.value * 100)}% off (${state.couponCode})`;
   }
+
+  // ---- One-use-per-email coupon tracking (localStorage) ---------------
+  // NOTE: this is browser-local only — clearing storage or using incognito
+  // bypasses it. For server-enforced uniqueness, a backend is required.
+  function _readUsedCoupons() {
+    try { return JSON.parse(localStorage.getItem("usedCoupons") || "{}"); }
+    catch (e) { return {}; }
+  }
+  function isCouponUsedByEmail(email, code) {
+    if (!email || !code) return false;
+    const all = _readUsedCoupons();
+    const list = all[String(email).trim().toLowerCase()] || [];
+    return list.includes(code);
+  }
+  function markCouponUsed(email, code) {
+    if (!email || !code) return;
+    try {
+      const all = _readUsedCoupons();
+      const key = String(email).trim().toLowerCase();
+      if (!all[key]) all[key] = [];
+      if (!all[key].includes(code)) {
+        all[key].push(code);
+        localStorage.setItem("usedCoupons", JSON.stringify(all));
+      }
+    } catch (e) { /* storage full or disabled — ignore */ }
+  }
   function currentAutodeskCount() {
     return selectedServices().reduce((sum, svc) => {
       if (!svc.allowAutodesk) return sum;
@@ -2150,6 +2176,13 @@
     const entry = COUPONS[code];
     if (!entry) {
       couponMsg.textContent = "Invalid coupon code.";
+      couponMsg.className = "coupon-msg error";
+      return;
+    }
+    // Has this email already used this code?
+    const emailNow = (document.getElementById("email") || {}).value || "";
+    if (emailNow && isCouponUsedByEmail(emailNow, code)) {
+      couponMsg.textContent = `Coupon ${code} has already been used with this email.`;
       couponMsg.className = "coupon-msg error";
       return;
     }
@@ -2379,6 +2412,10 @@
     paypalContainer.innerHTML = "";
     payLoading.classList.remove("visible");
     successEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Record coupon usage so the same email can't reuse it.
+    if (currentBooking && currentBooking.couponCode && currentBooking.email) {
+      markCouponUsed(currentBooking.email, currentBooking.couponCode);
+    }
   }
 
   // ---- Validation ------------------------------------------------------
@@ -2638,6 +2675,13 @@
     const booking = buildBooking(v, ref);
     currentBooking = booking;
     try { localStorage.setItem("lastBooking", JSON.stringify(booking)); } catch (e) {}
+
+    // Double-check the coupon hasn't been used by this email (in case
+    // the email was changed after the coupon was applied).
+    if (booking.couponCode && isCouponUsedByEmail(booking.email, booking.couponCode)) {
+      showError(`Coupon ${booking.couponCode} has already been used with ${booking.email}. Please remove the coupon to continue.`);
+      return;
+    }
 
     payBtn.disabled = true;
     payBtn.textContent = "Preparing payment…";
