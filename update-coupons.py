@@ -5,14 +5,15 @@ Regenerate coupons-manifest.js by reading Discount.xlsx.
 Run this after editing Discount.xlsx:
     ./update-coupons.py
 
-The .xlsx must have two columns:
-    Discount_Coupon       Discount_Percentage
-    50OFF                 0.5
-    20OFF                 0.2
+The .xlsx supports two coupon types via three columns:
+    Discount_Coupon   Discount_Percentage   Flat_Price_INR
+    50OFF             0.5                   (blank)         → 50% off
+    20OFF             0.2                   (blank)         → 20% off
+    BHOLEKRIPA        (blank)               10              → flat ₹10
     ...
 
-The first row is treated as a header.
-Coupon codes are uppercased; percentages must be numbers (0.0 to 1.0).
+Row 1 is the header. Codes are uppercased. Each row should fill exactly
+one of Discount_Percentage (0.0–1.0) or Flat_Price_INR (positive INR).
 """
 import json
 import os
@@ -50,31 +51,55 @@ def read_xlsx(path):
             rows = tree.getroot().findall(".//main:row", NS)
             header_seen = False
             for row in rows:
-                cells = []
+                # Map cells by column letter so missing cells don't shift indices
+                row_cells = {}
                 for c in row.findall("main:c", NS):
+                    ref = c.get("r", "")  # e.g. "A2"
+                    col = "".join(ch for ch in ref if ch.isalpha())
                     typ = c.get("t")
-                    v = c.find("main:v", NS)
-                    val = v.text if v is not None else ""
-                    if typ == "s" and val != "":
-                        val = strings[int(val)]
-                    cells.append(val)
-                if not cells or not cells[0]:
+                    val = ""
+                    if typ == "inlineStr":
+                        # <c><is><t>text</t></is></c>
+                        t = c.find("main:is/main:t", NS)
+                        if t is not None and t.text is not None:
+                            val = t.text
+                    else:
+                        v = c.find("main:v", NS)
+                        raw = v.text if v is not None else ""
+                        if typ == "s" and raw != "":
+                            val = strings[int(raw)]
+                        else:
+                            val = raw
+                    row_cells[col] = val
+                if not row_cells.get("A"):
                     continue
                 if not header_seen:
                     header_seen = True
                     continue
-                code = str(cells[0]).strip().upper()
-                if not code or len(cells) < 2:
+                code = str(row_cells["A"]).strip().upper()
+                if not code:
                     continue
+                pct_raw = row_cells.get("B", "")
+                flat_raw = row_cells.get("C", "")
+                pct = None
+                flat = None
                 try:
-                    pct = float(cells[1])
+                    if pct_raw not in (None, ""):
+                        pct = float(pct_raw)
                 except (ValueError, TypeError):
-                    print(f"  ! Skipping {code}: '{cells[1]}' is not a number", file=sys.stderr)
-                    continue
-                if pct < 0 or pct > 1:
-                    print(f"  ! Skipping {code}: percentage {pct} not in 0..1", file=sys.stderr)
-                    continue
-                coupons[code] = pct
+                    print(f"  ! {code}: invalid percentage '{pct_raw}' — ignored", file=sys.stderr)
+                try:
+                    if flat_raw not in (None, ""):
+                        flat = float(flat_raw)
+                except (ValueError, TypeError):
+                    print(f"  ! {code}: invalid flat price '{flat_raw}' — ignored", file=sys.stderr)
+
+                if flat is not None and flat > 0:
+                    coupons[code] = {"type": "flat_inr", "value": flat}
+                elif pct is not None and 0 <= pct <= 1:
+                    coupons[code] = {"type": "percent", "value": pct}
+                else:
+                    print(f"  ! Skipping {code}: needs Discount_Percentage (0..1) OR Flat_Price_INR (>0)", file=sys.stderr)
     return coupons
 
 

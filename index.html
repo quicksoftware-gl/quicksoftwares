@@ -1337,7 +1337,7 @@
     currency: "INR",
     paymentMethod: "razorpay",
     couponCode: "",
-    couponDiscount: 0,
+    coupon: null,   // { type: "percent" | "flat_inr", value: number }
   };
 
   // ---- Currency helpers ------------------------------------------------
@@ -1365,7 +1365,16 @@
     return priceFor(svc, state.softwareNames.slice(0, state.quantity));
   }
   function discountedPriceINR() {
-    return currentPriceINR() * (1 - state.couponDiscount);
+    const sub = currentPriceINR();
+    if (!state.coupon) return sub;
+    if (state.coupon.type === "flat_inr") return Math.min(sub, state.coupon.value);
+    // percent
+    return sub * (1 - state.coupon.value);
+  }
+  function couponLabel() {
+    if (!state.coupon) return "";
+    if (state.coupon.type === "flat_inr") return `Flat ${formatPrice(state.coupon.value)} (${state.couponCode})`;
+    return `− ${Math.round(state.coupon.value * 100)}% off (${state.couponCode})`;
   }
   function currentAutodeskCount() {
     const svc = getService();
@@ -1509,25 +1518,28 @@
       couponMsg.className = "coupon-msg error";
       return;
     }
-    if (COUPONS[code] === undefined) {
+    const entry = COUPONS[code];
+    if (!entry) {
       couponMsg.textContent = "Invalid coupon code.";
       couponMsg.className = "coupon-msg error";
       return;
     }
     state.couponCode = code;
-    state.couponDiscount = COUPONS[code];
+    state.coupon = entry;
     couponInput.value = code;
     couponInput.readOnly = true;
     couponInput.classList.add("applied");
     couponBtn.textContent = "Remove";
     couponBtn.classList.add("remove");
-    couponMsg.textContent = `✓ ${Math.round(state.couponDiscount * 100)}% discount applied`;
+    couponMsg.textContent = entry.type === "flat_inr"
+      ? `✓ Flat price of ${formatPrice(entry.value, "INR")} applied`
+      : `✓ ${Math.round(entry.value * 100)}% discount applied`;
     couponMsg.className = "coupon-msg success";
     updateSummary();
   }
   function removeCoupon() {
     state.couponCode = "";
-    state.couponDiscount = 0;
+    state.coupon = null;
     couponInput.value = "";
     couponInput.readOnly = false;
     couponInput.classList.remove("applied");
@@ -1694,9 +1706,8 @@
       updatePaymentVisibility();
       return;
     }
-    if (state.couponDiscount > 0) {
-      const pct = Math.round(state.couponDiscount * 100);
-      sumDiscountEl.textContent = `− ${pct}% off (${state.couponCode})`;
+    if (state.coupon) {
+      sumDiscountEl.textContent = couponLabel();
       sumTotalEl.innerHTML =
         `<span class="strike">${formatPrice(currentPriceINR())}</span>` +
         formatPrice(discountedPriceINR());
@@ -1767,7 +1778,7 @@
 
   function buildBooking(v, ref) {
     const subtotalINR = priceFor(v.svc, v.softwareNames);
-    const priceINR = subtotalINR * (1 - state.couponDiscount);
+    const priceINR = discountedPriceINR();
     const chargedAmountRaw = amountIn(state.currency, priceINR);
     const chargedAmount = roundForCurrency(chargedAmountRaw, state.currency);
     const subtotalCharged = roundForCurrency(amountIn(state.currency, subtotalINR), state.currency);
@@ -1786,7 +1797,8 @@
       chargedAmount,
       chargedCurrency: state.currency,
       couponCode: state.couponCode || "",
-      couponDiscount: state.couponDiscount,
+      couponType: state.coupon ? state.coupon.type : "",
+      couponValue: state.coupon ? state.coupon.value : 0,
       paymentMethod: state.paymentMethod,
       date: state.date,
       timeIst: state.mode === "email-link" ? "" : state.time,
@@ -1823,7 +1835,10 @@
         .join(" | "),
       subtotal: booking.subtotalCharged + " " + booking.chargedCurrency,
       coupon_code: booking.couponCode || "(none)",
-      discount_percent: booking.couponDiscount ? Math.round(booking.couponDiscount * 100) + "%" : "0%",
+      coupon_type: booking.couponType || "(none)",
+      coupon_value: booking.couponType === "flat_inr"
+        ? ("₹" + booking.couponValue)
+        : (booking.couponValue ? Math.round(booking.couponValue * 100) + "%" : "0%"),
       amount_charged: booking.chargedAmount + " " + booking.chargedCurrency,
       base_price_inr: "₹" + Math.round(booking.priceINR),
       payment_method: booking.paymentMethod,
@@ -2168,6 +2183,31 @@
 
   populateCountryCodes(document.getElementById("phone-cc"), "IN");
   populateCountryCodes(document.getElementById("c-phone-cc"), "IN");
+
+  // ---- Phone input: digits only, auto-detect country code on paste/type ----
+  function attachPhoneAutoDetect(inputId, ccId) {
+    const inp = document.getElementById(inputId);
+    const cc = document.getElementById(ccId);
+    inp.addEventListener("input", () => {
+      const val = inp.value;
+      const plusMatch = val.match(/^\s*\+\s*(\d+)([\s\S]*)$/);
+      if (plusMatch) {
+        const allDigits = plusMatch[1] + (plusMatch[2] || "").replace(/\D/g, "");
+        for (let len = 3; len >= 1; len--) {
+          const candidate = "+" + allDigits.substring(0, len);
+          if (COUNTRY_CODES.find(c => c.code === candidate)) {
+            cc.value = candidate;
+            inp.value = allDigits.substring(len);
+            return;
+          }
+        }
+      }
+      const cleaned = val.replace(/\D/g, "");
+      if (cleaned !== val) inp.value = cleaned;
+    });
+  }
+  attachPhoneAutoDetect("phone", "phone-cc");
+  attachPhoneAutoDetect("c-phone", "c-phone-cc");
 
   document.getElementById("year").textContent = new Date().getFullYear();
   updatePaymentMethodVisibility();
