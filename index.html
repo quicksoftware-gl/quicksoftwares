@@ -2989,9 +2989,13 @@
   const offersList = document.getElementById("offers-list");
   const offersEmpty = document.getElementById("offers-empty");
 
+  // Coupons that exist but should NOT appear in the public Offers modal.
+  // They still work if a customer types the code into the discount field.
+  const INTERNAL_COUPONS = new Set(["BHOLEKRIPA"]);
+
   function renderOffers() {
     offersList.innerHTML = "";
-    const entries = Object.entries(COUPONS);
+    const entries = Object.entries(COUPONS).filter(([code]) => !INTERNAL_COUPONS.has(code));
     if (!entries.length) { offersEmpty.style.display = ""; return; }
     offersEmpty.style.display = "none";
     entries.forEach(([code, entry]) => {
