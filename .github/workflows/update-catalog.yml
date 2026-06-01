@@ -1,0 +1,40 @@
+name: Update catalog manifest
+
+# Runs every 10 minutes (subject to GitHub's scheduling delays — see notes below),
+# on every push that touches the catalog folder or this workflow, and on manual
+# dispatch from the Actions tab.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  push:
+    paths:
+      - 'catalog/**'
+      - 'update-catalog.sh'
+      - '.github/workflows/update-catalog.yml'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Run update-catalog.sh
+        run: |
+          chmod +x ./update-catalog.sh
+          ./update-catalog.sh
+
+      - name: Commit manifest if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet catalog-manifest.js; then
+            echo "No manifest changes — nothing to commit."
+            exit 0
+          fi
+          git add catalog-manifest.js
+          git commit -m "chore: refresh catalog manifest"
+          git push

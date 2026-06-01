@@ -1,0 +1,1840 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quick Softwares — Book a software installation</title>
+<link rel="icon" type="image/png" href="logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="catalog-manifest.js"></script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #ffffff;
+    --muted: #64748b;
+    --muted-2: #94a3b8;
+    --text: #0f172a;
+    --text-2: #334155;
+    --accent: #4f46e5;
+    --accent-2: #7c3aed;
+    --accent-hover: #4338ca;
+    --accent-soft: #eef2ff;
+    --accent-grad: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --border: #e2e8f0;
+    --border-hover: #c7d2fe;
+    --ok: #16a34a;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow: 0 4px 16px rgba(15, 23, 42, 0.06), 0 16px 40px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.14);
+    --font: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    color: var(--text);
+    background:
+      radial-gradient(1200px 600px at 0% 0%, #eef2ff 0%, transparent 60%),
+      radial-gradient(1000px 500px at 100% 10%, #faf5ff 0%, transparent 60%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    min-height: 100vh;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+  }
+  header.hero {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(800px 400px at 15% 20%, rgba(124, 58, 237, 0.55), transparent 60%),
+      radial-gradient(700px 400px at 85% 100%, rgba(59, 130, 246, 0.45), transparent 60%),
+      linear-gradient(135deg, #1e1b4b 0%, #312e81 35%, #4f46e5 100%);
+    color: #fff;
+    padding: 18px 24px 84px;
+    text-align: center;
+  }
+  header.hero::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, rgba(248, 250, 252, 0.7));
+    pointer-events: none;
+  }
+  .hero-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+    text-align: left;
+  }
+  .brand-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+  .contact-trigger {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: background 0.15s, transform 0.05s;
+    z-index: 5;
+    white-space: nowrap;
+  }
+  .contact-trigger:hover { background: rgba(255, 255, 255, 0.32); }
+  .contact-trigger:active { transform: translateY(1px); }
+  @media (max-width: 480px) {
+    .contact-trigger { padding: 8px 12px; font-size: 12px; }
+    .hero-actions { gap: 6px; }
+  }
+  .modal-panel-wide { max-width: 960px; }
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .catalog-item {
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+  }
+  .catalog-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
+    border-color: var(--border-hover);
+  }
+  .catalog-item img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    background: #f1f5f9;
+  }
+  .catalog-item .ci-caption {
+    padding: 10px 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-align: center;
+    background: #fff;
+    border-top: 1px solid var(--border);
+    line-height: 1.35;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.93);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 60px 20px 30px;
+  }
+  .lightbox.visible { display: flex; }
+  .lightbox img {
+    max-width: 100%;
+    max-height: 78vh;
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    object-fit: contain;
+  }
+  .lightbox-caption {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 16px;
+    letter-spacing: -0.01em;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 24px;
+    line-height: 1;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .lightbox-close:hover { background: rgba(255, 255, 255, 0.28); }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    display: none;
+    z-index: 1000;
+    padding: 32px 16px;
+    overflow-y: auto;
+  }
+  .modal-overlay.visible { display: block; }
+  .modal-panel {
+    background: #fff;
+    border-radius: 18px;
+    padding: 36px 32px 28px;
+    max-width: 560px;
+    width: 100%;
+    margin: 16px auto;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    animation: pop 0.18s ease-out;
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  }
+  .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    background: #f1f5f9;
+    border-radius: 50%;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--muted);
+    transition: background 0.15s, color 0.15s;
+  }
+  .modal-close:hover { background: #e2e8f0; color: var(--text); }
+  header.hero h1 {
+    margin: 12px 0 14px;
+    font-size: clamp(30px, 4.4vw, 46px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+  header.hero p {
+    margin: 0 auto;
+    max-width: 640px;
+    opacity: 0.92;
+    font-size: clamp(15px, 1.6vw, 17px);
+    font-weight: 400;
+  }
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    backdrop-filter: blur(6px);
+    margin-bottom: 4px;
+  }
+  .hero-pill::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.25);
+  }
+  .logo {
+    display: block;
+    width: 56px;
+    height: 56px;
+    margin: 0;
+    background: #fff;
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+    object-fit: contain;
+    flex: 0 0 auto;
+  }
+  .brand {
+    font-size: 20px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.95;
+    margin: 0;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @media (max-width: 480px) {
+    .logo { width: 44px; height: 44px; border-radius: 12px; padding: 5px; }
+    .brand { font-size: 15px; letter-spacing: 0.08em; }
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .section-head h2 { margin-bottom: 4px; }
+  .section-head .section-sub { margin: 0; }
+  .currency-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 150px;
+  }
+  .currency-picker label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 0;
+    font-weight: 600;
+  }
+  .currency-picker select {
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  main {
+    max-width: 980px;
+    margin: -40px auto 64px;
+    padding: 0 16px;
+    position: relative;
+    z-index: 2;
+  }
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 22px;
+    border: 1px solid rgba(15, 23, 42, 0.04);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  h2 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    background: var(--accent-grad);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  }
+  .section-sub { color: var(--muted); margin: 0 0 22px; font-size: 14.5px; padding-left: 44px; }
+  @media (max-width: 520px) {
+    .card { padding: 24px 20px; }
+    .section-sub { padding-left: 0; }
+  }
+  .services {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .service {
+    position: relative;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    cursor: pointer;
+    transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+    background: #fff;
+    user-select: none;
+  }
+  .service:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(79, 70, 229, 0.08);
+  }
+  .service.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15), 0 12px 28px rgba(79, 70, 229, 0.12);
+  }
+  .service.selected::after {
+    content: "✓";
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 22px;
+    height: 22px;
+    background: var(--accent-grad);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .service .name { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+  .service .desc { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
+  .service .price {
+    margin-top: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+  .software-details { display: none; margin-top: 8px; }
+  .software-details.visible { display: block; }
+  .divider { border: 0; border-top: 1px solid var(--border); margin: 20px 0 16px; }
+  .tier-hint {
+    font-size: 13px;
+    color: var(--text-2);
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    line-height: 1.55;
+  }
+  .tier-hint.unlimited { background: #ecfdf5; color: #065f46; font-weight: 600; }
+  .tier-hint.autodesk  { background: #fef3c7; color: #92400e; font-weight: 600; }
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 26px;
+  }
+  .checkbox-label input { width: auto; margin: 0; }
+  #software-names .field { margin-bottom: 10px; }
+  .sw-tag {
+    display: none;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #92400e;
+    background: #fef3c7;
+    padding: 4px 8px;
+    border-radius: 999px;
+    width: fit-content;
+  }
+  .sw-tag.visible { display: inline-block; }
+  .email-link-note {
+    background: #e0f2fe;
+    border: 1px solid #bae6fd;
+    color: #075985;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) { .row { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="number"], textarea, select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14.5px;
+    font-family: inherit;
+    color: var(--text);
+    background: #fff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input::placeholder, textarea::placeholder { color: var(--muted-2); }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.13);
+  }
+  label { color: var(--text-2); }
+  textarea { min-height: 80px; resize: vertical; }
+  .field { margin-bottom: 14px; }
+  .phone-input { display: flex; gap: 6px; }
+  .phone-input select {
+    flex: 0 0 118px;
+    padding-left: 8px;
+    padding-right: 6px;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .phone-input input { flex: 1; }
+  .slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .slot {
+    text-align: center;
+    padding: 11px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .slot:hover:not(.disabled) {
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+  .slot.selected {
+    background: var(--accent-grad);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(79, 70, 229, 0.32);
+  }
+  .slot.disabled {
+    background: #f8fafc;
+    color: #cbd5e1;
+    cursor: not-allowed;
+  }
+  .pay-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 520px) { .pay-methods { grid-template-columns: 1fr; } }
+  .pay-method {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    background: #fff;
+    user-select: none;
+    transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+  }
+  .pay-method:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+  .pay-method.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  }
+  .pay-method .pm-name { font-weight: 700; letter-spacing: -0.01em; }
+  .pay-method .pm-desc { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%);
+    border: 1px solid rgba(124, 58, 237, 0.12);
+    border-radius: 12px;
+    margin-bottom: 18px;
+    font-size: 14px;
+  }
+  .summary .total {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: var(--accent-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--accent-grad);
+    color: #fff;
+    border: 0;
+    padding: 15px 22px;
+    border-radius: 12px;
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    width: 100%;
+    box-shadow: 0 8px 22px rgba(79, 70, 229, 0.32);
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(79, 70, 229, 0.4); }
+  .btn:active { transform: translateY(1px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.32); }
+  .btn:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
+  .notice {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 10px;
+  }
+  .error {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    display: none;
+  }
+  .error.visible { display: block; }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12.5px;
+    padding: 28px 20px 32px;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .social-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    color: #fff;
+    text-decoration: none;
+    transition: transform 0.18s, box-shadow 0.18s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  .social-links a:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+  }
+  .social-links a.ig {
+    background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  }
+  .social-links a.yt { background: #ff0000; }
+  .social-links a svg { width: 20px; height: 20px; fill: currentColor; }
+  .success {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .success.visible { display: block; }
+  .success h3 { margin: 0 0 6px; font-size: 16px; }
+  .success .ref { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; }
+  #paypal-button-container { margin-top: 12px; }
+  #paypal-button-container:empty { display: none; }
+  .pay-loading {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 14px;
+    display: none;
+  }
+  .pay-loading.visible { display: block; }
+</style>
+<!-- Razorpay Checkout: https://razorpay.com/docs/payments/payment-gateway/web-integration/standard/ -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-top">
+    <div class="brand-block">
+      <img src="logo.png" alt="Quick Softwares logo" class="logo" />
+      <div class="brand">Quick Softwares</div>
+    </div>
+    <div class="hero-actions">
+      <button type="button" class="contact-trigger" id="catalog-open">Software Catalog</button>
+      <button type="button" class="contact-trigger" id="contact-open">Contact us</button>
+    </div>
+  </div>
+  <span class="hero-pill">Available now</span>
+  <h1>Book a software installation</h1>
+  <p>Pick a service, choose a convenient time, and we'll handle the rest. Global remote installation service.</p>
+</header>
+
+<main>
+  <!-- Step 1: Service -->
+  <section class="card">
+    <div class="section-head">
+      <div>
+        <h2><span class="step-num">1</span> Choose a service</h2>
+        <p class="section-sub">Select one of the services below.</p>
+      </div>
+      <div class="currency-picker">
+        <label for="currency">Show prices in</label>
+        <select id="currency">
+          <option value="INR">INR &nbsp;₹</option>
+          <option value="USD">USD &nbsp;$</option>
+        </select>
+      </div>
+    </div>
+    <div class="services" id="services"></div>
+
+    <div id="software-details" class="software-details">
+      <hr class="divider" />
+      <div class="field">
+        <label for="qty">Number of softwares required *</label>
+        <input type="number" id="qty" min="1" step="1" value="1" />
+      </div>
+      <div class="tier-hint" id="tier-hint"></div>
+      <div id="software-names"></div>
+    </div>
+  </section>
+
+  <!-- Step 2: Date & time -->
+  <section class="card">
+    <h2><span class="step-num">2</span> Pick a date &amp; time</h2>
+    <p class="section-sub">Choose a date, then select an available 1-hour slot.</p>
+    <div class="row">
+      <div class="field">
+        <label for="date">Date</label>
+        <input type="date" id="date" />
+      </div>
+      <div class="field">
+        <label for="mode">Installation mode</label>
+        <select id="mode">
+          <option value="remote">Remote (over screen-share)</option>
+          <option value="email-link">Link via email</option>
+        </select>
+      </div>
+    </div>
+    <div id="time-slot-section">
+      <label>Time slot</label>
+      <div class="slots" id="slots"></div>
+    </div>
+    <div id="email-link-note" class="email-link-note" style="display: none;">
+      We will provide you the setup link within 3hrs.
+    </div>
+  </section>
+
+  <!-- Step 3: Customer details -->
+  <section class="card">
+    <h2><span class="step-num">3</span> Your details</h2>
+    <p class="section-sub">We'll use these to confirm your booking and reach you before the appointment.</p>
+    <div class="row">
+      <div class="field">
+        <label for="name">Full name *</label>
+        <input type="text" id="name" autocomplete="name" required />
+      </div>
+      <div class="field">
+        <label for="email">Email *</label>
+        <input type="email" id="email" autocomplete="email" required />
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="phone">Phone *</label>
+        <div class="phone-input">
+          <select id="phone-cc" aria-label="Country code"></select>
+          <input type="tel" id="phone" autocomplete="tel" required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="device">Device / OS</label>
+        <input type="text" id="device" placeholder="e.g. Windows 11 laptop, MacBook Air M2" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="notes">Notes for the technician</label>
+      <textarea id="notes" placeholder="Anything we should know? License keys, special requests, etc."></textarea>
+    </div>
+  </section>
+
+  <!-- Step 4: Pay -->
+  <section class="card">
+    <h2><span class="step-num">4</span> Confirm &amp; pay</h2>
+    <div class="error" id="error"></div>
+    <div class="success" id="success">
+      <h3>Booking confirmed</h3>
+      <div>Reference: <span class="ref" id="success-ref"></span></div>
+      <div>Payment ID: <span class="ref" id="success-pid"></span></div>
+      <div style="margin-top: 8px; font-size: 13px;">A confirmation has been sent to our team. We'll contact you shortly to confirm the appointment.</div>
+    </div>
+    <div class="summary">
+      <div>
+        <div><strong id="sum-service">No service selected</strong></div>
+        <div style="color: var(--muted); font-size: 13px;" id="sum-when">Pick a date and time</div>
+      </div>
+      <div class="total" id="sum-total">—</div>
+    </div>
+
+    <label style="margin-bottom: 8px;">Payment method</label>
+    <div class="pay-methods" id="pay-methods">
+      <div class="pay-method selected" data-method="razorpay">
+        <div class="pm-name">Razorpay</div>
+        <div class="pm-desc">Cards, UPI, netbanking, wallets · INR</div>
+      </div>
+      <div class="pay-method" data-method="paypal">
+        <div class="pm-name">PayPal</div>
+        <div class="pm-desc">PayPal balance & cards · USD</div>
+      </div>
+    </div>
+
+    <button class="btn" id="pay">Continue to payment</button>
+    <div class="pay-loading" id="pay-loading">Preparing payment…</div>
+    <div id="paypal-button-container"></div>
+    <p class="notice">
+      Razorpay processes INR payments; PayPal processes USD payments. The currency dropdown will switch automatically.
+    </p>
+  </section>
+
+</main>
+
+<!-- Software Catalog modal -->
+<div class="modal-overlay" id="catalog-modal" role="dialog" aria-modal="true" aria-labelledby="catalog-title">
+  <div class="modal-panel modal-panel-wide">
+    <button type="button" class="modal-close" id="catalog-close" aria-label="Close">&times;</button>
+    <h2 id="catalog-title">Software Catalog</h2>
+    <p class="section-sub" style="padding-left: 0;">All software we install. Click any item for a closer look.</p>
+    <div id="catalog-grid" class="catalog-grid"></div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
+  <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close preview">&times;</button>
+  <img id="lightbox-img" src="" alt="" />
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
+
+<!-- Contact us modal -->
+<div class="modal-overlay" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-title">
+  <div class="modal-panel">
+    <button type="button" class="modal-close" id="contact-close" aria-label="Close">&times;</button>
+    <h2 id="contact-title">Contact us</h2>
+    <p class="section-sub">Have a question or special request? Send us a message and we'll get back to you shortly.</p>
+    <div class="error" id="contact-error"></div>
+    <div class="success" id="contact-success">
+      <h3>Message sent</h3>
+      <div>Thanks for reaching out. We'll respond as soon as possible.</div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="c-name">Full name *</label>
+        <input type="text" id="c-name" autocomplete="name" required />
+      </div>
+      <div class="field">
+        <label for="c-email">Email *</label>
+        <input type="email" id="c-email" autocomplete="email" required />
+      </div>
+    </div>
+    <div class="field">
+      <label for="c-phone">Phone *</label>
+      <div class="phone-input">
+        <select id="c-phone-cc" aria-label="Country code"></select>
+        <input type="tel" id="c-phone" autocomplete="tel" required />
+      </div>
+    </div>
+    <div class="field">
+      <label for="c-query">Your query/Feedback *</label>
+      <textarea id="c-query" placeholder="How can we help?" required></textarea>
+    </div>
+    <button class="btn" id="contact-submit">Send message</button>
+  </div>
+</div>
+
+<footer>
+  <div class="social-links">
+    <a class="ig" href="https://www.instagram.com/quicksoftwares_global?igsh=MTI2dDcyb3kweDZ1NA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+    <a class="yt" href="https://youtube.com/@quicksoftwares-prt?feature=shared" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+  </div>
+  &copy; <span id="year"></span> Quick Softwares &middot; All bookings subject to availability.
+</footer>
+
+<script>
+  // ============================================================
+  // CONFIGURATION — fill these in before going live
+  // ============================================================
+
+  // ---- Razorpay --------------------------------------------------------
+  // Get this from https://dashboard.razorpay.com/app/keys (Key ID, not Key Secret).
+  // Use the "rzp_test_..." key for testing, "rzp_live_..." key for production.
+  const RAZORPAY_KEY_ID = "rzp_test_Sw1CHql3DlRsjh";
+
+  // ---- PayPal ----------------------------------------------------------
+  // Get this from https://developer.paypal.com → My Apps & Credentials → Client ID.
+  // Use the "sandbox" Client ID for testing, "live" Client ID for production.
+  const PAYPAL_CLIENT_ID = "Ady38Sa7yIrNs80ZfkKIDdDrO6Fj_sfbuX2ZqOPzfvyVOkB2E9syU7PyJ-gIylmzXqfidUd5GBLlLQF_";
+
+  // ---- Web3Forms (email delivery) --------------------------------------
+  // Free form-to-email service. Register quicksoftwares.global@gmail.com at
+  // https://web3forms.com and paste the access key below. Submissions land
+  // in that inbox automatically — no SMTP setup needed.
+  const WEB3FORMS_ACCESS_KEY = "a3b55082-24f0-4070-906b-5f5ce2ba1a09";
+  const NOTIFY_EMAIL = "quicksoftwares.global@gmail.com";
+
+  // ---- Currency / FX rate ---------------------------------------------
+  // Prices are stored in INR. USD is computed from this rate. Edit when needed.
+  // (No live API call — fully offline.)
+  const USD_PER_INR = 1 / 83;   // i.e. 1 USD ≈ 83 INR
+
+  const MERCHANT_NAME = "Quick Softwares";
+
+  // ---- Country dialling codes (alphabetical by country name) ----------
+  // Flags rendered via ISO-2 regional-indicator Unicode (works on Mac/iOS;
+  // falls back to "IN", "US", etc. on systems without emoji-flag fonts).
+  const COUNTRY_CODES = [
+    { iso: "IN", code: "+91",  name: "India" },
+    { iso: "US", code: "+1",   name: "United States" },
+    { iso: "GB", code: "+44",  name: "United Kingdom" },
+    { iso: "AE", code: "+971", name: "UAE" },
+    { iso: "SA", code: "+966", name: "Saudi Arabia" },
+    { iso: "AU", code: "+61",  name: "Australia" },
+    { iso: "CA", code: "+1",   name: "Canada" },
+    { iso: "SG", code: "+65",  name: "Singapore" },
+    { iso: "DE", code: "+49",  name: "Germany" },
+    { iso: "FR", code: "+33",  name: "France" },
+    { iso: "ES", code: "+34",  name: "Spain" },
+    { iso: "IT", code: "+39",  name: "Italy" },
+    { iso: "NL", code: "+31",  name: "Netherlands" },
+    { iso: "CH", code: "+41",  name: "Switzerland" },
+    { iso: "BE", code: "+32",  name: "Belgium" },
+    { iso: "AT", code: "+43",  name: "Austria" },
+    { iso: "SE", code: "+46",  name: "Sweden" },
+    { iso: "NO", code: "+47",  name: "Norway" },
+    { iso: "DK", code: "+45",  name: "Denmark" },
+    { iso: "FI", code: "+358", name: "Finland" },
+    { iso: "IE", code: "+353", name: "Ireland" },
+    { iso: "PT", code: "+351", name: "Portugal" },
+    { iso: "PL", code: "+48",  name: "Poland" },
+    { iso: "CZ", code: "+420", name: "Czech Republic" },
+    { iso: "GR", code: "+30",  name: "Greece" },
+    { iso: "HU", code: "+36",  name: "Hungary" },
+    { iso: "RO", code: "+40",  name: "Romania" },
+    { iso: "RU", code: "+7",   name: "Russia" },
+    { iso: "TR", code: "+90",  name: "Turkey" },
+    { iso: "IL", code: "+972", name: "Israel" },
+    { iso: "EG", code: "+20",  name: "Egypt" },
+    { iso: "ZA", code: "+27",  name: "South Africa" },
+    { iso: "NG", code: "+234", name: "Nigeria" },
+    { iso: "KE", code: "+254", name: "Kenya" },
+    { iso: "MY", code: "+60",  name: "Malaysia" },
+    { iso: "ID", code: "+62",  name: "Indonesia" },
+    { iso: "TH", code: "+66",  name: "Thailand" },
+    { iso: "PH", code: "+63",  name: "Philippines" },
+    { iso: "VN", code: "+84",  name: "Vietnam" },
+    { iso: "JP", code: "+81",  name: "Japan" },
+    { iso: "KR", code: "+82",  name: "South Korea" },
+    { iso: "CN", code: "+86",  name: "China" },
+    { iso: "HK", code: "+852", name: "Hong Kong" },
+    { iso: "TW", code: "+886", name: "Taiwan" },
+    { iso: "NZ", code: "+64",  name: "New Zealand" },
+    { iso: "BR", code: "+55",  name: "Brazil" },
+    { iso: "MX", code: "+52",  name: "Mexico" },
+    { iso: "AR", code: "+54",  name: "Argentina" },
+    { iso: "CL", code: "+56",  name: "Chile" },
+    { iso: "PK", code: "+92",  name: "Pakistan" },
+    { iso: "BD", code: "+880", name: "Bangladesh" },
+    { iso: "LK", code: "+94",  name: "Sri Lanka" },
+    { iso: "NP", code: "+977", name: "Nepal" },
+  ];
+  function isoToFlag(iso) {
+    return iso.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
+  }
+  function populateCountryCodes(selectEl, defaultIso = "IN") {
+    selectEl.innerHTML = "";
+    COUNTRY_CODES.forEach((c, i) => {
+      const opt = document.createElement("option");
+      opt.value = c.code;
+      opt.dataset.iso = c.iso;
+      opt.textContent = `${isoToFlag(c.iso)} ${c.code} ${c.name}`;
+      if (c.iso === defaultIso) opt.selected = true;
+      selectEl.appendChild(opt);
+    });
+  }
+
+  // ============================================================
+  // SERVICE CATALOG — prices in INR
+  // Tier pricing: price applies when quantity <= upTo.
+  // The last tier (upTo: Infinity) is the "unlimited" tier.
+  // ============================================================
+  const SERVICES = [
+    {
+      id: "win-soft",
+      name: "Windows Softwares",
+      desc: "Install standard Windows softwares",
+      tiers: [
+        { upTo: 1,        price: 1500 },
+        { upTo: 2,        price: 2500 },
+        { upTo: 3,        price: 3500 },
+        { upTo: Infinity, price: 4000 },
+      ],
+      allowAutodesk: false,
+    },
+    {
+      id: "mac-soft",
+      name: "Macbook Softwares",
+      desc: "Install standard macOS softwares",
+      tiers: [
+        { upTo: 1,        price: 2500 },
+        { upTo: 2,        price: 3000 },
+        { upTo: 3,        price: 4000 },
+        { upTo: Infinity, price: 5500 },
+      ],
+      allowAutodesk: true,
+      autodeskPrice: 7500,
+    },
+  ];
+
+  // Autodesk software auto-detection. Match against the customer-entered name.
+  const AUTODESK_PATTERNS = [
+    /\bautocad\b/i,
+    /\b3ds\s*max\b/i,
+    /\bmax\b/i,
+    /\brevit\b/i,
+  ];
+  function isAutodeskName(name) {
+    if (!name) return false;
+    return AUTODESK_PATTERNS.some(p => p.test(name));
+  }
+
+  function tierPrice(svc, qty) {
+    for (const t of svc.tiers) {
+      if (qty <= t.upTo) return t.price;
+    }
+    return svc.tiers[svc.tiers.length - 1].price;
+  }
+
+  // Compute the total price by walking the entered software names.
+  // For services that allow Autodesk detection: each Autodesk-named software
+  // costs the autodeskPrice; the remaining softwares are charged the tier
+  // price for their count. For other services, the full quantity is tier-priced.
+  function priceFor(svc, names) {
+    const qty = Math.max(1, names.length || 1);
+    if (!svc.allowAutodesk) return tierPrice(svc, qty);
+    const autodeskCount = names.filter(isAutodeskName).length;
+    const otherCount = qty - autodeskCount;
+    let total = autodeskCount * svc.autodeskPrice;
+    if (otherCount > 0) total += tierPrice(svc, otherCount);
+    return total;
+  }
+  function startingPrice(svc) { return svc.tiers[0].price; }
+  function unlimitedTier(svc) { return svc.tiers[svc.tiers.length - 1]; }
+  function unlimitedMsg(svc) {
+    return `Unlimited softwares at ${formatPrice(unlimitedTier(svc).price)}`;
+  }
+
+  // Slot times are stored as IST (the business operates in IST).
+  // They are converted to GMT for display when the customer picks USD.
+  const TIME_SLOTS_IST = [
+    "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00",
+    "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00",
+  ];
+
+  const CURRENCY_META = {
+    INR: { locale: "en-IN", digits: 0, symbol: "₹", timezone: "IST" },
+    USD: { locale: "en-US", digits: 2, symbol: "$", timezone: "GMT" },
+  };
+
+  // IST is UTC+5:30. Convert an IST "HH:MM" string to its GMT counterpart.
+  function istToGmt(istHHMM) {
+    const [h, m] = istHHMM.split(":").map(Number);
+    let mins = h * 60 + m - (5 * 60 + 30);
+    if (mins < 0) mins += 24 * 60;
+    const gh = Math.floor(mins / 60), gm = mins % 60;
+    return String(gh).padStart(2, "0") + ":" + String(gm).padStart(2, "0");
+  }
+  function formatSlotLabel(istSlot, currency) {
+    const tz = CURRENCY_META[currency].timezone;
+    const t = currency === "USD" ? istToGmt(istSlot) : istSlot;
+    return t + " " + tz;
+  }
+  // The absolute UTC moment of an IST slot on a given local date string.
+  function slotMomentMs(istSlot, dateStr) {
+    const [yyyy, mm, dd] = dateStr.split("-").map(Number);
+    const [hh, mi] = istSlot.split(":").map(Number);
+    return Date.UTC(yyyy, mm - 1, dd, hh, mi) - (5 * 60 + 30) * 60 * 1000;
+  }
+
+  // ---- State -----------------------------------------------------------
+  const state = {
+    serviceId: null,
+    quantity: 1,
+    softwareNames: [""],
+    date: "",
+    time: "",
+    mode: "remote",
+    currency: "INR",
+    paymentMethod: "razorpay",
+  };
+
+  // ---- Currency helpers ------------------------------------------------
+  function amountIn(currency, priceINR) {
+    if (currency === "INR") return priceINR;
+    return priceINR * USD_PER_INR;
+  }
+  function roundForCurrency(amount, currency) {
+    const d = CURRENCY_META[currency].digits;
+    const f = Math.pow(10, d);
+    return Math.round(amount * f) / f;
+  }
+  function formatPrice(priceINR, currency = state.currency) {
+    const meta = CURRENCY_META[currency];
+    return new Intl.NumberFormat(meta.locale, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: meta.digits,
+      minimumFractionDigits: meta.digits,
+    }).format(roundForCurrency(amountIn(currency, priceINR), currency));
+  }
+  function currentPriceINR() {
+    const svc = getService();
+    if (!svc) return 0;
+    return priceFor(svc, state.softwareNames.slice(0, state.quantity));
+  }
+  function currentAutodeskCount() {
+    const svc = getService();
+    if (!svc || !svc.allowAutodesk) return 0;
+    return state.softwareNames.slice(0, state.quantity).filter(isAutodeskName).length;
+  }
+
+  // ---- Render services -------------------------------------------------
+  const servicesEl = document.getElementById("services");
+  const softwareDetailsEl = document.getElementById("software-details");
+  const qtyEl = document.getElementById("qty");
+  const tierHintEl = document.getElementById("tier-hint");
+  const softwareNamesEl = document.getElementById("software-names");
+
+  SERVICES.forEach(s => {
+    const el = document.createElement("div");
+    el.className = "service";
+    el.dataset.id = s.id;
+    el.innerHTML = `
+      <div class="name">${s.name}</div>
+      <div class="desc">${s.desc}</div>
+      <div class="price" data-price>From ${formatPrice(startingPrice(s))}</div>
+    `;
+    el.addEventListener("click", () => {
+      state.serviceId = s.id;
+      document.querySelectorAll(".service").forEach(n => n.classList.toggle("selected", n.dataset.id === s.id));
+      softwareDetailsEl.classList.add("visible");
+      renderSoftwareNames();
+      updateTierHint();
+      updateSummary();
+    });
+    servicesEl.appendChild(el);
+  });
+
+  function rerenderPrices() {
+    document.querySelectorAll(".service").forEach(el => {
+      const svc = SERVICES.find(s => s.id === el.dataset.id);
+      if (svc) el.querySelector("[data-price]").textContent = "From " + formatPrice(startingPrice(svc));
+    });
+    updateAutodeskTags();
+    updateTierHint();
+    updateSummary();
+  }
+
+  // ---- Software details: quantity + names -----------------------------
+  function renderSoftwareNames() {
+    softwareNamesEl.innerHTML = "";
+    const qty = state.quantity;
+    // Trim or extend the array to match quantity
+    while (state.softwareNames.length < qty) state.softwareNames.push("");
+    state.softwareNames.length = qty;
+    for (let i = 0; i < qty; i++) {
+      const wrap = document.createElement("div");
+      wrap.className = "field";
+      wrap.innerHTML = `
+        <label for="sw-${i}">Software ${i + 1} name *</label>
+        <input type="text" id="sw-${i}" data-idx="${i}" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
+        <div class="sw-tag" data-tag="${i}"></div>
+      `;
+      softwareNamesEl.appendChild(wrap);
+      const inp = wrap.querySelector("input");
+      inp.value = state.softwareNames[i] || "";
+      inp.addEventListener("input", e => {
+        state.softwareNames[Number(e.target.dataset.idx)] = e.target.value;
+        updateAutodeskTags();
+        updateTierHint();
+        updateSummary();
+      });
+    }
+    updateAutodeskTags();
+  }
+
+  // Per-input badge: "Autodesk · ₹7,500" when the name matches a pattern.
+  function updateAutodeskTags() {
+    const svc = getService();
+    const allow = svc && svc.allowAutodesk;
+    softwareNamesEl.querySelectorAll(".sw-tag").forEach(tag => {
+      const idx = Number(tag.dataset.tag);
+      const name = state.softwareNames[idx] || "";
+      if (allow && isAutodeskName(name)) {
+        tag.textContent = `Autodesk software detected · ${formatPrice(svc.autodeskPrice)}`;
+        tag.classList.add("visible");
+      } else {
+        tag.textContent = "";
+        tag.classList.remove("visible");
+      }
+    });
+  }
+
+  function updateTierHint() {
+    const svc = getService();
+    if (!svc) { tierHintEl.textContent = ""; tierHintEl.className = "tier-hint"; return; }
+    tierHintEl.className = "tier-hint";
+    const lines = [];
+    if (svc.allowAutodesk) {
+      const adCount = currentAutodeskCount();
+      const otherCount = state.quantity - adCount;
+      if (adCount > 0) {
+        tierHintEl.classList.add("autodesk");
+        lines.push(`${adCount} Autodesk software${adCount > 1 ? "s" : ""} × ${formatPrice(svc.autodeskPrice)} = ${formatPrice(adCount * svc.autodeskPrice)}.`);
+      }
+      if (otherCount > 0) {
+        lines.push(`${otherCount} other software${otherCount > 1 ? "s" : ""}: ${formatPrice(tierPrice(svc, otherCount))}.`);
+      }
+      lines.push(`Total: ${formatPrice(currentPriceINR())}.`);
+      lines.push(`${unlimitedMsg(svc)} (regular softwares only).`);
+      lines.push(`Autodesk products (AutoCAD, 3ds Max, Revit) are priced individually at ${formatPrice(svc.autodeskPrice)} each.`);
+    } else {
+      const explicitMax = svc.tiers[svc.tiers.length - 2]?.upTo ?? 0;
+      const inUnlimited = state.quantity > explicitMax;
+      if (inUnlimited) {
+        tierHintEl.classList.add("unlimited");
+        lines.push(`${unlimitedMsg(svc)} — applied (you've selected ${state.quantity}).`);
+      } else {
+        lines.push(`Current price: ${formatPrice(currentPriceINR())} for ${state.quantity} software${state.quantity === 1 ? "" : "s"}.`);
+        lines.push(`${unlimitedMsg(svc)} if you need more.`);
+      }
+    }
+    tierHintEl.textContent = lines.join(" ");
+  }
+
+  qtyEl.addEventListener("input", e => {
+    let v = parseInt(e.target.value || "1", 10);
+    if (!Number.isFinite(v) || v < 1) v = 1;
+    if (v > 99) v = 99;
+    state.quantity = v;
+    // Keep input value in sync if we clamped
+    if (String(v) !== e.target.value) e.target.value = String(v);
+    renderSoftwareNames();
+    updateTierHint();
+    updateSummary();
+  });
+
+  // ---- Currency dropdown ----------------------------------------------
+  const currencyEl = document.getElementById("currency");
+  currencyEl.addEventListener("change", e => {
+    state.currency = e.target.value;
+    // Auto-select the matching payment method for clarity
+    state.paymentMethod = state.currency === "USD" ? "paypal" : "razorpay";
+    renderPaymentMethods();
+    updatePaymentMethodVisibility();
+    rerenderPrices();
+    renderSlots();
+    resetPaymentUI();
+  });
+
+  // ---- Date input ------------------------------------------------------
+  const dateEl = document.getElementById("date");
+  const today = new Date();
+  const minDate = today.toISOString().slice(0, 10);
+  const maxDateObj = new Date(today);
+  maxDateObj.setDate(maxDateObj.getDate() + 60);
+  dateEl.min = minDate;
+  dateEl.max = maxDateObj.toISOString().slice(0, 10);
+  dateEl.addEventListener("change", () => {
+    state.date = dateEl.value;
+    state.time = "";
+    renderSlots();
+    updateSummary();
+  });
+
+  // ---- Time slots ------------------------------------------------------
+  const slotsEl = document.getElementById("slots");
+  function renderSlots() {
+    slotsEl.innerHTML = "";
+    TIME_SLOTS_IST.forEach(istSlot => {
+      const el = document.createElement("div");
+      el.className = "slot";
+      el.dataset.ist = istSlot;
+      el.textContent = formatSlotLabel(istSlot, state.currency);
+      if (state.date) {
+        if (slotMomentMs(istSlot, state.date) < Date.now() + 30 * 60 * 1000) {
+          el.classList.add("disabled");
+        }
+      } else {
+        el.classList.add("disabled");
+      }
+      // Keep the previously-picked slot highlighted across re-renders
+      if (state.time === istSlot) el.classList.add("selected");
+      el.addEventListener("click", () => {
+        if (el.classList.contains("disabled")) return;
+        state.time = istSlot;
+        document.querySelectorAll(".slot").forEach(n => n.classList.toggle("selected", n.dataset.ist === istSlot));
+        updateSummary();
+      });
+      slotsEl.appendChild(el);
+    });
+  }
+  renderSlots();
+
+  // ---- Mode ------------------------------------------------------------
+  const timeSlotSection = document.getElementById("time-slot-section");
+  const emailLinkNote = document.getElementById("email-link-note");
+  function updateModeUI() {
+    if (state.mode === "email-link") {
+      timeSlotSection.style.display = "none";
+      emailLinkNote.style.display = "";
+      state.time = "";
+      document.querySelectorAll(".slot").forEach(n => n.classList.remove("selected"));
+    } else {
+      timeSlotSection.style.display = "";
+      emailLinkNote.style.display = "none";
+    }
+    updateSummary();
+  }
+  document.getElementById("mode").addEventListener("change", e => {
+    state.mode = e.target.value;
+    updateModeUI();
+  });
+
+  // ---- Payment method picker ------------------------------------------
+  function renderPaymentMethods() {
+    document.querySelectorAll(".pay-method").forEach(el => {
+      el.classList.toggle("selected", el.dataset.method === state.paymentMethod);
+    });
+  }
+  function updatePaymentMethodVisibility() {
+    // Razorpay only supports INR in this setup, so hide it when USD is selected.
+    document.querySelectorAll(".pay-method").forEach(el => {
+      const hide = el.dataset.method === "razorpay" && state.currency === "USD";
+      el.style.display = hide ? "none" : "";
+    });
+  }
+  document.querySelectorAll(".pay-method").forEach(el => {
+    el.addEventListener("click", () => {
+      state.paymentMethod = el.dataset.method;
+      // Sync currency to whichever the method requires
+      const requiredCurrency = state.paymentMethod === "paypal" ? "USD" : "INR";
+      if (state.currency !== requiredCurrency) {
+        state.currency = requiredCurrency;
+        currencyEl.value = requiredCurrency;
+        rerenderPrices();
+      }
+      renderPaymentMethods();
+      resetPaymentUI();
+    });
+  });
+
+  // ---- Summary ---------------------------------------------------------
+  function getService() {
+    return SERVICES.find(s => s.id === state.serviceId) || null;
+  }
+  function updateSummary() {
+    const svc = getService();
+    const adCount = currentAutodeskCount();
+    const qtyLabel = svc ? ` × ${state.quantity}${adCount > 0 ? ` (${adCount} Autodesk)` : ""}` : "";
+    document.getElementById("sum-service").textContent = svc ? svc.name + qtyLabel : "No service selected";
+    let whenText;
+    if (state.mode === "email-link") {
+      whenText = state.date
+        ? `${state.date} — setup link within 3 hours (link via email)`
+        : "Pick a date";
+    } else {
+      const displayTime = state.time ? formatSlotLabel(state.time, state.currency) : "";
+      whenText = state.date && state.time
+        ? `${state.date} at ${displayTime} (${state.mode})`
+        : "Pick a date and time";
+    }
+    document.getElementById("sum-when").textContent = whenText;
+    document.getElementById("sum-total").textContent = svc ? formatPrice(currentPriceINR()) : "—";
+  }
+
+  // ---- UI helpers ------------------------------------------------------
+  const errorEl = document.getElementById("error");
+  const successEl = document.getElementById("success");
+  const payBtn = document.getElementById("pay");
+  const payLoading = document.getElementById("pay-loading");
+  const paypalContainer = document.getElementById("paypal-button-container");
+
+  function showError(msg) { errorEl.textContent = msg; errorEl.classList.add("visible"); }
+  function clearError() { errorEl.classList.remove("visible"); errorEl.textContent = ""; }
+  function resetPaymentUI() {
+    paypalContainer.innerHTML = "";
+    payBtn.style.display = "";
+    payBtn.disabled = false;
+    payBtn.textContent = "Continue to payment";
+    payLoading.classList.remove("visible");
+  }
+  function showSuccess(ref, pid) {
+    document.getElementById("success-ref").textContent = ref;
+    document.getElementById("success-pid").textContent = pid;
+    successEl.classList.add("visible");
+    payBtn.style.display = "none";
+    paypalContainer.innerHTML = "";
+    payLoading.classList.remove("visible");
+    successEl.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // ---- Validation ------------------------------------------------------
+  function validateForm() {
+    const svc = getService();
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phoneCC = document.getElementById("phone-cc").value;
+    const phoneRaw = document.getElementById("phone").value.trim();
+    const phone = phoneCC + " " + phoneRaw;
+    if (!svc) return { ok: false, error: "Please choose a service." };
+    if (!state.quantity || state.quantity < 1) return { ok: false, error: "Please enter the number of softwares required." };
+    // All software names must be filled
+    const names = state.softwareNames.slice(0, state.quantity).map(s => (s || "").trim());
+    const missingIdx = names.findIndex(n => !n);
+    if (missingIdx >= 0) return { ok: false, error: `Please enter the name of Software ${missingIdx + 1}.` };
+    if (!state.date) return { ok: false, error: "Please pick a date." };
+    if (state.mode !== "email-link" && !state.time) return { ok: false, error: "Please pick a time slot." };
+    if (!name) return { ok: false, error: "Please enter your name." };
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: "Please enter a valid email." };
+    if (phoneRaw.length < 6) return { ok: false, error: "Please enter a valid phone number." };
+    return { ok: true, svc, name, email, phone, softwareNames: names };
+  }
+
+  function buildBooking(v, ref) {
+    const priceINR = priceFor(v.svc, v.softwareNames);
+    const chargedAmountRaw = amountIn(state.currency, priceINR);
+    const chargedAmount = roundForCurrency(chargedAmountRaw, state.currency);
+    const autodeskFlags = v.svc.allowAutodesk ? v.softwareNames.map(isAutodeskName) : v.softwareNames.map(() => false);
+    return {
+      ref,
+      service: v.svc.id,
+      serviceName: v.svc.name,
+      quantity: state.quantity,
+      autodeskCount: autodeskFlags.filter(Boolean).length,
+      softwareNames: v.softwareNames,
+      autodeskFlags,
+      priceINR,
+      chargedAmount,
+      chargedCurrency: state.currency,
+      paymentMethod: state.paymentMethod,
+      date: state.date,
+      timeIst: state.mode === "email-link" ? "" : state.time,
+      timeDisplay: state.mode === "email-link"
+        ? "Setup link within 3 hours (via email)"
+        : formatSlotLabel(state.time, state.currency),
+      timezone: CURRENCY_META[state.currency].timezone,
+      mode: state.mode,
+      name: v.name,
+      email: v.email,
+      phone: v.phone,
+      device: document.getElementById("device").value.trim(),
+      notes: document.getElementById("notes").value.trim(),
+    };
+  }
+
+  // ---- Email via Web3Forms --------------------------------------------
+  async function sendEmail(booking, paymentId) {
+    if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY.startsWith("YOUR_")) {
+      console.warn("WEB3FORMS_ACCESS_KEY not set — skipping email. Booking:", booking);
+      return { skipped: true };
+    }
+    const payload = {
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject: `New booking ${booking.ref} — ${booking.serviceName}`,
+      from_name: MERCHANT_NAME + " booking site",
+      to: NOTIFY_EMAIL,
+      booking_ref: booking.ref,
+      service: booking.serviceName,
+      quantity: booking.quantity,
+      autodesk_count: booking.autodeskCount,
+      software_list: booking.softwareNames
+        .map((n, i) => `${i + 1}. ${n}${booking.autodeskFlags[i] ? " [Autodesk ₹7,500]" : ""}`)
+        .join(" | "),
+      amount_charged: booking.chargedAmount + " " + booking.chargedCurrency,
+      base_price_inr: "₹" + booking.priceINR,
+      payment_method: booking.paymentMethod,
+      payment_id: paymentId || "(unknown)",
+      date: booking.date,
+      time_ist: booking.timeIst ? booking.timeIst + " IST" : "(N/A — setup link within 3 hours)",
+      time_customer_view: booking.timeDisplay,
+      mode: booking.mode,
+      customer_name: booking.name,
+      customer_email: booking.email,
+      customer_phone: booking.phone,
+      device_os: booking.device || "(not provided)",
+      notes: booking.notes || "(none)",
+    };
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  }
+
+  // ---- Razorpay flow ---------------------------------------------------
+  function startRazorpay(booking) {
+    if (!RAZORPAY_KEY_ID || RAZORPAY_KEY_ID.startsWith("YOUR_")) {
+      showError("Set RAZORPAY_KEY_ID in index.html to your Razorpay Key ID.");
+      resetPaymentUI();
+      return;
+    }
+    if (typeof Razorpay === "undefined") {
+      showError("Razorpay SDK failed to load. Check your internet connection.");
+      resetPaymentUI();
+      return;
+    }
+    const options = {
+      key: RAZORPAY_KEY_ID,
+      amount: Math.round(booking.chargedAmount * 100), // paise
+      currency: "INR",
+      name: MERCHANT_NAME,
+      description: booking.serviceName,
+      prefill: { name: booking.name, email: booking.email, contact: booking.phone },
+      notes: {
+        booking_ref: booking.ref,
+        service: booking.service,
+        date: booking.date,
+        time: booking.time,
+        mode: booking.mode,
+      },
+      theme: { color: "#2563eb" },
+      handler: function (response) {
+        const pid = response.razorpay_payment_id || booking.ref;
+        showSuccess(booking.ref, pid);
+        sendEmail(booking, pid).catch(err => console.error("Email send failed:", err));
+      },
+      modal: {
+        ondismiss: function () {
+          resetPaymentUI();
+          showError("Payment cancelled. You can try again.");
+        },
+      },
+    };
+    const rzp = new Razorpay(options);
+    rzp.on("payment.failed", function (resp) {
+      console.error("Razorpay failure:", resp.error);
+      resetPaymentUI();
+      showError("Payment failed: " + (resp.error && resp.error.description ? resp.error.description : "please try again"));
+    });
+    payLoading.classList.remove("visible");
+    payBtn.style.display = "none";
+    rzp.open();
+  }
+
+  // ---- PayPal flow -----------------------------------------------------
+  let paypalSdkLoaded = false;
+  function loadPaypalSdk(cb) {
+    if (paypalSdkLoaded) return cb();
+    if (!PAYPAL_CLIENT_ID || PAYPAL_CLIENT_ID.startsWith("YOUR_")) {
+      showError("Set PAYPAL_CLIENT_ID in index.html to your PayPal Client ID.");
+      resetPaymentUI();
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(PAYPAL_CLIENT_ID)}&currency=USD&intent=capture`;
+    s.onload = () => { paypalSdkLoaded = true; cb(); };
+    s.onerror = () => {
+      showError("PayPal SDK failed to load. Check your internet connection.");
+      resetPaymentUI();
+    };
+    document.head.appendChild(s);
+  }
+  function startPaypal(booking) {
+    loadPaypalSdk(() => {
+      payLoading.classList.remove("visible");
+      payBtn.style.display = "none";
+      paypalContainer.innerHTML = "";
+      if (typeof paypal === "undefined") {
+        showError("PayPal SDK not available.");
+        resetPaymentUI();
+        return;
+      }
+      paypal.Buttons({
+        style: { layout: "vertical", shape: "rect", label: "pay" },
+        createOrder: (data, actions) => actions.order.create({
+          purchase_units: [{
+            amount: { value: booking.chargedAmount.toFixed(2), currency_code: "USD" },
+            description: `${booking.serviceName} — ${booking.ref}`,
+            custom_id: booking.ref,
+          }],
+        }),
+        onApprove: async (data, actions) => {
+          try {
+            const details = await actions.order.capture();
+            const pid = (details && details.id) || data.orderID || booking.ref;
+            showSuccess(booking.ref, pid);
+            sendEmail(booking, pid).catch(err => console.error("Email send failed:", err));
+          } catch (err) {
+            console.error("PayPal capture failed:", err);
+            resetPaymentUI();
+            showError("PayPal capture failed: " + (err && err.message ? err.message : "please try again"));
+          }
+        },
+        onCancel: () => {
+          resetPaymentUI();
+          showError("Payment cancelled. You can try again.");
+        },
+        onError: (err) => {
+          console.error("PayPal error:", err);
+          resetPaymentUI();
+          showError("PayPal error: " + (err && err.message ? err.message : "please try again"));
+        },
+      }).render(paypalContainer);
+    });
+  }
+
+  // ---- Pay button ------------------------------------------------------
+  payBtn.addEventListener("click", () => {
+    clearError();
+    const v = validateForm();
+    if (!v.ok) return showError(v.error);
+
+    const ref = "QS-" + Date.now().toString(36).toUpperCase();
+    const booking = buildBooking(v, ref);
+    try { localStorage.setItem("lastBooking", JSON.stringify(booking)); } catch (e) {}
+
+    payBtn.disabled = true;
+    payBtn.textContent = "Preparing payment…";
+    payLoading.classList.add("visible");
+
+    if (booking.paymentMethod === "razorpay") {
+      startRazorpay(booking);
+    } else {
+      startPaypal(booking);
+    }
+  });
+
+  // ---- Software Catalog modal + Lightbox ------------------------------
+  // Photo list comes from catalog-manifest.js (auto-generated by
+  // update-catalog.sh). Drop new images into catalog/ and run the script
+  // — no need to edit this file.
+  const CATALOG_PHOTOS = (window.CATALOG_PHOTOS || []);
+
+  // Small brand-name canonicalization for caption rendering.
+  const BRAND_CASE = {
+    "aec": "AEC", "lt": "LT", "3d": "3D", "3ds": "3ds",
+    "autocad": "AutoCAD", "coreldraw": "CorelDRAW",
+    "incopy": "InCopy", "indesign": "InDesign", "infraworks": "InfraWorks",
+    "recap": "ReCap", "ms": "MS", "pdf": "PDF",
+  };
+  function captionFromFilename(fn) {
+    return fn.replace(/\.(jpe?g|png|webp|gif)$/i, "")
+      .split("-")
+      .map(w => BRAND_CASE[w.toLowerCase()] || w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+  }
+
+  const catalogModal = document.getElementById("catalog-modal");
+  const catalogOpenBtn = document.getElementById("catalog-open");
+  const catalogCloseBtn = document.getElementById("catalog-close");
+  const catalogGrid = document.getElementById("catalog-grid");
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+  const lightboxCaption = document.getElementById("lightbox-caption");
+  const lightboxClose = document.getElementById("lightbox-close");
+
+  let catalogRendered = false;
+  function renderCatalog() {
+    if (catalogRendered) return;
+    catalogRendered = true;
+    catalogGrid.innerHTML = "";
+    if (!CATALOG_PHOTOS.length) {
+      const empty = document.createElement("div");
+      empty.style.cssText = "grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 30px 20px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 12px;";
+      empty.innerHTML = `<strong style="color: var(--text-2); display: block; margin-bottom: 4px;">No photos yet</strong>Drop images into the <code>catalog/</code> folder and run <code>./update-catalog.sh</code>.`;
+      catalogGrid.appendChild(empty);
+      return;
+    }
+    CATALOG_PHOTOS.forEach(fn => {
+      const caption = captionFromFilename(fn);
+      const item = document.createElement("div");
+      item.className = "catalog-item";
+      const img = document.createElement("img");
+      img.src = "catalog/" + fn;
+      img.alt = caption;
+      img.loading = "lazy";
+      const cap = document.createElement("div");
+      cap.className = "ci-caption";
+      cap.textContent = caption;
+      item.appendChild(img);
+      item.appendChild(cap);
+      item.addEventListener("click", () => openLightbox(fn, caption));
+      catalogGrid.appendChild(item);
+    });
+  }
+
+  function openCatalogModal() {
+    renderCatalog();
+    catalogModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+  }
+  function closeCatalogModal() {
+    catalogModal.classList.remove("visible");
+    if (!lightbox.classList.contains("visible")) document.body.style.overflow = "";
+  }
+  function openLightbox(fn, caption) {
+    lightboxImg.src = "catalog/" + fn;
+    lightboxImg.alt = caption;
+    lightboxCaption.textContent = caption;
+    lightbox.classList.add("visible");
+    document.body.style.overflow = "hidden";
+  }
+  function closeLightbox() {
+    lightbox.classList.remove("visible");
+    if (!catalogModal.classList.contains("visible")) document.body.style.overflow = "";
+  }
+
+  catalogOpenBtn.addEventListener("click", openCatalogModal);
+  catalogCloseBtn.addEventListener("click", closeCatalogModal);
+  catalogModal.addEventListener("click", e => { if (e.target === catalogModal) closeCatalogModal(); });
+  lightboxClose.addEventListener("click", closeLightbox);
+  lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    if (lightbox.classList.contains("visible")) closeLightbox();
+    else if (catalogModal.classList.contains("visible")) closeCatalogModal();
+  });
+
+  // ---- Contact form ---------------------------------------------------
+  const contactBtn = document.getElementById("contact-submit");
+  const contactErrEl = document.getElementById("contact-error");
+  const contactSuccessEl = document.getElementById("contact-success");
+  const contactModal = document.getElementById("contact-modal");
+  const contactOpenBtn = document.getElementById("contact-open");
+  const contactCloseBtn = document.getElementById("contact-close");
+
+  function openContactModal() {
+    // Reset to pristine state each time it opens
+    contactSuccessEl.classList.remove("visible");
+    contactErrEl.classList.remove("visible");
+    contactBtn.style.display = "";
+    contactBtn.disabled = false;
+    contactBtn.textContent = "Send message";
+    contactModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+    setTimeout(() => document.getElementById("c-name").focus(), 50);
+  }
+  function closeContactModal() {
+    contactModal.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+  contactOpenBtn.addEventListener("click", openContactModal);
+  contactCloseBtn.addEventListener("click", closeContactModal);
+  contactModal.addEventListener("click", e => { if (e.target === contactModal) closeContactModal(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && contactModal.classList.contains("visible")) closeContactModal();
+  });
+  function showContactError(msg) { contactErrEl.textContent = msg; contactErrEl.classList.add("visible"); }
+  function clearContactError() { contactErrEl.classList.remove("visible"); contactErrEl.textContent = ""; }
+
+  contactBtn.addEventListener("click", async () => {
+    clearContactError();
+    const name  = document.getElementById("c-name").value.trim();
+    const email = document.getElementById("c-email").value.trim();
+    const phoneCC = document.getElementById("c-phone-cc").value;
+    const phoneRaw = document.getElementById("c-phone").value.trim();
+    const phone = phoneCC + " " + phoneRaw;
+    const query = document.getElementById("c-query").value.trim();
+
+    if (!name) return showContactError("Please enter your name.");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return showContactError("Please enter a valid email.");
+    if (phoneRaw.length < 6) return showContactError("Please enter a valid phone number.");
+    if (!query) return showContactError("Please enter your query.");
+
+    if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY.startsWith("YOUR_")) {
+      return showContactError("Contact form not configured. Set WEB3FORMS_ACCESS_KEY in index.html.");
+    }
+
+    contactBtn.disabled = true;
+    contactBtn.textContent = "Sending…";
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: `New contact query from ${name}`,
+          from_name: MERCHANT_NAME + " contact form",
+          to: NOTIFY_EMAIL,
+          form_type: "contact",
+          customer_name: name,
+          customer_email: email,
+          customer_phone: phone,
+          query,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.success !== false) {
+        contactSuccessEl.classList.add("visible");
+        contactBtn.style.display = "none";
+        ["c-name", "c-email", "c-phone", "c-query"].forEach(id => { document.getElementById(id).value = ""; });
+        contactSuccessEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        showContactError("Could not send: " + (json.message || `HTTP ${res.status}`));
+        contactBtn.disabled = false;
+        contactBtn.textContent = "Send message";
+      }
+    } catch (err) {
+      console.error("Contact send failed:", err);
+      showContactError("Network error — please try again.");
+      contactBtn.disabled = false;
+      contactBtn.textContent = "Send message";
+    }
+  });
+
+  populateCountryCodes(document.getElementById("phone-cc"), "IN");
+  populateCountryCodes(document.getElementById("c-phone-cc"), "IN");
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+  updatePaymentMethodVisibility();
+  renderSoftwareNames();
+  updateTierHint();
+  updateSummary();
+</script>
+</body>
+</html>
