@@ -428,6 +428,30 @@
   }
   .software-details { display: none; margin-top: 8px; }
   .software-details.visible { display: block; }
+  .service-panel {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 18px 14px;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, #fafbff 0%, #fff 60%);
+  }
+  .service-panel .svc-h {
+    margin: 0 0 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.01em;
+  }
+  .service-panel .svc-h::before {
+    content: "";
+    width: 4px;
+    height: 18px;
+    background: var(--accent-grad);
+    border-radius: 2px;
+  }
   .divider { border: 0; border-top: 1px solid var(--border); margin: 20px 0 16px; }
   .tier-hint {
     font-size: 13px;
@@ -773,6 +797,7 @@
     background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
   }
   .social-links a.yt { background: #ff0000; }
+  .social-links a.wa { background: #25D366; }
   .social-links a svg { width: 20px; height: 20px; fill: currentColor; }
   .success {
     background: #ecfdf5;
@@ -1221,7 +1246,7 @@
     <div class="section-head">
       <div>
         <h2><span class="step-num">1</span> Choose a service</h2>
-        <p class="section-sub">Select one of the services below.</p>
+        <p class="section-sub">Select one or both of the services below.</p>
       </div>
       <div class="currency-picker">
         <label for="currency">Show prices in</label>
@@ -1233,19 +1258,7 @@
     </div>
     <div class="services" id="services"></div>
 
-    <div id="software-details" class="software-details">
-      <hr class="divider" />
-      <div class="field">
-        <label for="qty">Number of softwares required *</label>
-        <div class="qty-control">
-          <button type="button" class="qty-btn" id="qty-minus" aria-label="Decrease quantity">−</button>
-          <input type="number" id="qty" min="1" step="1" value="1" inputmode="numeric" />
-          <button type="button" class="qty-btn" id="qty-plus" aria-label="Increase quantity">+</button>
-        </div>
-      </div>
-      <div class="tier-hint" id="tier-hint"></div>
-      <div id="software-names"></div>
-    </div>
+    <div id="software-details" class="software-details"></div>
   </section>
 
   <!-- Step 2: Date & time -->
@@ -1421,6 +1434,9 @@
     </a>
     <a class="yt" href="https://youtube.com/@quicksoftwares-prt?feature=shared" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+    <a class="wa" href="https://wa.me/917838127423" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp (+91 78381 27423)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
     </a>
   </div>
   &copy; <span id="year"></span> Quick Softwares &middot; All bookings subject to availability.
@@ -1643,10 +1659,14 @@
   }
 
   // ---- State -----------------------------------------------------------
+  // services keyed by id: { selected, quantity, softwareNames }
+  // Each selected service contributes its own qty + names + price to the
+  // total. Customers can tick one OR both service cards.
   const state = {
-    serviceId: null,
-    quantity: 1,
-    softwareNames: [""],
+    services: SERVICES.reduce((acc, svc) => {
+      acc[svc.id] = { selected: false, quantity: 1, softwareNames: [""] };
+      return acc;
+    }, {}),
     date: "",
     time: "",
     mode: "remote",
@@ -1655,6 +1675,15 @@
     couponCode: "",
     coupon: null,   // { type: "percent" | "flat_inr", value: number }
   };
+  function selectedServices() {
+    return SERVICES.filter(s => state.services[s.id].selected);
+  }
+  function anyServiceSelected() {
+    return SERVICES.some(s => state.services[s.id].selected);
+  }
+  function getServiceById(id) {
+    return SERVICES.find(s => s.id === id) || null;
+  }
 
   // ---- Currency helpers ------------------------------------------------
   function amountIn(currency, priceINR) {
@@ -1676,15 +1705,15 @@
     }).format(roundForCurrency(amountIn(currency, priceINR), currency));
   }
   function currentPriceINR() {
-    const svc = getService();
-    if (!svc) return 0;
-    return priceFor(svc, state.softwareNames.slice(0, state.quantity));
+    return selectedServices().reduce((sum, svc) => {
+      const ss = state.services[svc.id];
+      return sum + priceFor(svc, ss.softwareNames.slice(0, ss.quantity));
+    }, 0);
   }
   function discountedPriceINR() {
     const sub = currentPriceINR();
     if (!state.coupon) return sub;
     if (state.coupon.type === "flat_inr") return Math.min(sub, state.coupon.value);
-    // percent
     return sub * (1 - state.coupon.value);
   }
   function couponLabel() {
@@ -1693,17 +1722,16 @@
     return `− ${Math.round(state.coupon.value * 100)}% off (${state.couponCode})`;
   }
   function currentAutodeskCount() {
-    const svc = getService();
-    if (!svc || !svc.allowAutodesk) return 0;
-    return state.softwareNames.slice(0, state.quantity).filter(isAutodeskName).length;
+    return selectedServices().reduce((sum, svc) => {
+      if (!svc.allowAutodesk) return sum;
+      const ss = state.services[svc.id];
+      return sum + ss.softwareNames.slice(0, ss.quantity).filter(isAutodeskName).length;
+    }, 0);
   }
 
   // ---- Render services -------------------------------------------------
   const servicesEl = document.getElementById("services");
   const softwareDetailsEl = document.getElementById("software-details");
-  const qtyEl = document.getElementById("qty");
-  const tierHintEl = document.getElementById("tier-hint");
-  const softwareNamesEl = document.getElementById("software-names");
 
   SERVICES.forEach(s => {
     const el = document.createElement("div");
@@ -1715,11 +1743,10 @@
       <div class="price" data-price>From ${formatPrice(startingPrice(s))}</div>
     `;
     el.addEventListener("click", () => {
-      state.serviceId = s.id;
-      document.querySelectorAll(".service").forEach(n => n.classList.toggle("selected", n.dataset.id === s.id));
-      softwareDetailsEl.classList.add("visible");
-      renderSoftwareNames();
-      updateTierHint();
+      const ss = state.services[s.id];
+      ss.selected = !ss.selected;
+      el.classList.toggle("selected", ss.selected);
+      renderSoftwareDetails();
       updateSummary();
     });
     servicesEl.appendChild(el);
@@ -1727,100 +1754,158 @@
 
   function rerenderPrices() {
     document.querySelectorAll(".service").forEach(el => {
-      const svc = SERVICES.find(s => s.id === el.dataset.id);
+      const svc = getServiceById(el.dataset.id);
       if (svc) el.querySelector("[data-price]").textContent = "From " + formatPrice(startingPrice(svc));
     });
-    updateAutodeskTags();
-    updateTierHint();
+    // Re-render each open panel so internal text reflects the new currency.
+    renderSoftwareDetails();
     updateSummary();
   }
 
-  // ---- Software details: quantity + names -----------------------------
-  function renderSoftwareNames() {
-    softwareNamesEl.innerHTML = "";
-    const qty = state.quantity;
-    // Trim or extend the array to match quantity
-    while (state.softwareNames.length < qty) state.softwareNames.push("");
-    state.softwareNames.length = qty;
-    for (let i = 0; i < qty; i++) {
+  // ---- Software details: one panel per selected service ----------------
+  function renderSoftwareDetails() {
+    softwareDetailsEl.innerHTML = "";
+    const sel = selectedServices();
+    if (!sel.length) { softwareDetailsEl.classList.remove("visible"); return; }
+    softwareDetailsEl.classList.add("visible");
+    const hr = document.createElement("hr");
+    hr.className = "divider";
+    softwareDetailsEl.appendChild(hr);
+    sel.forEach(svc => softwareDetailsEl.appendChild(buildServicePanel(svc)));
+  }
+
+  function buildServicePanel(svc) {
+    const ss = state.services[svc.id];
+    const panel = document.createElement("div");
+    panel.className = "service-panel";
+    panel.dataset.svc = svc.id;
+    panel.innerHTML = `
+      <h3 class="svc-h">${svc.name}</h3>
+      <div class="field">
+        <label>Number of softwares required *</label>
+        <div class="qty-control">
+          <button type="button" class="qty-btn" data-action="dec" aria-label="Decrease">−</button>
+          <input type="number" class="qty-input" min="1" max="99" step="1" inputmode="numeric" value="${ss.quantity}" />
+          <button type="button" class="qty-btn" data-action="inc" aria-label="Increase">+</button>
+        </div>
+      </div>
+      <div class="tier-hint"></div>
+      <div class="software-names"></div>
+    `;
+    wireServicePanel(panel, svc);
+    return panel;
+  }
+
+  function wireServicePanel(panel, svc) {
+    const ss = state.services[svc.id];
+    const qtyInput = panel.querySelector(".qty-input");
+    function applyQty(n) {
+      n = Math.max(1, Math.min(99, n));
+      ss.quantity = n;
+      qtyInput.value = String(n);
+      renderNamesForPanel(panel, svc);
+      updateTierHintForPanel(panel, svc);
+      updateSummary();
+    }
+    panel.querySelector('[data-action="dec"]').addEventListener("click", () => applyQty(ss.quantity - 1));
+    panel.querySelector('[data-action="inc"]').addEventListener("click", () => applyQty(ss.quantity + 1));
+    qtyInput.addEventListener("input", e => {
+      const v = parseInt(e.target.value || "1", 10);
+      if (Number.isFinite(v)) applyQty(v);
+    });
+    renderNamesForPanel(panel, svc);
+    updateTierHintForPanel(panel, svc);
+  }
+
+  function renderNamesForPanel(panel, svc) {
+    const ss = state.services[svc.id];
+    const container = panel.querySelector(".software-names");
+    container.innerHTML = "";
+    while (ss.softwareNames.length < ss.quantity) ss.softwareNames.push("");
+    ss.softwareNames.length = ss.quantity;
+    for (let i = 0; i < ss.quantity; i++) {
       const wrap = document.createElement("div");
       wrap.className = "field";
       wrap.innerHTML = `
-        <label for="sw-${i}">Software ${i + 1} name *</label>
-        <input type="text" id="sw-${i}" data-idx="${i}" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
-        <div class="sw-tag" data-tag="${i}"></div>
+        <label>Software ${i + 1} name *</label>
+        <input type="text" data-idx="${i}" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
+        <div class="sw-tag"></div>
       `;
-      softwareNamesEl.appendChild(wrap);
+      container.appendChild(wrap);
       const inp = wrap.querySelector("input");
-      inp.value = state.softwareNames[i] || "";
+      inp.value = ss.softwareNames[i] || "";
       inp.addEventListener("input", e => {
-        state.softwareNames[Number(e.target.dataset.idx)] = e.target.value;
-        updateAutodeskTags();
-        updateTierHint();
+        const idx = Number(e.target.dataset.idx);
+        ss.softwareNames[idx] = e.target.value;
+        updateAutodeskTagInWrap(wrap, svc, e.target.value);
+        updateTierHintForPanel(panel, svc);
         updateSummary();
       });
+      updateAutodeskTagInWrap(wrap, svc, ss.softwareNames[i] || "");
     }
-    updateAutodeskTags();
   }
 
-  // Per-input badge: "Autodesk · ₹7,500" when the name matches a pattern.
-  function updateAutodeskTags() {
-    const svc = getService();
-    const allow = svc && svc.allowAutodesk;
-    softwareNamesEl.querySelectorAll(".sw-tag").forEach(tag => {
-      const idx = Number(tag.dataset.tag);
-      const name = state.softwareNames[idx] || "";
-      if (allow && isAutodeskName(name)) {
-        tag.textContent = `Autodesk software detected · ${formatPrice(svc.autodeskPrice)}`;
-        tag.classList.add("visible");
-      } else {
-        tag.textContent = "";
-        tag.classList.remove("visible");
-      }
-    });
+  function updateAutodeskTagInWrap(wrap, svc, name) {
+    const tag = wrap.querySelector(".sw-tag");
+    if (svc.allowAutodesk && isAutodeskName(name)) {
+      tag.textContent = `Autodesk software detected · ${formatPrice(svc.autodeskPrice)}`;
+      tag.classList.add("visible");
+    } else {
+      tag.textContent = "";
+      tag.classList.remove("visible");
+    }
   }
 
-  function updateTierHint() {
-    const svc = getService();
-    if (!svc) { tierHintEl.textContent = ""; tierHintEl.className = "tier-hint"; return; }
-    tierHintEl.className = "tier-hint";
+  function updateTierHintForPanel(panel, svc) {
+    const ss = state.services[svc.id];
+    const el = panel.querySelector(".tier-hint");
+    el.className = "tier-hint";
     const lines = [];
+    const svcPrice = priceFor(svc, ss.softwareNames.slice(0, ss.quantity));
     if (svc.allowAutodesk) {
-      const adCount = currentAutodeskCount();
-      const otherCount = state.quantity - adCount;
+      const adCount = ss.softwareNames.slice(0, ss.quantity).filter(isAutodeskName).length;
+      const otherCount = ss.quantity - adCount;
       if (adCount > 0) {
-        tierHintEl.classList.add("autodesk");
+        el.classList.add("autodesk");
         lines.push(`${adCount} Autodesk software${adCount > 1 ? "s" : ""} × ${formatPrice(svc.autodeskPrice)} = ${formatPrice(adCount * svc.autodeskPrice)}.`);
       }
       if (otherCount > 0) {
         lines.push(`${otherCount} other software${otherCount > 1 ? "s" : ""}: ${formatPrice(tierPrice(svc, otherCount))}.`);
       }
-      lines.push(`Total: ${formatPrice(currentPriceINR())}.`);
+      lines.push(`Subtotal: ${formatPrice(svcPrice)}.`);
       lines.push(`${unlimitedMsg(svc)} (regular softwares only).`);
       lines.push(`Autodesk products (AutoCAD, 3ds Max, Revit) are priced individually at ${formatPrice(svc.autodeskPrice)} each.`);
     } else {
       const explicitMax = svc.tiers[svc.tiers.length - 2]?.upTo ?? 0;
-      const inUnlimited = state.quantity > explicitMax;
+      const inUnlimited = ss.quantity > explicitMax;
       if (inUnlimited) {
-        tierHintEl.classList.add("unlimited");
-        lines.push(`${unlimitedMsg(svc)} — applied (you've selected ${state.quantity}).`);
+        el.classList.add("unlimited");
+        lines.push(`${unlimitedMsg(svc)} — applied (you've selected ${ss.quantity}).`);
       } else {
-        lines.push(`Current price: ${formatPrice(currentPriceINR())} for ${state.quantity} software${state.quantity === 1 ? "" : "s"}.`);
+        lines.push(`Current price: ${formatPrice(svcPrice)} for ${ss.quantity} software${ss.quantity === 1 ? "" : "s"}.`);
         lines.push(`${unlimitedMsg(svc)} if you need more.`);
       }
     }
-    tierHintEl.textContent = lines.join(" ");
+    el.textContent = lines.join(" ");
   }
 
-  function bumpQty(delta) {
-    const current = parseInt(qtyEl.value, 10) || 1;
-    const next = Math.max(1, Math.min(99, current + delta));
-    if (next === current) return;
-    qtyEl.value = String(next);
-    qtyEl.dispatchEvent(new Event("input", { bubbles: true }));
+  function updateTierHint() {
+    softwareDetailsEl.querySelectorAll(".service-panel").forEach(panel => {
+      const svc = getServiceById(panel.dataset.svc);
+      if (svc) updateTierHintForPanel(panel, svc);
+    });
   }
-  document.getElementById("qty-minus").addEventListener("click", () => bumpQty(-1));
-  document.getElementById("qty-plus").addEventListener("click", () => bumpQty(1));
+
+  function updateAutodeskTags() {
+    softwareDetailsEl.querySelectorAll(".service-panel").forEach(panel => {
+      const svc = getServiceById(panel.dataset.svc);
+      if (!svc) return;
+      const ss = state.services[svc.id];
+      panel.querySelectorAll(".software-names .field").forEach((wrap, i) => {
+        updateAutodeskTagInWrap(wrap, svc, ss.softwareNames[i] || "");
+      });
+    });
+  }
 
   // ---- Coupon -----------------------------------------------------------
   const couponInput = document.getElementById("coupon-input");
@@ -1876,17 +1961,6 @@
     }
   });
 
-  qtyEl.addEventListener("input", e => {
-    let v = parseInt(e.target.value || "1", 10);
-    if (!Number.isFinite(v) || v < 1) v = 1;
-    if (v > 99) v = 99;
-    state.quantity = v;
-    // Keep input value in sync if we clamped
-    if (String(v) !== e.target.value) e.target.value = String(v);
-    renderSoftwareNames();
-    updateTierHint();
-    updateSummary();
-  });
 
   // ---- Currency dropdown ----------------------------------------------
   const currencyEl = document.getElementById("currency");
@@ -1994,14 +2068,23 @@
   });
 
   // ---- Summary ---------------------------------------------------------
-  function getService() {
-    return SERVICES.find(s => s.id === state.serviceId) || null;
-  }
   function updateSummary() {
-    const svc = getService();
-    const adCount = currentAutodeskCount();
-    const qtyLabel = svc ? ` × ${state.quantity}${adCount > 0 ? ` (${adCount} Autodesk)` : ""}` : "";
-    document.getElementById("sum-service").textContent = svc ? svc.name + qtyLabel : "No service selected";
+    const sel = selectedServices();
+    let serviceText;
+    if (!sel.length) {
+      serviceText = "No service selected";
+    } else {
+      serviceText = sel.map(svc => {
+        const ss = state.services[svc.id];
+        const adCount = svc.allowAutodesk
+          ? ss.softwareNames.slice(0, ss.quantity).filter(isAutodeskName).length
+          : 0;
+        const adLabel = adCount > 0 ? ` (${adCount} Autodesk)` : "";
+        return `${svc.name} × ${ss.quantity}${adLabel}`;
+      }).join(" + ");
+    }
+    document.getElementById("sum-service").textContent = serviceText;
+
     let whenText;
     if (state.mode === "email-link") {
       whenText = state.date
@@ -2014,9 +2097,10 @@
         : "Pick a date and time";
     }
     document.getElementById("sum-when").textContent = whenText;
+
     const sumDiscountEl = document.getElementById("sum-discount");
     const sumTotalEl = document.getElementById("sum-total");
-    if (!svc) {
+    if (!sel.length) {
       sumTotalEl.textContent = "—";
       sumDiscountEl.textContent = "";
       updatePaymentVisibility();
@@ -2035,8 +2119,7 @@
   }
 
   function updatePaymentVisibility() {
-    const svc = getService();
-    const isFree = svc && discountedPriceINR() <= 0;
+    const isFree = anyServiceSelected() && discountedPriceINR() <= 0;
     const section = document.getElementById("payment-method-section");
     const notice = document.getElementById("free-notice");
     if (!section || !notice) return;
@@ -2072,18 +2155,27 @@
 
   // ---- Validation ------------------------------------------------------
   function validateForm() {
-    const svc = getService();
+    const sel = selectedServices();
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
     const phoneCC = document.getElementById("phone-cc").value;
     const phoneRaw = document.getElementById("phone").value.trim();
     const phone = phoneCC + " " + phoneRaw;
-    if (!svc) return { ok: false, error: "Please choose a service." };
-    if (!state.quantity || state.quantity < 1) return { ok: false, error: "Please enter the number of softwares required." };
-    // All software names must be filled
-    const names = state.softwareNames.slice(0, state.quantity).map(s => (s || "").trim());
-    const missingIdx = names.findIndex(n => !n);
-    if (missingIdx >= 0) return { ok: false, error: `Please enter the name of Software ${missingIdx + 1}.` };
+    if (!sel.length) return { ok: false, error: "Please choose at least one service." };
+    // Per-service software-name validation
+    const perService = [];
+    for (const svc of sel) {
+      const ss = state.services[svc.id];
+      if (!ss.quantity || ss.quantity < 1) {
+        return { ok: false, error: `For ${svc.name}: please enter the number of softwares required.` };
+      }
+      const names = ss.softwareNames.slice(0, ss.quantity).map(s => (s || "").trim());
+      const missingIdx = names.findIndex(n => !n);
+      if (missingIdx >= 0) {
+        return { ok: false, error: `For ${svc.name}: please enter the name of Software ${missingIdx + 1}.` };
+      }
+      perService.push({ svc, quantity: ss.quantity, softwareNames: names });
+    }
     if (!state.date) return { ok: false, error: "Please pick a date." };
     if (state.mode !== "email-link" && !state.time) return { ok: false, error: "Please pick a time slot." };
     if (!name) return { ok: false, error: "Please enter your name." };
@@ -2095,24 +2187,34 @@
     if (!phoneCountry && phoneRaw.length < 6) {
       return { ok: false, error: "Please enter a valid phone number." };
     }
-    return { ok: true, svc, name, email, phone, softwareNames: names };
+    return { ok: true, perService, name, email, phone };
   }
 
   function buildBooking(v, ref) {
-    const subtotalINR = priceFor(v.svc, v.softwareNames);
+    // v.perService = [{svc, quantity, softwareNames}, ...]
+    const services = v.perService.map(p => {
+      const adFlags = p.svc.allowAutodesk ? p.softwareNames.map(isAutodeskName) : p.softwareNames.map(() => false);
+      return {
+        id: p.svc.id,
+        name: p.svc.name,
+        quantity: p.quantity,
+        softwareNames: p.softwareNames,
+        autodeskFlags: adFlags,
+        autodeskCount: adFlags.filter(Boolean).length,
+        priceINR: priceFor(p.svc, p.softwareNames),
+      };
+    });
+    const subtotalINR = services.reduce((s, x) => s + x.priceINR, 0);
     const priceINR = discountedPriceINR();
     const chargedAmountRaw = amountIn(state.currency, priceINR);
     const chargedAmount = roundForCurrency(chargedAmountRaw, state.currency);
     const subtotalCharged = roundForCurrency(amountIn(state.currency, subtotalINR), state.currency);
-    const autodeskFlags = v.svc.allowAutodesk ? v.softwareNames.map(isAutodeskName) : v.softwareNames.map(() => false);
     return {
       ref,
-      service: v.svc.id,
-      serviceName: v.svc.name,
-      quantity: state.quantity,
-      autodeskCount: autodeskFlags.filter(Boolean).length,
-      softwareNames: v.softwareNames,
-      autodeskFlags,
+      services,
+      // Convenience fields for email + UI summaries
+      serviceName: services.map(s => `${s.name} × ${s.quantity}`).join(" + "),
+      autodeskCount: services.reduce((s, x) => s + x.autodeskCount, 0),
       subtotalINR,
       priceINR,
       subtotalCharged,
@@ -2143,18 +2245,21 @@
       console.warn("WEB3FORMS_ACCESS_KEY not set — skipping email. Booking:", booking);
       return { skipped: true };
     }
+    const totalQty = booking.services.reduce((s, x) => s + x.quantity, 0);
+    const softwareList = booking.services.flatMap(s =>
+      s.softwareNames.map((n, i) =>
+        `${s.name} #${i + 1}: ${n}${s.autodeskFlags[i] ? " [Autodesk ₹7,500]" : ""}`)
+    ).join(" | ");
     const payload = {
       access_key: WEB3FORMS_ACCESS_KEY,
       subject: `New booking ${booking.ref} — ${booking.serviceName}`,
       from_name: MERCHANT_NAME + " booking site",
       to: NOTIFY_EMAIL,
       booking_ref: booking.ref,
-      service: booking.serviceName,
-      quantity: booking.quantity,
+      services: booking.serviceName,
+      total_quantity: totalQty,
       autodesk_count: booking.autodeskCount,
-      software_list: booking.softwareNames
-        .map((n, i) => `${i + 1}. ${n}${booking.autodeskFlags[i] ? " [Autodesk ₹7,500]" : ""}`)
-        .join(" | "),
+      software_list: softwareList,
       subtotal: booking.subtotalCharged + " " + booking.chargedCurrency,
       coupon_code: booking.couponCode || "(none)",
       coupon_type: booking.couponType || "(none)",
@@ -2565,8 +2670,7 @@
 
   document.getElementById("year").textContent = new Date().getFullYear();
   updatePaymentMethodVisibility();
-  renderSoftwareNames();
-  updateTierHint();
+  renderSoftwareDetails();
   updateSummary();
 </script>
 </body>
