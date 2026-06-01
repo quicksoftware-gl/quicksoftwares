@@ -1265,18 +1265,6 @@
       <button type="button" class="link-btn" id="otp-email-resend">Resend code</button>
     </form>
 
-    <!-- Phone OTP -->
-    <form id="otp-phone-form" class="auth-form" style="display: none;">
-      <h2>Verify your phone</h2>
-      <div class="otp-target">We sent a 6-digit SMS to <strong id="otp-phone-target"></strong></div>
-      <div class="error" id="otp-phone-error"></div>
-      <div class="field">
-        <input type="text" id="otp-phone-code" class="otp-input" inputmode="numeric" pattern="\d{6}" maxlength="6" placeholder="······" autocomplete="one-time-code" />
-      </div>
-      <button class="btn" type="submit" id="otp-phone-submit">Verify phone</button>
-      <button type="button" class="link-btn" id="otp-phone-skip">Skip for now</button>
-    </form>
-
     <!-- Success -->
     <div id="auth-success" class="auth-form" style="display: none;">
       <h2>You're signed in</h2>
@@ -1359,9 +1347,8 @@
   // replace the magic-link with the 6-digit token, e.g.
   //   <p>Your code: <strong>{{ .Token }}</strong></p>
   //
-  // For phone OTP: Authentication → Providers → Phone → enable, connect
-  // your Twilio (or MessageBird) credentials in the dashboard. Customers
-  // who provide a phone at signup will receive an SMS code.
+  // Phone is captured at signup (optional) for booking prefill, but is
+  // NOT verified via SMS.
   const SUPABASE_URL      = "https://lunhngjpjmbbqopttocw.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_iCesV3URCmmZtZ5vOW14xg__RFt1Zg-";
 
@@ -2493,7 +2480,6 @@
     : null;
 
   let currentUser = null;
-  let pendingSignupPhone = "";   // E.164 phone to verify after email is confirmed
 
   const authModal = document.getElementById("auth-modal");
   const authOpenBtn = document.getElementById("auth-open");
@@ -2508,7 +2494,6 @@
   const loginForm = document.getElementById("auth-login-form");
   const signupForm = document.getElementById("auth-signup-form");
   const otpEmailForm = document.getElementById("otp-email-form");
-  const otpPhoneForm = document.getElementById("otp-phone-form");
   const authSuccess = document.getElementById("auth-success");
 
   function openAuthModal(mode = "login") {
@@ -2527,16 +2512,15 @@
   }
   function showAuthStep(mode) {
     const tabs = document.querySelectorAll(".auth-tab");
-    [loginForm, signupForm, otpEmailForm, otpPhoneForm, authSuccess].forEach(el => el.style.display = "none");
+    [loginForm, signupForm, otpEmailForm, authSuccess].forEach(el => el.style.display = "none");
     if (mode === "login")   { loginForm.style.display = "";   tabs.forEach(t => t.classList.toggle("selected", t.dataset.mode === "login")); }
     else if (mode === "signup") { signupForm.style.display = "";  tabs.forEach(t => t.classList.toggle("selected", t.dataset.mode === "signup")); }
     else if (mode === "otp-email") otpEmailForm.style.display = "";
-    else if (mode === "otp-phone") otpPhoneForm.style.display = "";
     else if (mode === "success")   authSuccess.style.display = "";
     document.getElementById("auth-tabs").style.display = (mode === "login" || mode === "signup") ? "" : "none";
   }
   function clearAuthErrors() {
-    ["login-error", "signup-error", "otp-email-error", "otp-phone-error"].forEach(id => {
+    ["login-error", "signup-error", "otp-email-error"].forEach(id => {
       const el = document.getElementById(id);
       el.classList.remove("visible");
       el.textContent = "";
@@ -2585,7 +2569,6 @@
     const phoneCC = document.getElementById("signup-phone-cc").value;
     const phoneRaw = document.getElementById("signup-phone").value.trim();
     const phone = phoneRaw ? (phoneCC + phoneRaw).replace(/\s+/g, "") : "";
-    pendingSignupPhone = phone;
     const submitBtn = document.getElementById("signup-submit");
     submitBtn.disabled = true; submitBtn.textContent = "Creating account…";
     try {
@@ -2614,19 +2597,6 @@
     try {
       const { error } = await supa.auth.verifyOtp({ email, token, type: "signup" });
       if (error) throw error;
-      // Email verified. If phone was provided, trigger phone OTP via updateUser.
-      if (pendingSignupPhone) {
-        try {
-          const { error: upErr } = await supa.auth.updateUser({ phone: pendingSignupPhone });
-          if (upErr) throw upErr;
-          document.getElementById("otp-phone-target").textContent = pendingSignupPhone;
-          showAuthStep("otp-phone");
-          return;
-        } catch (phErr) {
-          console.error("Phone OTP send failed:", phErr);
-          // Fall through to success — user verified email at least.
-        }
-      }
       showAuthStep("success");
     } catch (err) {
       showErr("otp-email-error", err.message || "Verification failed.");
@@ -2649,25 +2619,6 @@
     }
   });
 
-  // Phone OTP verify
-  otpPhoneForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    clearAuthErrors();
-    const phone = pendingSignupPhone;
-    const token = document.getElementById("otp-phone-code").value.trim();
-    const submitBtn = document.getElementById("otp-phone-submit");
-    submitBtn.disabled = true; submitBtn.textContent = "Verifying…";
-    try {
-      const { error } = await supa.auth.verifyOtp({ phone, token, type: "phone_change" });
-      if (error) throw error;
-      showAuthStep("success");
-    } catch (err) {
-      showErr("otp-phone-error", err.message || "Verification failed.");
-    } finally {
-      submitBtn.disabled = false; submitBtn.textContent = "Verify phone";
-    }
-  });
-  document.getElementById("otp-phone-skip").addEventListener("click", () => showAuthStep("success"));
   document.getElementById("auth-continue").addEventListener("click", closeAuthModal);
 
   // Sign out
@@ -2691,9 +2642,11 @@
       const phoneField = document.getElementById("phone");
       const phoneCcField = document.getElementById("phone-cc");
       if (emailField && !emailField.value) emailField.value = currentUser.email || "";
-      if (phoneField && !phoneField.value && currentUser.phone) {
-        // Detect CC by trying longest prefix from the verified phone
-        const raw = String(currentUser.phone).replace(/[^\d+]/g, "");
+      const storedPhone = currentUser.phone || (currentUser.user_metadata && currentUser.user_metadata.phone) || "";
+      if (phoneField && !phoneField.value && storedPhone) {
+        // Detect CC by trying longest prefix from the stored phone
+        let raw = String(storedPhone).replace(/[^\d+]/g, "");
+        if (!raw.startsWith("+")) raw = "+" + raw;
         if (raw.startsWith("+")) {
           const digits = raw.substring(1);
           for (let len = 3; len >= 1; len--) {
