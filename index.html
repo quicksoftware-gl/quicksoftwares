@@ -2128,9 +2128,12 @@
     paypalContainer.innerHTML = "";
     payLoading.classList.remove("visible");
     successEl.scrollIntoView({ behavior: "smooth", block: "center" });
-    // Persist to Supabase if signed in
-    if (typeof saveBookingToSupabase === "function" && currentBooking) {
-      saveBookingToSupabase(currentBooking, pid);
+    // Mark the pending row as paid + scheduled. Fallback inserts if the
+    // initial save somehow didn't happen.
+    const isFree = String(pid).startsWith("FREE-");
+    if (typeof updateBookingPayment === "function" && currentBooking) {
+      updateBookingPayment(ref, pid, isFree ? "pending" : "scheduled")
+        .then(reportSaveResult);
     }
   }
 
@@ -2360,20 +2363,29 @@
   }
 
   // ---- Pay button ------------------------------------------------------
-  payBtn.addEventListener("click", () => {
+  payBtn.addEventListener("click", async () => {
     clearError();
     const v = validateForm();
     if (!v.ok) return showError(v.error);
 
     const ref = "QS-" + Date.now().toString(36).toUpperCase();
     const booking = buildBooking(v, ref);
+    currentBooking = booking;
     try { localStorage.setItem("lastBooking", JSON.stringify(booking)); } catch (e) {}
 
     payBtn.disabled = true;
-    payBtn.textContent = "Preparing payment…";
+    payBtn.textContent = "Saving booking…";
     payLoading.classList.add("visible");
 
-    // 100% discount: skip payment entirely
+    // 1. Persist to Supabase IMMEDIATELY (status = "pending", no payment_id yet).
+    //    If this fails we still proceed — the booking is also delivered by email
+    //    on payment success.
+    const saveResult = await insertBooking(booking, "", "pending");
+    if (!saveResult.ok && saveResult.reason !== "not_configured" && saveResult.reason !== "not_signed_in") {
+      console.warn("DB insert failed but proceeding:", saveResult.reason);
+    }
+
+    // 2. Free order — no payment gateway. Mark as confirmed and email.
     if (booking.chargedAmount <= 0) {
       const freeId = "FREE-" + booking.ref;
       payLoading.classList.remove("visible");
@@ -2382,6 +2394,8 @@
       return;
     }
 
+    // 3. Open the relevant payment gateway. On success, showSuccess updates the row.
+    payBtn.textContent = "Preparing payment…";
     if (booking.paymentMethod === "razorpay") {
       startRazorpay(booking);
     } else {
@@ -2943,9 +2957,10 @@
     el.textContent = text;
     if (color) el.style.color = color;
   }
-  async function saveBookingToSupabase(booking, paymentId) {
-    if (!supa) { setSaveStatus("Database not configured — booking not saved to account.", "#92400e"); return; }
-    if (!currentUser) { setSaveStatus("Not signed in — booking saved by email only.", "#92400e"); return; }
+  // Insert a new bookings row (called on Confirm Booking click, before payment).
+  async function insertBooking(booking, paymentId = "", status = "pending") {
+    if (!supa) return { ok: false, reason: "not_configured" };
+    if (!currentUser) return { ok: false, reason: "not_signed_in" };
     const row = {
       user_id: currentUser.id,
       ref: booking.ref,
@@ -2972,20 +2987,57 @@
       customer_phone: booking.phone || null,
       device: booking.device || null,
       notes: booking.notes || null,
-      status: booking.chargedAmount <= 0 ? "pending" : "scheduled",
+      status,
     };
     try {
       const { error } = await supa.from("bookings").insert(row);
       if (error) {
-        console.error("Booking save failed:", error);
-        setSaveStatus(`Database save failed: ${error.message || error.code || "unknown"}. The booking is still confirmed via email.`, "#b91c1c");
-      } else {
-        console.log("Booking saved to Supabase:", booking.ref);
-        setSaveStatus("✓ Saved to your account. View under My Bookings.", "#065f46");
+        console.error("Booking insert failed:", error);
+        return { ok: false, reason: error.message || error.code || "unknown" };
       }
+      console.log(`Booking inserted (${status}):`, booking.ref);
+      return { ok: true };
     } catch (err) {
-      console.error("Booking save failed:", err);
-      setSaveStatus(`Database save failed: ${err.message || err}. The booking is still confirmed via email.`, "#b91c1c");
+      console.error("Booking insert exception:", err);
+      return { ok: false, reason: err.message || String(err) };
+    }
+  }
+
+  // Update an existing bookings row with the final payment_id + status.
+  // If the original insert never made it (e.g., transient error), falls back
+  // to inserting a fresh row so we don't lose the booking.
+  async function updateBookingPayment(ref, paymentId, status) {
+    if (!supa) return { ok: false, reason: "not_configured" };
+    if (!currentUser) return { ok: false, reason: "not_signed_in" };
+    try {
+      const { data, error } = await supa.from("bookings")
+        .update({ payment_id: paymentId, status })
+        .eq("ref", ref)
+        .eq("user_id", currentUser.id)
+        .select();
+      if (error) {
+        console.error("Booking update failed:", error);
+        return { ok: false, reason: error.message };
+      }
+      if (!data || !data.length) {
+        console.warn("Booking row missing — inserting as fallback");
+        return await insertBooking(currentBooking, paymentId, status);
+      }
+      console.log(`Booking updated → ${status}:`, ref);
+      return { ok: true };
+    } catch (err) {
+      console.error("Booking update exception:", err);
+      return { ok: false, reason: err.message || String(err) };
+    }
+  }
+
+  function reportSaveResult(result) {
+    if (result.ok) {
+      setSaveStatus("✓ Saved to your account. View under My Bookings.", "#065f46");
+    } else if (result.reason === "not_configured" || result.reason === "not_signed_in") {
+      setSaveStatus("Booking saved by email only (not signed in or DB unavailable).", "#92400e");
+    } else {
+      setSaveStatus(`Database error: ${result.reason}. The booking is still confirmed via email.`, "#b91c1c");
     }
   }
   // The Razorpay / PayPal / free-order handlers all call showSuccess(ref, pid)
