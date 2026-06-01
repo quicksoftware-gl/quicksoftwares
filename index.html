@@ -450,6 +450,54 @@
   }
   .checkbox-label input { width: auto; margin: 0; }
   #software-names .field { margin-bottom: 10px; }
+  .qty-control {
+    display: flex;
+    align-items: stretch;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    max-width: 200px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .qty-control:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.13);
+  }
+  .qty-btn {
+    width: 46px;
+    flex: 0 0 46px;
+    border: 0;
+    background: #f8fafc;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+    font-family: inherit;
+  }
+  .qty-btn:hover { background: #eef2ff; color: var(--accent); }
+  .qty-btn:active { background: #e0e7ff; }
+  .qty-btn:disabled { color: #cbd5e1; cursor: not-allowed; background: #f8fafc; }
+  .qty-control input[type="number"] {
+    flex: 1;
+    border: 0 !important;
+    border-radius: 0 !important;
+    text-align: center;
+    font-weight: 700;
+    color: var(--text);
+    padding: 11px 0 !important;
+    background: #fff;
+    -moz-appearance: textfield;
+  }
+  .qty-control input[type="number"]:focus { box-shadow: none !important; }
+  .qty-control input[type="number"]::-webkit-outer-spin-button,
+  .qty-control input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
   .sw-tag {
     display: none;
     margin-top: 4px;
@@ -809,7 +857,11 @@
       <hr class="divider" />
       <div class="field">
         <label for="qty">Number of softwares required *</label>
-        <input type="number" id="qty" min="1" step="1" value="1" />
+        <div class="qty-control">
+          <button type="button" class="qty-btn" id="qty-minus" aria-label="Decrease quantity">−</button>
+          <input type="number" id="qty" min="1" step="1" value="1" inputmode="numeric" />
+          <button type="button" class="qty-btn" id="qty-plus" aria-label="Increase quantity">+</button>
+        </div>
       </div>
       <div class="tier-hint" id="tier-hint"></div>
       <div id="software-names"></div>
@@ -1340,6 +1392,16 @@
     }
     tierHintEl.textContent = lines.join(" ");
   }
+
+  function bumpQty(delta) {
+    const current = parseInt(qtyEl.value, 10) || 1;
+    const next = Math.max(1, Math.min(99, current + delta));
+    if (next === current) return;
+    qtyEl.value = String(next);
+    qtyEl.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  document.getElementById("qty-minus").addEventListener("click", () => bumpQty(-1));
+  document.getElementById("qty-plus").addEventListener("click", () => bumpQty(1));
 
   qtyEl.addEventListener("input", e => {
     let v = parseInt(e.target.value || "1", 10);
