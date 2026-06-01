@@ -999,6 +999,51 @@
   .status-pill.scheduled { background: #eff6ff; color: #1d4ed8; }
   .status-pill.pending   { background: #fef3c7; color: #92400e; }
   .status-pill.cancelled { background: #fef2f2; color: #b91c1c; }
+  .status-pill.on-hold   { background: #f5f3ff; color: #6d28d9; }
+
+  /* Admin panel */
+  .admin-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: start;
+    padding: 16px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    background: #fff;
+  }
+  .admin-row .booking-details { font-size: 13px; }
+  .admin-row .ref {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-2);
+    margin-bottom: 4px;
+    display: block;
+  }
+  .admin-row .customer-line {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .admin-status-select {
+    padding: 9px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #fff;
+    cursor: pointer;
+    min-width: 140px;
+  }
+  .admin-logo-hint {
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .admin-logo-hint:hover { transform: scale(1.05); }
   .edit-booking-btn {
     margin-top: 12px;
     padding: 9px 16px;
@@ -1159,7 +1204,7 @@
 <header class="hero">
   <div class="hero-top">
     <div class="brand-block">
-      <img src="logo.png" alt="Quick Softwares logo" class="logo" />
+      <img src="logo.png" alt="Quick Softwares logo" class="logo admin-logo-hint" id="logo-admin" role="button" tabindex="0" aria-label="Admin login" />
       <div class="brand">Quick Softwares</div>
     </div>
     <div class="hero-actions">
@@ -1461,6 +1506,43 @@
     <p class="catalog-empty" id="bookings-empty" style="display: none;">
       <strong>No bookings yet.</strong>
       When you complete a booking, it'll show up here.
+    </p>
+  </div>
+</div>
+
+<!-- Admin Login modal -->
+<div class="modal-overlay" id="admin-login-modal" role="dialog" aria-modal="true" aria-labelledby="admin-login-title">
+  <div class="modal-panel">
+    <button type="button" class="modal-close" id="admin-login-close" aria-label="Close">&times;</button>
+    <h2 id="admin-login-title">Admin Login</h2>
+    <p class="section-sub" style="padding-left: 0;">Restricted access. Enter admin credentials.</p>
+    <div class="error" id="admin-login-error"></div>
+    <form id="admin-login-form" class="auth-form">
+      <div class="field">
+        <label for="admin-username">Username</label>
+        <input type="text" id="admin-username" autocomplete="off" autocapitalize="off" required />
+      </div>
+      <div class="field">
+        <label for="admin-password">Password</label>
+        <input type="password" id="admin-password" autocomplete="off" required />
+      </div>
+      <button class="btn" type="submit" id="admin-login-submit">Sign in as admin</button>
+    </form>
+  </div>
+</div>
+
+<!-- Admin Panel modal (all bookings) -->
+<div class="modal-overlay" id="admin-panel-modal" role="dialog" aria-modal="true" aria-labelledby="admin-panel-title">
+  <div class="modal-panel modal-panel-wide">
+    <button type="button" class="modal-close" id="admin-panel-close" aria-label="Close">&times;</button>
+    <h2 id="admin-panel-title">Admin · All Bookings</h2>
+    <p class="section-sub" style="padding-left: 0;">Change the status of any booking to <strong>pending</strong>, <strong>on-hold</strong>, <strong>completed</strong>, <strong>scheduled</strong>, or <strong>cancelled</strong>.</p>
+    <div class="error" id="admin-panel-error"></div>
+    <div class="pay-loading" id="admin-panel-loading">Loading bookings…</div>
+    <div id="admin-bookings-list"></div>
+    <p class="catalog-empty" id="admin-bookings-empty" style="display: none;">
+      <strong>No bookings yet.</strong>
+      Customer bookings will appear here.
     </p>
   </div>
 </div>
@@ -2465,6 +2547,194 @@
     } else {
       startPaypal(booking);
     }
+  });
+
+  // ---- Admin panel ----------------------------------------------------
+  // UI-only credentials (anyone reading the HTML can see these). The real
+  // protection comes from Supabase RLS: the signed-in user must be flagged
+  // `is_admin = TRUE` in the customers table for the DB to return all rows.
+  const ADMIN_USERNAME = "Admin";
+  const ADMIN_PASSWORD = "WinMacbook@123";
+  const ADMIN_STATUSES = ["pending", "on-hold", "scheduled", "completed", "cancelled"];
+  let isAdmin = false;
+
+  const adminLoginModal = document.getElementById("admin-login-modal");
+  const adminLoginCloseBtn = document.getElementById("admin-login-close");
+  const adminLoginForm = document.getElementById("admin-login-form");
+  const adminLoginErr = document.getElementById("admin-login-error");
+
+  const adminPanelModal = document.getElementById("admin-panel-modal");
+  const adminPanelCloseBtn = document.getElementById("admin-panel-close");
+  const adminPanelErr = document.getElementById("admin-panel-error");
+  const adminPanelLoading = document.getElementById("admin-panel-loading");
+  const adminBookingsList = document.getElementById("admin-bookings-list");
+  const adminBookingsEmpty = document.getElementById("admin-bookings-empty");
+
+  function openAdminLogin() {
+    adminLoginErr.classList.remove("visible");
+    document.getElementById("admin-username").value = "";
+    document.getElementById("admin-password").value = "";
+    const sub = document.getElementById("admin-login-submit");
+    sub.disabled = false;
+    sub.textContent = "Sign in as admin";
+    adminLoginModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+    setTimeout(() => document.getElementById("admin-username").focus(), 50);
+  }
+  function closeAdminLogin() {
+    adminLoginModal.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+  function closeAdminPanel() {
+    adminPanelModal.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+
+  // Logo click opens admin login
+  const logoEl = document.getElementById("logo-admin");
+  if (logoEl) {
+    logoEl.addEventListener("click", openAdminLogin);
+    logoEl.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openAdminLogin(); }
+    });
+  }
+  adminLoginCloseBtn.addEventListener("click", closeAdminLogin);
+  adminLoginModal.addEventListener("click", e => { if (e.target === adminLoginModal) closeAdminLogin(); });
+  adminPanelCloseBtn.addEventListener("click", closeAdminPanel);
+  adminPanelModal.addEventListener("click", e => { if (e.target === adminPanelModal) closeAdminPanel(); });
+
+  adminLoginForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    adminLoginErr.classList.remove("visible");
+    const u = document.getElementById("admin-username").value;
+    const p = document.getElementById("admin-password").value;
+    if (u !== ADMIN_USERNAME || p !== ADMIN_PASSWORD) {
+      adminLoginErr.textContent = "Invalid username or password.";
+      adminLoginErr.classList.add("visible");
+      return;
+    }
+    if (!supa) {
+      adminLoginErr.textContent = "Supabase is not configured.";
+      adminLoginErr.classList.add("visible");
+      return;
+    }
+    if (!currentUser) {
+      adminLoginErr.textContent = "Sign in to your Supabase account first, then try admin again.";
+      adminLoginErr.classList.add("visible");
+      return;
+    }
+    const sub = document.getElementById("admin-login-submit");
+    sub.disabled = true; sub.textContent = "Verifying…";
+
+    // Check the DB-side admin flag — this is what actually unlocks data access.
+    let adminFlag = false;
+    try {
+      const { data, error } = await supa.from("customers")
+        .select("is_admin")
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+      if (error) throw error;
+      adminFlag = !!(data && data.is_admin);
+    } catch (err) {
+      console.error("Admin flag lookup failed:", err);
+      adminLoginErr.textContent = "Could not verify admin status: " + (err.message || err);
+      adminLoginErr.classList.add("visible");
+      sub.disabled = false; sub.textContent = "Sign in as admin";
+      return;
+    }
+    if (!adminFlag) {
+      adminLoginErr.innerHTML = "Your Supabase account is not flagged as admin. Run:<br><code>UPDATE customers SET is_admin = TRUE WHERE user_id = '" + currentUser.id + "';</code>";
+      adminLoginErr.classList.add("visible");
+      sub.disabled = false; sub.textContent = "Sign in as admin";
+      return;
+    }
+
+    isAdmin = true;
+    closeAdminLogin();
+    openAdminPanel();
+  });
+
+  async function openAdminPanel() {
+    adminPanelErr.classList.remove("visible");
+    adminBookingsEmpty.style.display = "none";
+    adminBookingsList.innerHTML = "";
+    adminPanelLoading.classList.add("visible");
+    adminPanelModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+    try {
+      const { data, error } = await supa
+        .from("bookings")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      renderAdminBookings(data || []);
+    } catch (err) {
+      adminPanelErr.textContent = "Failed to load bookings: " + (err.message || err);
+      adminPanelErr.classList.add("visible");
+    } finally {
+      adminPanelLoading.classList.remove("visible");
+    }
+  }
+
+  function renderAdminBookings(rows) {
+    adminBookingsList.innerHTML = "";
+    if (!rows.length) { adminBookingsEmpty.style.display = ""; return; }
+    rows.forEach(b => {
+      const card = document.createElement("div");
+      card.className = "admin-row";
+      const swList = Array.isArray(b.software_names) ? b.software_names.join(", ") : "";
+      const left = document.createElement("div");
+      left.innerHTML = `
+        <span class="ref">${escapeHtml(b.ref)}</span>
+        <div class="customer-line">${escapeHtml(b.customer_name)} · ${escapeHtml(b.customer_email)}${b.customer_phone ? " · " + escapeHtml(b.customer_phone) : ""}</div>
+        <div class="booking-details">
+          <div><strong>${escapeHtml(b.service_name)}</strong> × ${b.quantity}${swList ? ` — ${escapeHtml(swList)}` : ""}</div>
+          <div>${escapeHtml(b.booking_date)} ${b.time_display ? "· " + escapeHtml(b.time_display) : ""} · ${escapeHtml(b.mode)}</div>
+          ${b.coupon_code ? `<div>Coupon: ${escapeHtml(b.coupon_code)}</div>` : ""}
+          <div>${b.charged_amount} ${escapeHtml(b.charged_currency)} · ${escapeHtml(b.payment_method)}${b.payment_id ? " · " + escapeHtml(b.payment_id) : ""}</div>
+        </div>
+      `;
+      const right = document.createElement("div");
+      const select = document.createElement("select");
+      select.className = "admin-status-select status-pill " + (b.status || "pending");
+      ADMIN_STATUSES.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        if (b.status === s) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener("change", async () => {
+        const next = select.value;
+        const prev = b.status;
+        select.disabled = true;
+        try {
+          const { error } = await supa.from("bookings")
+            .update({ status: next })
+            .eq("ref", b.ref);
+          if (error) throw error;
+          b.status = next;
+          select.className = "admin-status-select status-pill " + next;
+          console.log(`Booking ${b.ref}: ${prev} → ${next}`);
+        } catch (err) {
+          select.value = prev;
+          alert("Status update failed: " + (err.message || err));
+        } finally {
+          select.disabled = false;
+        }
+      });
+      right.appendChild(select);
+      card.appendChild(left);
+      card.appendChild(right);
+      adminBookingsList.appendChild(card);
+    });
+  }
+
+  // Esc closes admin modals
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    if (adminPanelModal.classList.contains("visible")) closeAdminPanel();
+    else if (adminLoginModal.classList.contains("visible")) closeAdminLogin();
   });
 
   // ---- Software Catalog modal + Lightbox ------------------------------
