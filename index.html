@@ -651,13 +651,40 @@
     border: 1.5px solid #fecaca;
   }
   .coupon-msg {
-    font-size: 12.5px;
+    font-size: 13px;
     margin-top: 8px;
     min-height: 16px;
-    line-height: 1.4;
+    line-height: 1.45;
+    transition: opacity 0.15s;
   }
-  .coupon-msg.success { color: var(--ok); font-weight: 600; }
-  .coupon-msg.error { color: var(--danger); font-weight: 500; }
+  .coupon-msg.success {
+    color: #065f46;
+    font-weight: 600;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+  .coupon-msg.error {
+    color: #b91c1c;
+    font-weight: 700;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    padding: 8px 12px;
+    border-radius: 8px;
+    animation: coupon-shake 0.36s ease;
+  }
+  .coupon-row input.invalid {
+    border-color: #fca5a5;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.13);
+  }
+  @keyframes coupon-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+  }
   .sum-discount {
     color: var(--ok);
     font-size: 13px;
@@ -2175,8 +2202,13 @@
     }
     const entry = COUPONS[code];
     if (!entry) {
-      couponMsg.textContent = "Invalid coupon code.";
+      couponMsg.textContent = `Invalid coupon code: "${code}". Please check and try again.`;
       couponMsg.className = "coupon-msg error";
+      couponInput.classList.add("invalid");
+      // Restart the shake animation if it's already shown
+      couponMsg.style.animation = "none";
+      void couponMsg.offsetWidth;
+      couponMsg.style.animation = "";
       return;
     }
     // Has this email already used this code?
@@ -2205,6 +2237,7 @@
     couponInput.value = "";
     couponInput.readOnly = false;
     couponInput.classList.remove("applied");
+    couponInput.classList.remove("invalid");
     couponBtn.textContent = "Apply";
     couponBtn.classList.remove("remove");
     couponMsg.textContent = "";
@@ -2219,6 +2252,15 @@
     if (e.key === "Enter") {
       e.preventDefault();
       if (!state.couponCode) applyCoupon();
+    }
+  });
+  // Clear the invalid styling as soon as the customer edits the value.
+  couponInput.addEventListener("input", () => {
+    if (state.couponCode) return; // applied coupon is read-only; nothing to clear
+    if (couponInput.classList.contains("invalid")) {
+      couponInput.classList.remove("invalid");
+      couponMsg.textContent = "";
+      couponMsg.className = "coupon-msg";
     }
   });
 
