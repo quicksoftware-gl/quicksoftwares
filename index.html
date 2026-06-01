@@ -111,15 +111,9 @@
   }
   .hero-actions {
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 10px;
     flex: 0 0 auto;
-  }
-  .hero-buttons {
-    display: flex;
-    align-items: center;
-    gap: 10px;
   }
   .contact-trigger {
     background: rgba(255, 255, 255, 0.18);
@@ -802,6 +796,40 @@
     font-size: 12.5px;
     padding: 28px 20px 32px;
   }
+  .footer-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .footer-link:hover { text-decoration: underline; }
+  .terms-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 8px;
+    margin-top: 8px;
+    font-size: 13.5px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+  .terms-content h3 {
+    margin: 18px 0 6px;
+    font-size: 14.5px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .terms-content h3:first-child { margin-top: 4px; }
+  .terms-content p { margin: 4px 0 8px; }
+  .terms-content ul { margin: 4px 0 10px; padding-left: 22px; }
+  .terms-content li { margin-bottom: 4px; }
+  .terms-content .stamp {
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+  }
   .social-links {
     display: flex;
     justify-content: center;
@@ -1179,9 +1207,9 @@
     header.hero h1 { margin: 10px 0 10px; font-size: clamp(24px, 6vw, 34px); }
     header.hero p { font-size: 14.5px; }
     .hero-top { flex-wrap: wrap; row-gap: 12px; margin-bottom: 18px; }
-    .hero-actions { width: 100%; align-items: center; }
-    .hero-socials { align-self: center; }
-    .hero-buttons { width: 100%; justify-content: space-between; }
+    .hero-socials { width: 100%; justify-content: center; order: 2; }
+    .hero-actions { width: 100%; justify-content: space-between; order: 3; }
+    .brand-block { order: 1; }
     .hero-pill { font-size: 11px; padding: 5px 12px; }
 
     /* Main spacing */
@@ -1263,22 +1291,20 @@
       <img src="logo.png" alt="Quick Softwares logo" class="logo" />
       <div class="brand">Quick Softwares</div>
     </div>
+    <div class="social-links hero-socials" id="hero-socials">
+      <a class="wa" href="https://wa.me/917838127423" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp (+91 78381 27423)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+      </a>
+      <a class="ig" href="https://www.instagram.com/quicksoftwares_global?igsh=MTI2dDcyb3kweDZ1NA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </a>
+      <a class="yt" href="https://youtube.com/@quicksoftwares-prt?feature=shared" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      </a>
+    </div>
     <div class="hero-actions">
-      <div class="social-links hero-socials" id="hero-socials">
-        <a class="wa" href="https://wa.me/917838127423" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp (+91 78381 27423)">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-        </a>
-        <a class="ig" href="https://www.instagram.com/quicksoftwares_global?igsh=MTI2dDcyb3kweDZ1NA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-        </a>
-        <a class="yt" href="https://youtube.com/@quicksoftwares-prt?feature=shared" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        </a>
-      </div>
-      <div class="hero-buttons">
-        <button type="button" class="contact-trigger" id="catalog-open">Software Catalog</button>
-        <button type="button" class="contact-trigger" id="contact-open">Contact us</button>
-      </div>
+      <button type="button" class="contact-trigger" id="catalog-open">Software Catalog</button>
+      <button type="button" class="contact-trigger" id="contact-open">Contact us</button>
     </div>
   </div>
   <span class="hero-pill">Available now</span>
@@ -1437,6 +1463,73 @@
   <div class="lightbox-caption" id="lightbox-caption"></div>
 </div>
 
+<!-- Terms & Conditions modal -->
+<div class="modal-overlay" id="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+  <div class="modal-panel modal-panel-wide">
+    <button type="button" class="modal-close" id="terms-close" aria-label="Close">&times;</button>
+    <h2 id="terms-title">Terms &amp; Conditions</h2>
+    <p class="section-sub" style="padding-left: 0;">Please read these terms carefully before booking a software installation.</p>
+    <div class="terms-content">
+      <h3>1. Services</h3>
+      <p>Quick Softwares ("we", "us") provides remote software installation services on Windows and macOS devices. Installations are delivered either over screen-share or by sending the setup link to the customer's email, as selected during booking.</p>
+
+      <h3>2. Booking &amp; Payment</h3>
+      <ul>
+        <li>All bookings must be placed through this website.</li>
+        <li>Full payment is required at the time of booking via Razorpay (INR) or PayPal (USD).</li>
+        <li>Discount coupons apply only at the time of booking and cannot be claimed retroactively.</li>
+        <li>Prices shown are inclusive of service charges; payment-gateway fees may apply.</li>
+      </ul>
+
+      <h3>3. Software Licenses</h3>
+      <ul>
+        <li>The customer is solely responsible for owning valid licenses for the software they wish to install.</li>
+        <li>Quick Softwares does not supply, sell, or activate pirated or unlicensed software.</li>
+        <li>We are not liable for license-key validity, activation failures, or copyright violations arising from software the customer has procured elsewhere.</li>
+      </ul>
+
+      <h3>4. Installation</h3>
+      <ul>
+        <li>For <strong>Remote (screen-share)</strong> bookings, the customer must be available at the scheduled time with a stable internet connection and admin access on their device.</li>
+        <li>For <strong>Link via email</strong> bookings, setup instructions are sent to the customer's email within 3 hours of confirmed booking.</li>
+        <li>All time slots are in Indian Standard Time (IST). Customers in other zones must verify the IST equivalent.</li>
+      </ul>
+
+      <h3>5. Refunds &amp; Cancellations</h3>
+      <ul>
+        <li>Cancellations made more than 24 hours before the scheduled slot are eligible for a full refund.</li>
+        <li>Cancellations within 24 hours of the scheduled slot are non-refundable.</li>
+        <li>If we are unable to complete the installation due to issues on our side, a full refund will be processed within 7-10 business days.</li>
+        <li>Refunds are not available where installation fails due to the customer's hardware, license, internet connectivity, or unavailability.</li>
+      </ul>
+
+      <h3>6. Customer Data &amp; Privacy</h3>
+      <ul>
+        <li>The information provided at booking (name, email, phone, device details) is used solely to deliver the booked service and to send order confirmations.</li>
+        <li>We do not sell or share customer data with third parties, except as required by payment processors to complete transactions or by law.</li>
+      </ul>
+
+      <h3>7. Liability</h3>
+      <ul>
+        <li>The customer is responsible for backing up their data before any installation.</li>
+        <li>Quick Softwares is not liable for data loss, software conflicts, system instability, or any indirect damages.</li>
+        <li>Our total liability for any claim is limited to the amount actually paid for the specific booking that gave rise to the claim.</li>
+      </ul>
+
+      <h3>8. Modifications to These Terms</h3>
+      <p>We reserve the right to update these Terms &amp; Conditions at any time. The most current version posted on this page governs all subsequent bookings.</p>
+
+      <h3>9. Governing Law</h3>
+      <p>These Terms are governed by the laws of India. Any disputes are subject to the exclusive jurisdiction of the courts of the Republic of India.</p>
+
+      <h3>10. Contact</h3>
+      <p>For any questions about these terms or your booking, contact us at <strong>quicksoftwares.global@gmail.com</strong> or via WhatsApp at <strong>+91 78381 27423</strong>.</p>
+
+      <p class="stamp">Last updated: 2026-06-01.</p>
+    </div>
+  </div>
+</div>
+
 <!-- Contact us modal -->
 <div class="modal-overlay" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-title">
   <div class="modal-panel">
@@ -1474,6 +1567,8 @@
 </div>
 
 <footer>
+  <a href="#" class="footer-link" id="terms-open">Terms &amp; Conditions</a>
+  &nbsp;&middot;&nbsp;
   &copy; <span id="year"></span> Quick Softwares &middot; All bookings subject to availability.
 </footer>
 
@@ -2702,6 +2797,25 @@
   attachPhoneAutoDetect("phone", "phone-cc");
   attachPhoneAutoDetect("c-phone", "c-phone-cc");
 
+
+  // ---- Terms & Conditions modal ----
+  const termsModal = document.getElementById("terms-modal");
+  const termsOpenBtn = document.getElementById("terms-open");
+  const termsCloseBtn = document.getElementById("terms-close");
+  function openTermsModal() {
+    termsModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+  }
+  function closeTermsModal() {
+    termsModal.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+  termsOpenBtn.addEventListener("click", e => { e.preventDefault(); openTermsModal(); });
+  termsCloseBtn.addEventListener("click", closeTermsModal);
+  termsModal.addEventListener("click", e => { if (e.target === termsModal) closeTermsModal(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && termsModal.classList.contains("visible")) closeTermsModal();
+  });
 
   document.getElementById("year").textContent = new Date().getFullYear();
   updatePaymentMethodVisibility();
