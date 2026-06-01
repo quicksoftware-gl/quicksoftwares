@@ -498,6 +498,63 @@
     -webkit-appearance: none;
     margin: 0;
   }
+  .coupon-section { margin-bottom: 18px; }
+  .coupon-row { display: flex; gap: 8px; }
+  .coupon-row input { flex: 1; text-transform: uppercase; }
+  .coupon-row input.applied {
+    background: #f0fdf4;
+    border-color: #86efac;
+    color: #065f46;
+    font-weight: 700;
+  }
+  .coupon-btn {
+    padding: 11px 22px;
+    border: 0;
+    background: var(--accent-grad);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.05s;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    flex: 0 0 auto;
+    font-family: inherit;
+  }
+  .coupon-btn:hover { opacity: 0.92; }
+  .coupon-btn:active { transform: translateY(1px); }
+  .coupon-btn.remove {
+    background: #fef2f2;
+    color: var(--danger);
+    box-shadow: none;
+    border: 1.5px solid #fecaca;
+  }
+  .coupon-msg {
+    font-size: 12.5px;
+    margin-top: 8px;
+    min-height: 16px;
+    line-height: 1.4;
+  }
+  .coupon-msg.success { color: var(--ok); font-weight: 600; }
+  .coupon-msg.error { color: var(--danger); font-weight: 500; }
+  .sum-discount {
+    color: var(--ok);
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .total .strike {
+    font-size: 0.58em;
+    color: var(--muted);
+    text-decoration: line-through;
+    font-weight: 500;
+    margin-right: 8px;
+    background: none !important;
+    -webkit-text-fill-color: var(--muted);
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    letter-spacing: 0;
+  }
   .sw-tag {
     display: none;
     margin-top: 4px;
@@ -937,10 +994,19 @@
       <div>Payment ID: <span class="ref" id="success-pid"></span></div>
       <div style="margin-top: 8px; font-size: 13px;">A confirmation has been sent to our team. We'll contact you shortly to confirm the appointment.</div>
     </div>
+    <div class="coupon-section">
+      <label for="coupon-input">Discount coupon</label>
+      <div class="coupon-row">
+        <input type="text" id="coupon-input" placeholder="Enter code (e.g. 20OFF)" autocomplete="off" />
+        <button type="button" class="coupon-btn" id="coupon-apply">Apply</button>
+      </div>
+      <div class="coupon-msg" id="coupon-msg"></div>
+    </div>
     <div class="summary">
       <div>
         <div><strong id="sum-service">No service selected</strong></div>
         <div style="color: var(--muted); font-size: 13px;" id="sum-when">Pick a date and time</div>
+        <div class="sum-discount" id="sum-discount"></div>
       </div>
       <div class="total" id="sum-total">—</div>
     </div>
@@ -1060,6 +1126,16 @@
   const USD_PER_INR = 1 / 83;   // i.e. 1 USD ≈ 83 INR
 
   const MERCHANT_NAME = "Quick Softwares";
+
+  // ---- Discount coupons -----------------------------------------------
+  // Values are fractions: 1.0 = 100% off, 0.5 = 50% off, 0.2 = 20% off.
+  // Source: Discount.xlsx (Downloads folder), columns Discount_Coupon /
+  // Discount_Percentage.
+  const COUPONS = {
+    "100OFF": 1.0,
+    "50OFF":  0.5,
+    "20OFF":  0.2,
+  };
 
   // ---- Country dialling codes (alphabetical by country name) ----------
   // Flags rendered via ISO-2 regional-indicator Unicode (works on Mac/iOS;
@@ -1247,6 +1323,8 @@
     mode: "remote",
     currency: "INR",
     paymentMethod: "razorpay",
+    couponCode: "",
+    couponDiscount: 0,
   };
 
   // ---- Currency helpers ------------------------------------------------
@@ -1272,6 +1350,9 @@
     const svc = getService();
     if (!svc) return 0;
     return priceFor(svc, state.softwareNames.slice(0, state.quantity));
+  }
+  function discountedPriceINR() {
+    return currentPriceINR() * (1 - state.couponDiscount);
   }
   function currentAutodeskCount() {
     const svc = getService();
@@ -1402,6 +1483,57 @@
   }
   document.getElementById("qty-minus").addEventListener("click", () => bumpQty(-1));
   document.getElementById("qty-plus").addEventListener("click", () => bumpQty(1));
+
+  // ---- Coupon -----------------------------------------------------------
+  const couponInput = document.getElementById("coupon-input");
+  const couponBtn = document.getElementById("coupon-apply");
+  const couponMsg = document.getElementById("coupon-msg");
+
+  function applyCoupon() {
+    const code = couponInput.value.trim().toUpperCase();
+    if (!code) {
+      couponMsg.textContent = "Please enter a coupon code.";
+      couponMsg.className = "coupon-msg error";
+      return;
+    }
+    if (COUPONS[code] === undefined) {
+      couponMsg.textContent = "Invalid coupon code.";
+      couponMsg.className = "coupon-msg error";
+      return;
+    }
+    state.couponCode = code;
+    state.couponDiscount = COUPONS[code];
+    couponInput.value = code;
+    couponInput.readOnly = true;
+    couponInput.classList.add("applied");
+    couponBtn.textContent = "Remove";
+    couponBtn.classList.add("remove");
+    couponMsg.textContent = `✓ ${Math.round(state.couponDiscount * 100)}% discount applied`;
+    couponMsg.className = "coupon-msg success";
+    updateSummary();
+  }
+  function removeCoupon() {
+    state.couponCode = "";
+    state.couponDiscount = 0;
+    couponInput.value = "";
+    couponInput.readOnly = false;
+    couponInput.classList.remove("applied");
+    couponBtn.textContent = "Apply";
+    couponBtn.classList.remove("remove");
+    couponMsg.textContent = "";
+    couponMsg.className = "coupon-msg";
+    updateSummary();
+  }
+  couponBtn.addEventListener("click", () => {
+    if (state.couponCode) removeCoupon();
+    else applyCoupon();
+  });
+  couponInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (!state.couponCode) applyCoupon();
+    }
+  });
 
   qtyEl.addEventListener("input", e => {
     let v = parseInt(e.target.value || "1", 10);
@@ -1541,7 +1673,23 @@
         : "Pick a date and time";
     }
     document.getElementById("sum-when").textContent = whenText;
-    document.getElementById("sum-total").textContent = svc ? formatPrice(currentPriceINR()) : "—";
+    const sumDiscountEl = document.getElementById("sum-discount");
+    const sumTotalEl = document.getElementById("sum-total");
+    if (!svc) {
+      sumTotalEl.textContent = "—";
+      sumDiscountEl.textContent = "";
+      return;
+    }
+    if (state.couponDiscount > 0) {
+      const pct = Math.round(state.couponDiscount * 100);
+      sumDiscountEl.textContent = `− ${pct}% off (${state.couponCode})`;
+      sumTotalEl.innerHTML =
+        `<span class="strike">${formatPrice(currentPriceINR())}</span>` +
+        formatPrice(discountedPriceINR());
+    } else {
+      sumDiscountEl.textContent = "";
+      sumTotalEl.textContent = formatPrice(currentPriceINR());
+    }
   }
 
   // ---- UI helpers ------------------------------------------------------
@@ -1593,9 +1741,11 @@
   }
 
   function buildBooking(v, ref) {
-    const priceINR = priceFor(v.svc, v.softwareNames);
+    const subtotalINR = priceFor(v.svc, v.softwareNames);
+    const priceINR = subtotalINR * (1 - state.couponDiscount);
     const chargedAmountRaw = amountIn(state.currency, priceINR);
     const chargedAmount = roundForCurrency(chargedAmountRaw, state.currency);
+    const subtotalCharged = roundForCurrency(amountIn(state.currency, subtotalINR), state.currency);
     const autodeskFlags = v.svc.allowAutodesk ? v.softwareNames.map(isAutodeskName) : v.softwareNames.map(() => false);
     return {
       ref,
@@ -1605,9 +1755,13 @@
       autodeskCount: autodeskFlags.filter(Boolean).length,
       softwareNames: v.softwareNames,
       autodeskFlags,
+      subtotalINR,
       priceINR,
+      subtotalCharged,
       chargedAmount,
       chargedCurrency: state.currency,
+      couponCode: state.couponCode || "",
+      couponDiscount: state.couponDiscount,
       paymentMethod: state.paymentMethod,
       date: state.date,
       timeIst: state.mode === "email-link" ? "" : state.time,
@@ -1642,8 +1796,11 @@
       software_list: booking.softwareNames
         .map((n, i) => `${i + 1}. ${n}${booking.autodeskFlags[i] ? " [Autodesk ₹7,500]" : ""}`)
         .join(" | "),
+      subtotal: booking.subtotalCharged + " " + booking.chargedCurrency,
+      coupon_code: booking.couponCode || "(none)",
+      discount_percent: booking.couponDiscount ? Math.round(booking.couponDiscount * 100) + "%" : "0%",
       amount_charged: booking.chargedAmount + " " + booking.chargedCurrency,
-      base_price_inr: "₹" + booking.priceINR,
+      base_price_inr: "₹" + Math.round(booking.priceINR),
       payment_method: booking.paymentMethod,
       payment_id: paymentId || "(unknown)",
       date: booking.date,
@@ -1789,6 +1946,15 @@
     payBtn.disabled = true;
     payBtn.textContent = "Preparing payment…";
     payLoading.classList.add("visible");
+
+    // 100% discount: skip payment entirely
+    if (booking.chargedAmount <= 0) {
+      const freeId = "FREE-" + booking.ref;
+      payLoading.classList.remove("visible");
+      showSuccess(booking.ref, freeId);
+      sendEmail(booking, freeId).catch(err => console.error("Email send failed:", err));
+      return;
+    }
 
     if (booking.paymentMethod === "razorpay") {
       startRazorpay(booking);
