@@ -2725,9 +2725,13 @@
     const submitBtn = document.getElementById("signup-submit");
     submitBtn.disabled = true; submitBtn.textContent = "Creating account…";
     try {
+      const redirectTo = window.location.href.split("#")[0].split("?")[0];
       const { data, error } = await supa.auth.signUp({
         email, password,
-        options: { data: phone ? { phone } : {} },
+        options: {
+          data: phone ? { phone } : {},
+          emailRedirectTo: redirectTo,
+        },
       });
       if (error) throw error;
       document.getElementById("otp-email-target").textContent = email;
@@ -2760,8 +2764,13 @@
   document.getElementById("otp-email-resend").addEventListener("click", async () => {
     clearAuthErrors();
     const email = document.getElementById("signup-email").value.trim();
+    const redirectTo = window.location.href.split("#")[0].split("?")[0];
     try {
-      const { error } = await supa.auth.resend({ type: "signup", email });
+      const { error } = await supa.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: redirectTo },
+      });
       if (error) throw error;
       showErr("otp-email-error", "Code resent. Check your inbox.");
       document.getElementById("otp-email-error").style.background = "#ecfdf5";
@@ -2972,8 +2981,13 @@
   function updateAuthUI() {
     const signedIn = !!currentUser;
     authOpenBtn.style.display = signedIn ? "none" : "";
-    authPill.style.display = signedIn ? "" : "none";
+    authMenu.style.display = signedIn ? "" : "none";
     gateBanner.style.display = signedIn ? "none" : "";
+    // Close the auth modal if it's still open after sign-in
+    if (signedIn && authModal.classList.contains("visible")) {
+      // If we're already on the "success" step, leave it; otherwise close.
+      if (authSuccess.style.display === "none") closeAuthModal();
+    }
     if (signedIn) {
       const email = currentUser.email || currentUser.phone || "Account";
       authPillEmail.textContent = email.length > 22 ? email.substring(0, 20) + "…" : email;
