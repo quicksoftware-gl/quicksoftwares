@@ -1403,17 +1403,17 @@
       <button class="btn" type="submit" id="signup-submit">Create account</button>
     </form>
 
-    <!-- Email OTP -->
-    <form id="otp-email-form" class="auth-form" style="display: none;">
-      <h2>Verify your email</h2>
-      <div class="otp-target">We sent a 6-digit code to <strong id="otp-email-target"></strong></div>
-      <div class="error" id="otp-email-error"></div>
-      <div class="field">
-        <input type="text" id="otp-email-code" class="otp-input" inputmode="numeric" pattern="\d{6}" maxlength="6" placeholder="······" autocomplete="one-time-code" />
+    <!-- Verification email sent -->
+    <div id="verify-link-step" class="auth-form" style="display: none;">
+      <h2>Check your email</h2>
+      <div class="otp-target">We sent a verification link to <strong id="verify-target"></strong></div>
+      <p class="section-sub" style="padding-left: 0;">Click the link in that email to verify your account. You can close this window — once you click the link, you'll be signed in automatically.</p>
+      <div class="error" id="verify-error"></div>
+      <div class="success" id="verify-success" style="margin-bottom: 14px;">
+        <h3>Email sent again</h3>
       </div>
-      <button class="btn" type="submit" id="otp-email-submit">Verify email</button>
-      <button type="button" class="link-btn" id="otp-email-resend">Resend code</button>
-    </form>
+      <button type="button" class="link-btn" id="verify-resend">Resend email</button>
+    </div>
 
     <!-- Success -->
     <div id="auth-success" class="auth-form" style="display: none;">
@@ -2712,7 +2712,7 @@
 
   const loginForm = document.getElementById("auth-login-form");
   const signupForm = document.getElementById("auth-signup-form");
-  const otpEmailForm = document.getElementById("otp-email-form");
+  const verifyLinkStep = document.getElementById("verify-link-step");
   const authSuccess = document.getElementById("auth-success");
 
   function openAuthModal(mode = "login") {
@@ -2731,15 +2731,15 @@
   }
   function showAuthStep(mode) {
     const tabs = document.querySelectorAll(".auth-tab");
-    [loginForm, signupForm, otpEmailForm, authSuccess].forEach(el => el.style.display = "none");
+    [loginForm, signupForm, verifyLinkStep, authSuccess].forEach(el => el.style.display = "none");
     if (mode === "login")   { loginForm.style.display = "";   tabs.forEach(t => t.classList.toggle("selected", t.dataset.mode === "login")); }
     else if (mode === "signup") { signupForm.style.display = "";  tabs.forEach(t => t.classList.toggle("selected", t.dataset.mode === "signup")); }
-    else if (mode === "otp-email") otpEmailForm.style.display = "";
-    else if (mode === "success")   authSuccess.style.display = "";
+    else if (mode === "verify-link") verifyLinkStep.style.display = "";
+    else if (mode === "success")     authSuccess.style.display = "";
     document.getElementById("auth-tabs").style.display = (mode === "login" || mode === "signup") ? "" : "none";
   }
   function clearAuthErrors() {
-    ["login-error", "signup-error", "otp-email-error"].forEach(id => {
+    ["login-error", "signup-error", "verify-error"].forEach(id => {
       const el = document.getElementById(id);
       el.classList.remove("visible");
       el.textContent = "";
@@ -2800,8 +2800,8 @@
         },
       });
       if (error) throw error;
-      document.getElementById("otp-email-target").textContent = email;
-      showAuthStep("otp-email");
+      document.getElementById("verify-target").textContent = email;
+      showAuthStep("verify-link");
     } catch (err) {
       showErr("signup-error", err.message || "Sign-up failed.");
     } finally {
@@ -2809,27 +2809,15 @@
     }
   });
 
-  // Email OTP verify
-  otpEmailForm.addEventListener("submit", async e => {
-    e.preventDefault();
+  // Resend verification email
+  document.getElementById("verify-resend").addEventListener("click", async () => {
     clearAuthErrors();
+    document.getElementById("verify-success").classList.remove("visible");
     const email = document.getElementById("signup-email").value.trim();
-    const token = document.getElementById("otp-email-code").value.trim();
-    const submitBtn = document.getElementById("otp-email-submit");
-    submitBtn.disabled = true; submitBtn.textContent = "Verifying…";
-    try {
-      const { error } = await supa.auth.verifyOtp({ email, token, type: "signup" });
-      if (error) throw error;
-      showAuthStep("success");
-    } catch (err) {
-      showErr("otp-email-error", err.message || "Verification failed.");
-    } finally {
-      submitBtn.disabled = false; submitBtn.textContent = "Verify email";
+    if (!email) {
+      showErr("verify-error", "Sign up again to receive a new link.");
+      return;
     }
-  });
-  document.getElementById("otp-email-resend").addEventListener("click", async () => {
-    clearAuthErrors();
-    const email = document.getElementById("signup-email").value.trim();
     const redirectTo = window.location.href.split("#")[0].split("?")[0];
     try {
       const { error } = await supa.auth.resend({
@@ -2838,16 +2826,32 @@
         options: { emailRedirectTo: redirectTo },
       });
       if (error) throw error;
-      showErr("otp-email-error", "Code resent. Check your inbox.");
-      document.getElementById("otp-email-error").style.background = "#ecfdf5";
-      document.getElementById("otp-email-error").style.color = "#065f46";
-      document.getElementById("otp-email-error").style.borderColor = "#a7f3d0";
+      document.getElementById("verify-success").classList.add("visible");
     } catch (err) {
-      showErr("otp-email-error", err.message || "Could not resend.");
+      showErr("verify-error", err.message || "Could not resend.");
     }
   });
 
   document.getElementById("auth-continue").addEventListener("click", closeAuthModal);
+
+  // ---- customers table upsert (runs after email is verified) ----
+  // Idempotent — safe to call on every confirmed sign-in.
+  async function ensureCustomerRow(user) {
+    if (!supa || !user) return;
+    if (!user.email_confirmed_at && !user.confirmed_at) return; // only verified users
+    const phone = user.phone || (user.user_metadata && user.user_metadata.phone) || null;
+    try {
+      const { error } = await supa.from("customers").upsert({
+        user_id: user.id,
+        email: user.email || null,
+        phone,
+      }, { onConflict: "user_id" });
+      if (error) console.error("customers upsert failed:", error);
+      else console.log("Customer profile saved:", user.email);
+    } catch (err) {
+      console.error("customers upsert exception:", err);
+    }
+  }
 
   // Dropdown menu — toggle on click, close on outside click / Esc
   function toggleAuthDropdown(force) {
@@ -3321,10 +3325,14 @@
   if (supa) {
     supa.auth.getSession().then(({ data: { session } }) => {
       currentUser = session?.user || null;
+      if (currentUser) ensureCustomerRow(currentUser);
       updateAuthUI();
     });
-    supa.auth.onAuthStateChange((_event, session) => {
+    supa.auth.onAuthStateChange((event, session) => {
       currentUser = session?.user || null;
+      if (currentUser && (event === "SIGNED_IN" || event === "USER_UPDATED" || event === "TOKEN_REFRESHED")) {
+        ensureCustomerRow(currentUser);
+      }
       updateAuthUI();
     });
   } else {
