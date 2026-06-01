@@ -1,15 +1,18 @@
-name: Update catalog manifest
+name: Update manifests
 
-# Runs every 10 minutes (subject to GitHub's scheduling delays — see notes below),
-# on every push that touches the catalog folder or this workflow, and on manual
-# dispatch from the Actions tab.
+# Regenerates catalog-manifest.js (from catalog/) and coupons-manifest.js
+# (from Discount.xlsx) every 10 minutes (subject to GitHub's scheduling
+# delays — see notes), on every push that touches relevant files, and on
+# manual dispatch from the Actions tab.
 on:
   schedule:
     - cron: '*/10 * * * *'
   push:
     paths:
       - 'catalog/**'
+      - 'Discount.xlsx'
       - 'update-catalog.sh'
+      - 'update-coupons.py'
       - '.github/workflows/update-catalog.yml'
   workflow_dispatch:
 
@@ -22,19 +25,29 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - name: Run update-catalog.sh
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Regenerate catalog-manifest.js
         run: |
           chmod +x ./update-catalog.sh
           ./update-catalog.sh
 
-      - name: Commit manifest if changed
+      - name: Regenerate coupons-manifest.js
+        run: |
+          chmod +x ./update-coupons.py
+          ./update-coupons.py
+
+      - name: Commit manifests if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet catalog-manifest.js; then
+          if git diff --quiet catalog-manifest.js coupons-manifest.js; then
             echo "No manifest changes — nothing to commit."
             exit 0
           fi
-          git add catalog-manifest.js
-          git commit -m "chore: refresh catalog manifest"
+          git add catalog-manifest.js coupons-manifest.js
+          git commit -m "chore: refresh manifests"
           git push
