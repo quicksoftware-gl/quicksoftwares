@@ -1519,12 +1519,12 @@
     <div class="error" id="admin-login-error"></div>
     <form id="admin-login-form" class="auth-form">
       <div class="field">
-        <label for="admin-username">Username</label>
-        <input type="text" id="admin-username" autocomplete="off" autocapitalize="off" required />
+        <label for="admin-email">Admin email</label>
+        <input type="email" id="admin-email" autocomplete="username" required />
       </div>
       <div class="field">
         <label for="admin-password">Password</label>
-        <input type="password" id="admin-password" autocomplete="off" required />
+        <input type="password" id="admin-password" autocomplete="current-password" required />
       </div>
       <button class="btn" type="submit" id="admin-login-submit">Sign in as admin</button>
     </form>
@@ -2550,11 +2550,11 @@
   });
 
   // ---- Admin panel ----------------------------------------------------
-  // UI-only credentials (anyone reading the HTML can see these). The real
-  // protection comes from Supabase RLS: the signed-in user must be flagged
-  // `is_admin = TRUE` in the customers table for the DB to return all rows.
-  const ADMIN_USERNAME = "Admin";
-  const ADMIN_PASSWORD = "WinMacbook@123";
+  // The admin signs in as a regular Supabase auth user whose customers row
+  // has is_admin = TRUE. There are NO credentials in this page source. The
+  // password lives only in Supabase, hashed and salted; rate-limiting,
+  // brute-force protection and session management are all handled by
+  // supa.auth.signInWithPassword(). RLS gates the actual DB access.
   const ADMIN_STATUSES = ["pending", "on-hold", "scheduled", "completed", "cancelled"];
   let isAdmin = false;
 
@@ -2572,14 +2572,14 @@
 
   function openAdminLogin() {
     adminLoginErr.classList.remove("visible");
-    document.getElementById("admin-username").value = "";
+    document.getElementById("admin-email").value = "";
     document.getElementById("admin-password").value = "";
     const sub = document.getElementById("admin-login-submit");
     sub.disabled = false;
     sub.textContent = "Sign in as admin";
     adminLoginModal.classList.add("visible");
     document.body.style.overflow = "hidden";
-    setTimeout(() => document.getElementById("admin-username").focus(), 50);
+    setTimeout(() => document.getElementById("admin-email").focus(), 50);
   }
   function closeAdminLogin() {
     adminLoginModal.classList.remove("visible");
@@ -2590,12 +2590,29 @@
     document.body.style.overflow = "";
   }
 
-  // Logo click opens admin login
+  // Logo click: if already signed in as an admin, skip the login modal.
+  async function handleLogoClick() {
+    if (!supa) { openAdminLogin(); return; }
+    if (currentUser) {
+      try {
+        const { data } = await supa.from("customers")
+          .select("is_admin")
+          .eq("user_id", currentUser.id)
+          .maybeSingle();
+        if (data && data.is_admin) {
+          isAdmin = true;
+          openAdminPanel();
+          return;
+        }
+      } catch (e) { /* fall through to login */ }
+    }
+    openAdminLogin();
+  }
   const logoEl = document.getElementById("logo-admin");
   if (logoEl) {
-    logoEl.addEventListener("click", openAdminLogin);
+    logoEl.addEventListener("click", handleLogoClick);
     logoEl.addEventListener("keydown", e => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openAdminLogin(); }
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleLogoClick(); }
     });
   }
   adminLoginCloseBtn.addEventListener("click", closeAdminLogin);
@@ -2606,44 +2623,49 @@
   adminLoginForm.addEventListener("submit", async e => {
     e.preventDefault();
     adminLoginErr.classList.remove("visible");
-    const u = document.getElementById("admin-username").value;
-    const p = document.getElementById("admin-password").value;
-    if (u !== ADMIN_USERNAME || p !== ADMIN_PASSWORD) {
-      adminLoginErr.textContent = "Invalid username or password.";
-      adminLoginErr.classList.add("visible");
-      return;
-    }
     if (!supa) {
       adminLoginErr.textContent = "Supabase is not configured.";
       adminLoginErr.classList.add("visible");
       return;
     }
-    if (!currentUser) {
-      adminLoginErr.textContent = "Sign in to your Supabase account first, then try admin again.";
+    const email = document.getElementById("admin-email").value.trim();
+    const password = document.getElementById("admin-password").value;
+    const sub = document.getElementById("admin-login-submit");
+    sub.disabled = true; sub.textContent = "Signing in…";
+
+    // 1. Authenticate via Supabase (replaces any current session)
+    let user;
+    try {
+      const { data, error } = await supa.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      user = data.user;
+    } catch (err) {
+      adminLoginErr.textContent = err.message || "Sign-in failed.";
       adminLoginErr.classList.add("visible");
+      sub.disabled = false; sub.textContent = "Sign in as admin";
       return;
     }
-    const sub = document.getElementById("admin-login-submit");
-    sub.disabled = true; sub.textContent = "Verifying…";
 
-    // Check the DB-side admin flag — this is what actually unlocks data access.
+    // 2. Confirm the signed-in account is flagged as admin in the DB
     let adminFlag = false;
     try {
       const { data, error } = await supa.from("customers")
         .select("is_admin")
-        .eq("user_id", currentUser.id)
+        .eq("user_id", user.id)
         .maybeSingle();
       if (error) throw error;
       adminFlag = !!(data && data.is_admin);
     } catch (err) {
-      console.error("Admin flag lookup failed:", err);
+      // Sign back out — they're not authorized to do anything meaningful
+      await supa.auth.signOut();
       adminLoginErr.textContent = "Could not verify admin status: " + (err.message || err);
       adminLoginErr.classList.add("visible");
       sub.disabled = false; sub.textContent = "Sign in as admin";
       return;
     }
     if (!adminFlag) {
-      adminLoginErr.innerHTML = "Your Supabase account is not flagged as admin. Run:<br><code>UPDATE customers SET is_admin = TRUE WHERE user_id = '" + currentUser.id + "';</code>";
+      await supa.auth.signOut();
+      adminLoginErr.textContent = "This account is not flagged as admin.";
       adminLoginErr.classList.add("visible");
       sub.disabled = false; sub.textContent = "Sign in as admin";
       return;
