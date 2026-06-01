@@ -887,19 +887,118 @@
     font-weight: 700;
     color: #fff;
   }
-  .auth-pill .signout {
-    background: rgba(255, 255, 255, 0.18);
-    border: 0;
-    color: #fff;
+  .auth-pill {
     cursor: pointer;
-    padding: 4px 10px;
+    user-select: none;
+  }
+  .auth-pill .dropdown-arrow {
+    font-size: 11px;
+    opacity: 0.85;
+    margin-left: 2px;
+    transition: transform 0.15s;
+  }
+  .auth-menu.open .dropdown-arrow { transform: rotate(180deg); }
+  .auth-menu { position: relative; }
+  .auth-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 14px 40px rgba(15, 23, 42, 0.22);
+    min-width: 200px;
+    padding: 6px;
+    display: none;
+    z-index: 100;
+    color: var(--text);
+    text-align: left;
+  }
+  .auth-menu.open .auth-dropdown { display: block; }
+  .dropdown-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: 0;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    transition: background 0.12s;
+  }
+  .dropdown-item:hover { background: #f1f5f9; }
+  .dropdown-item.danger { color: var(--danger); }
+  .dropdown-item.danger:hover { background: #fef2f2; }
+  .dropdown-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 6px 4px;
+  }
+
+  /* Bookings list */
+  .bookings-list { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+  .booking-card {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    background: #fff;
+    transition: box-shadow 0.18s, border-color 0.18s;
+  }
+  .booking-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  }
+  .booking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .booking-header .ref {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .booking-details {
+    color: var(--text-2);
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .booking-details strong { color: var(--text); font-weight: 700; }
+  .booking-amount {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 14.5px;
+    margin-top: 4px;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
     border-radius: 999px;
     font-size: 12px;
-    font-weight: 600;
-    margin-left: 6px;
-    font-family: inherit;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
-  .auth-pill .signout:hover { background: rgba(255, 255, 255, 0.32); }
+  .status-pill::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .status-pill.completed { background: #ecfdf5; color: #065f46; }
+  .status-pill.scheduled { background: #eff6ff; color: #1d4ed8; }
+  .status-pill.pending   { background: #fef3c7; color: #92400e; }
+  .status-pill.cancelled { background: #fef2f2; color: #b91c1c; }
   .gate-banner {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     border: 1px solid #fbbf24;
@@ -1023,13 +1122,21 @@
     </div>
     <div class="hero-actions">
       <button type="button" class="contact-trigger" id="catalog-open">Software Catalog</button>
-      <button type="button" class="contact-trigger" id="auth-open">Sign in</button>
-      <span class="auth-pill" id="auth-pill" style="display: none;">
-        <span class="avatar" id="auth-avatar"></span>
-        <span id="auth-pill-email"></span>
-        <button type="button" class="signout" id="auth-signout">Sign out</button>
-      </span>
       <button type="button" class="contact-trigger" id="contact-open">Contact us</button>
+      <button type="button" class="contact-trigger" id="auth-open">Sign in</button>
+      <div class="auth-menu" id="auth-menu" style="display: none;">
+        <span class="auth-pill" id="auth-pill" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+          <span class="avatar" id="auth-avatar"></span>
+          <span id="auth-pill-email"></span>
+          <span class="dropdown-arrow" aria-hidden="true">▾</span>
+        </span>
+        <div class="auth-dropdown" id="auth-dropdown" role="menu">
+          <button type="button" class="dropdown-item" id="menu-bookings" role="menuitem">My Bookings</button>
+          <button type="button" class="dropdown-item" id="menu-password" role="menuitem">Change Password</button>
+          <div class="dropdown-divider"></div>
+          <button type="button" class="dropdown-item danger" id="menu-signout" role="menuitem">Sign Out</button>
+        </div>
+      </div>
     </div>
   </div>
   <span class="hero-pill">Available now</span>
@@ -1271,6 +1378,47 @@
       <p class="section-sub">Welcome to Quick Softwares.</p>
       <button class="btn" type="button" id="auth-continue">Continue to booking</button>
     </div>
+  </div>
+</div>
+
+<!-- Change Password modal -->
+<div class="modal-overlay" id="password-modal" role="dialog" aria-modal="true" aria-labelledby="password-title">
+  <div class="modal-panel">
+    <button type="button" class="modal-close" id="password-close" aria-label="Close">&times;</button>
+    <h2 id="password-title">Change password</h2>
+    <p class="section-sub" style="padding-left: 0;">Set a new password for your account.</p>
+    <div class="error" id="password-error"></div>
+    <div class="success" id="password-success">
+      <h3>Password updated</h3>
+      <div>You can now sign in with your new password.</div>
+    </div>
+    <form id="password-form" class="auth-form">
+      <div class="field">
+        <label for="new-password">New password (min 6 characters)</label>
+        <input type="password" id="new-password" autocomplete="new-password" minlength="6" required />
+      </div>
+      <div class="field">
+        <label for="confirm-password">Confirm new password</label>
+        <input type="password" id="confirm-password" autocomplete="new-password" minlength="6" required />
+      </div>
+      <button class="btn" type="submit" id="password-submit">Update password</button>
+    </form>
+  </div>
+</div>
+
+<!-- Bookings modal -->
+<div class="modal-overlay" id="bookings-modal" role="dialog" aria-modal="true" aria-labelledby="bookings-title">
+  <div class="modal-panel modal-panel-wide">
+    <button type="button" class="modal-close" id="bookings-close" aria-label="Close">&times;</button>
+    <h2 id="bookings-title">My Bookings</h2>
+    <p class="section-sub" style="padding-left: 0;">Your booking history with current status.</p>
+    <div class="error" id="bookings-error"></div>
+    <div class="pay-loading" id="bookings-loading">Loading bookings…</div>
+    <div class="bookings-list" id="bookings-list"></div>
+    <p class="catalog-empty" id="bookings-empty" style="display: none;">
+      <strong>No bookings yet.</strong>
+      When you complete a booking, it'll show up here.
+    </p>
   </div>
 </div>
 
@@ -1979,6 +2127,10 @@
     paypalContainer.innerHTML = "";
     payLoading.classList.remove("visible");
     successEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Persist to Supabase if signed in
+    if (typeof saveBookingToSupabase === "function" && currentBooking) {
+      saveBookingToSupabase(currentBooking, pid);
+    }
   }
 
   // ---- Validation ------------------------------------------------------
@@ -2484,10 +2636,11 @@
   const authModal = document.getElementById("auth-modal");
   const authOpenBtn = document.getElementById("auth-open");
   const authCloseBtn = document.getElementById("auth-close");
+  const authMenu = document.getElementById("auth-menu");
   const authPill = document.getElementById("auth-pill");
+  const authDropdown = document.getElementById("auth-dropdown");
   const authPillEmail = document.getElementById("auth-pill-email");
   const authAvatar = document.getElementById("auth-avatar");
-  const authSignoutBtn = document.getElementById("auth-signout");
   const gateBanner = document.getElementById("gate-banner");
   const gateSigninBtn = document.getElementById("gate-signin");
 
@@ -2621,11 +2774,199 @@
 
   document.getElementById("auth-continue").addEventListener("click", closeAuthModal);
 
+  // Dropdown menu — toggle on click, close on outside click / Esc
+  function toggleAuthDropdown(force) {
+    const open = force !== undefined ? force : !authMenu.classList.contains("open");
+    authMenu.classList.toggle("open", open);
+    authPill.setAttribute("aria-expanded", String(open));
+  }
+  authPill.addEventListener("click", e => { e.stopPropagation(); toggleAuthDropdown(); });
+  authPill.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleAuthDropdown(); }
+  });
+  document.addEventListener("click", e => {
+    if (!authMenu.contains(e.target)) toggleAuthDropdown(false);
+  });
+
   // Sign out
-  authSignoutBtn.addEventListener("click", async () => {
+  document.getElementById("menu-signout").addEventListener("click", async () => {
+    toggleAuthDropdown(false);
     if (!supa) return;
     await supa.auth.signOut();
   });
+
+  // ---- Change password modal ----
+  const passwordModal = document.getElementById("password-modal");
+  const passwordCloseBtn = document.getElementById("password-close");
+  const passwordForm = document.getElementById("password-form");
+  const passwordErrEl = document.getElementById("password-error");
+  const passwordSuccessEl = document.getElementById("password-success");
+  function openPasswordModal() {
+    passwordErrEl.classList.remove("visible");
+    passwordSuccessEl.classList.remove("visible");
+    document.getElementById("new-password").value = "";
+    document.getElementById("confirm-password").value = "";
+    const sub = document.getElementById("password-submit");
+    sub.disabled = false; sub.style.display = "";
+    sub.textContent = "Update password";
+    passwordModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+  }
+  function closePasswordModal() {
+    passwordModal.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+  document.getElementById("menu-password").addEventListener("click", () => {
+    toggleAuthDropdown(false);
+    openPasswordModal();
+  });
+  passwordCloseBtn.addEventListener("click", closePasswordModal);
+  passwordModal.addEventListener("click", e => { if (e.target === passwordModal) closePasswordModal(); });
+  passwordForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    passwordErrEl.classList.remove("visible");
+    const pw1 = document.getElementById("new-password").value;
+    const pw2 = document.getElementById("confirm-password").value;
+    if (pw1 !== pw2) {
+      passwordErrEl.textContent = "Passwords do not match.";
+      passwordErrEl.classList.add("visible");
+      return;
+    }
+    const sub = document.getElementById("password-submit");
+    sub.disabled = true; sub.textContent = "Updating…";
+    try {
+      const { error } = await supa.auth.updateUser({ password: pw1 });
+      if (error) throw error;
+      passwordSuccessEl.classList.add("visible");
+      sub.style.display = "none";
+    } catch (err) {
+      passwordErrEl.textContent = err.message || "Could not update password.";
+      passwordErrEl.classList.add("visible");
+      sub.disabled = false; sub.textContent = "Update password";
+    }
+  });
+
+  // ---- Bookings modal ----
+  const bookingsModal = document.getElementById("bookings-modal");
+  const bookingsCloseBtn = document.getElementById("bookings-close");
+  const bookingsList = document.getElementById("bookings-list");
+  const bookingsEmpty = document.getElementById("bookings-empty");
+  const bookingsLoading = document.getElementById("bookings-loading");
+  const bookingsErr = document.getElementById("bookings-error");
+
+  function effectiveStatus(b) {
+    if (["completed", "cancelled", "pending"].includes(b.status)) return b.status;
+    // "scheduled" → check if date has passed
+    try {
+      const d = new Date(b.booking_date + "T00:00:00");
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      if (d < today) return "completed";
+    } catch (e) {}
+    return "scheduled";
+  }
+  function escapeHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+  function renderBookings(rows) {
+    bookingsList.innerHTML = "";
+    if (!rows || !rows.length) { bookingsEmpty.style.display = ""; return; }
+    bookingsEmpty.style.display = "none";
+    rows.forEach(b => {
+      const status = effectiveStatus(b);
+      const swList = Array.isArray(b.software_names) ? b.software_names.join(", ") : "";
+      const card = document.createElement("div");
+      card.className = "booking-card";
+      card.innerHTML = `
+        <div class="booking-header">
+          <span class="ref">${escapeHtml(b.ref)}</span>
+          <span class="status-pill ${status}">${status}</span>
+        </div>
+        <div class="booking-details">
+          <div><strong>${escapeHtml(b.service_name)}</strong> × ${b.quantity}${swList ? ` — ${escapeHtml(swList)}` : ""}</div>
+          <div>${escapeHtml(b.booking_date)} ${b.time_display ? "· " + escapeHtml(b.time_display) : ""} · ${escapeHtml(b.mode)}</div>
+          ${b.coupon_code ? `<div>Coupon: ${escapeHtml(b.coupon_code)}</div>` : ""}
+          <div class="booking-amount">${b.charged_amount} ${escapeHtml(b.charged_currency)} · ${escapeHtml(b.payment_method)}</div>
+        </div>
+      `;
+      bookingsList.appendChild(card);
+    });
+  }
+  async function openBookingsModal() {
+    bookingsModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+    bookingsErr.classList.remove("visible");
+    bookingsEmpty.style.display = "none";
+    bookingsList.innerHTML = "";
+    bookingsLoading.classList.add("visible");
+    try {
+      const { data, error } = await supa
+        .from("bookings")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      renderBookings(data || []);
+    } catch (err) {
+      bookingsErr.textContent = err.message || "Could not load bookings.";
+      bookingsErr.classList.add("visible");
+    } finally {
+      bookingsLoading.classList.remove("visible");
+    }
+  }
+  function closeBookingsModal() {
+    bookingsModal.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+  document.getElementById("menu-bookings").addEventListener("click", () => {
+    toggleAuthDropdown(false);
+    openBookingsModal();
+  });
+  bookingsCloseBtn.addEventListener("click", closeBookingsModal);
+  bookingsModal.addEventListener("click", e => { if (e.target === bookingsModal) closeBookingsModal(); });
+
+  // ---- Persist booking to Supabase after a successful payment ----
+  async function saveBookingToSupabase(booking, paymentId) {
+    if (!supa || !currentUser) return;
+    const row = {
+      user_id: currentUser.id,
+      ref: booking.ref,
+      service_id: booking.service,
+      service_name: booking.serviceName,
+      quantity: booking.quantity,
+      software_names: booking.softwareNames,
+      autodesk_count: booking.autodeskCount,
+      subtotal_inr: booking.subtotalINR,
+      price_inr: booking.priceINR,
+      charged_amount: booking.chargedAmount,
+      charged_currency: booking.chargedCurrency,
+      coupon_code: booking.couponCode || null,
+      coupon_type: booking.couponType || null,
+      coupon_value: booking.couponValue || null,
+      payment_method: booking.paymentMethod,
+      payment_id: paymentId || "",
+      booking_date: booking.date,
+      time_ist: booking.timeIst || null,
+      time_display: booking.timeDisplay || null,
+      mode: booking.mode,
+      customer_name: booking.name,
+      customer_email: booking.email,
+      customer_phone: booking.phone || null,
+      device: booking.device || null,
+      notes: booking.notes || null,
+      status: booking.chargedAmount <= 0 ? "pending" : "scheduled",
+    };
+    try {
+      const { error } = await supa.from("bookings").insert(row);
+      if (error) console.error("Booking save failed:", error);
+    } catch (err) {
+      console.error("Booking save failed:", err);
+    }
+  }
+  // The Razorpay / PayPal / free-order handlers all call showSuccess(ref, pid)
+  // with `currentBooking` set. We piggyback on that function — see the
+  // saveBookingToSupabase(currentBooking, pid) call added to showSuccess below.
 
   // Update auth UI based on current user
   function updateAuthUI() {
