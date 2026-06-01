@@ -10,6 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="catalog-manifest.js"></script>
 <script src="coupons-manifest.js"></script>
+<!-- Supabase auth SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg: #0f172a;
@@ -797,6 +799,131 @@
   }
   .pay-loading.visible { display: block; }
 
+  /* ---- Auth modal ---- */
+  .auth-tabs {
+    display: flex;
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 4px;
+    margin: 6px 0 22px;
+  }
+  .auth-tab {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    font-family: inherit;
+  }
+  .auth-tab.selected {
+    background: #fff;
+    color: var(--accent);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+  }
+  .auth-form h2 { margin-bottom: 6px; gap: 0; }
+  .auth-form .section-sub { padding-left: 0; margin-bottom: 18px; }
+  .auth-form .btn { margin-top: 4px; }
+  .auth-form .link-btn {
+    background: none;
+    border: 0;
+    color: var(--accent);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 4px;
+    margin-top: 10px;
+    font-family: inherit;
+  }
+  .auth-form .link-btn:hover { text-decoration: underline; }
+  .otp-target {
+    background: linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%);
+    border: 1px solid rgba(124, 58, 237, 0.12);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    margin-bottom: 14px;
+    word-break: break-all;
+  }
+  .otp-target strong { color: var(--accent); }
+  .otp-input {
+    width: 100%;
+    text-align: center;
+    font-size: 26px !important;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    padding: 16px 12px !important;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Hero — Auth status pill */
+  .auth-pill {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    padding: 10px 14px 10px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    white-space: nowrap;
+  }
+  .auth-pill .avatar {
+    width: 22px;
+    height: 22px;
+    background: var(--accent-grad);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .auth-pill .signout {
+    background: rgba(255, 255, 255, 0.18);
+    border: 0;
+    color: #fff;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 6px;
+    font-family: inherit;
+  }
+  .auth-pill .signout:hover { background: rgba(255, 255, 255, 0.32); }
+  .gate-banner {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #fbbf24;
+    color: #78350f;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .gate-banner button {
+    background: var(--accent-grad);
+    color: #fff;
+    border: 0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 8px;
+    font-family: inherit;
+    font-size: 13.5px;
+  }
+
   /* ============================================================
      Mobile refinements  (≤ 768px) and small-phone tweaks (≤ 380px)
      ============================================================ */
@@ -896,6 +1023,12 @@
     </div>
     <div class="hero-actions">
       <button type="button" class="contact-trigger" id="catalog-open">Software Catalog</button>
+      <button type="button" class="contact-trigger" id="auth-open">Sign in</button>
+      <span class="auth-pill" id="auth-pill" style="display: none;">
+        <span class="avatar" id="auth-avatar"></span>
+        <span id="auth-pill-email"></span>
+        <button type="button" class="signout" id="auth-signout">Sign out</button>
+      </span>
       <button type="button" class="contact-trigger" id="contact-open">Contact us</button>
     </div>
   </div>
@@ -1006,6 +1139,10 @@
       <div>Payment ID: <span class="ref" id="success-pid"></span></div>
       <div style="margin-top: 8px; font-size: 13px;">A confirmation has been sent to our team. We'll contact you shortly to confirm the appointment.</div>
     </div>
+    <div class="gate-banner" id="gate-banner" style="display: none;">
+      Sign in to confirm your booking.
+      <button type="button" id="gate-signin">Sign in / Sign up</button>
+    </div>
     <div class="coupon-section">
       <label for="coupon-input">Discount coupon</label>
       <div class="coupon-row">
@@ -1065,6 +1202,88 @@
   <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close preview">&times;</button>
   <img id="lightbox-img" src="" alt="" />
   <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
+
+<!-- Auth modal -->
+<div class="modal-overlay" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+  <div class="modal-panel">
+    <button type="button" class="modal-close" id="auth-close" aria-label="Close">&times;</button>
+
+    <div class="auth-tabs" id="auth-tabs">
+      <button type="button" class="auth-tab selected" data-mode="login">Sign in</button>
+      <button type="button" class="auth-tab" data-mode="signup">Sign up</button>
+    </div>
+
+    <!-- Sign in -->
+    <form id="auth-login-form" class="auth-form">
+      <h2 id="auth-title">Welcome back</h2>
+      <p class="section-sub">Sign in to your Quick Softwares account.</p>
+      <div class="error" id="login-error"></div>
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" autocomplete="current-password" required minlength="6" />
+      </div>
+      <button class="btn" type="submit" id="login-submit">Sign in</button>
+    </form>
+
+    <!-- Sign up -->
+    <form id="auth-signup-form" class="auth-form" style="display: none;">
+      <h2>Create your account</h2>
+      <p class="section-sub">It only takes a minute.</p>
+      <div class="error" id="signup-error"></div>
+      <div class="field">
+        <label for="signup-email">Email *</label>
+        <input type="email" id="signup-email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="signup-phone-label">Phone (optional)</label>
+        <div class="phone-input">
+          <select id="signup-phone-cc" aria-label="Country code"></select>
+          <input type="tel" id="signup-phone" autocomplete="tel" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="signup-password">Password * (min 6 characters)</label>
+        <input type="password" id="signup-password" autocomplete="new-password" required minlength="6" />
+      </div>
+      <button class="btn" type="submit" id="signup-submit">Create account</button>
+    </form>
+
+    <!-- Email OTP -->
+    <form id="otp-email-form" class="auth-form" style="display: none;">
+      <h2>Verify your email</h2>
+      <div class="otp-target">We sent a 6-digit code to <strong id="otp-email-target"></strong></div>
+      <div class="error" id="otp-email-error"></div>
+      <div class="field">
+        <input type="text" id="otp-email-code" class="otp-input" inputmode="numeric" pattern="\d{6}" maxlength="6" placeholder="······" autocomplete="one-time-code" />
+      </div>
+      <button class="btn" type="submit" id="otp-email-submit">Verify email</button>
+      <button type="button" class="link-btn" id="otp-email-resend">Resend code</button>
+    </form>
+
+    <!-- Phone OTP -->
+    <form id="otp-phone-form" class="auth-form" style="display: none;">
+      <h2>Verify your phone</h2>
+      <div class="otp-target">We sent a 6-digit SMS to <strong id="otp-phone-target"></strong></div>
+      <div class="error" id="otp-phone-error"></div>
+      <div class="field">
+        <input type="text" id="otp-phone-code" class="otp-input" inputmode="numeric" pattern="\d{6}" maxlength="6" placeholder="······" autocomplete="one-time-code" />
+      </div>
+      <button class="btn" type="submit" id="otp-phone-submit">Verify phone</button>
+      <button type="button" class="link-btn" id="otp-phone-skip">Skip for now</button>
+    </form>
+
+    <!-- Success -->
+    <div id="auth-success" class="auth-form" style="display: none;">
+      <h2>You're signed in</h2>
+      <p class="section-sub">Welcome to Quick Softwares.</p>
+      <button class="btn" type="button" id="auth-continue">Continue to booking</button>
+    </div>
+  </div>
 </div>
 
 <!-- Contact us modal -->
@@ -1129,6 +1348,22 @@
   // Get this from https://developer.paypal.com → My Apps & Credentials → Client ID.
   // Use the "sandbox" Client ID for testing, "live" Client ID for production.
   const PAYPAL_CLIENT_ID = "Ady38Sa7yIrNs80ZfkKIDdDrO6Fj_sfbuX2ZqOPzfvyVOkB2E9syU7PyJ-gIylmzXqfidUd5GBLlLQF_";
+
+  // ---- Supabase (authentication) ---------------------------------------
+  // Create a project at https://supabase.com → Settings → API and paste:
+  //   - Project URL       → SUPABASE_URL
+  //   - anon (public) key → SUPABASE_ANON_KEY
+  // The anon key is safe to expose in client code — RLS protects your data.
+  //
+  // Then in Authentication → Email Templates → "Confirm signup":
+  // replace the magic-link with the 6-digit token, e.g.
+  //   <p>Your code: <strong>{{ .Token }}</strong></p>
+  //
+  // For phone OTP: Authentication → Providers → Phone → enable, connect
+  // your Twilio (or MessageBird) credentials in the dashboard. Customers
+  // who provide a phone at signup will receive an SMS code.
+  const SUPABASE_URL      = "YOUR_SUPABASE_URL";        // e.g. https://abcd.supabase.co
+  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
   // ---- Web3Forms (email delivery) --------------------------------------
   // Free form-to-email service. Register quicksoftwares.global@gmail.com at
@@ -2200,6 +2435,7 @@
 
   populateCountryCodes(document.getElementById("phone-cc"), "IN");
   populateCountryCodes(document.getElementById("c-phone-cc"), "IN");
+  populateCountryCodes(document.getElementById("signup-phone-cc"), "IN");
 
   // ---- Phone input: digits only, country-driven max length, auto-detect ----
   function applyPhoneLimit(inp, cc) {
@@ -2245,6 +2481,262 @@
   }
   attachPhoneAutoDetect("phone", "phone-cc");
   attachPhoneAutoDetect("c-phone", "c-phone-cc");
+  attachPhoneAutoDetect("signup-phone", "signup-phone-cc");
+
+  // ============================================================
+  // Auth (Supabase)
+  // ============================================================
+  const supaConfigured = SUPABASE_URL && SUPABASE_ANON_KEY
+    && !SUPABASE_URL.startsWith("YOUR_") && !SUPABASE_ANON_KEY.startsWith("YOUR_");
+  const supa = supaConfigured && window.supabase
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+  let currentUser = null;
+  let pendingSignupPhone = "";   // E.164 phone to verify after email is confirmed
+
+  const authModal = document.getElementById("auth-modal");
+  const authOpenBtn = document.getElementById("auth-open");
+  const authCloseBtn = document.getElementById("auth-close");
+  const authPill = document.getElementById("auth-pill");
+  const authPillEmail = document.getElementById("auth-pill-email");
+  const authAvatar = document.getElementById("auth-avatar");
+  const authSignoutBtn = document.getElementById("auth-signout");
+  const gateBanner = document.getElementById("gate-banner");
+  const gateSigninBtn = document.getElementById("gate-signin");
+
+  const loginForm = document.getElementById("auth-login-form");
+  const signupForm = document.getElementById("auth-signup-form");
+  const otpEmailForm = document.getElementById("otp-email-form");
+  const otpPhoneForm = document.getElementById("otp-phone-form");
+  const authSuccess = document.getElementById("auth-success");
+
+  function openAuthModal(mode = "login") {
+    if (!supa) {
+      alert("Authentication is not configured yet. Set SUPABASE_URL and SUPABASE_ANON_KEY in index.html.");
+      return;
+    }
+    showAuthStep(mode);
+    clearAuthErrors();
+    authModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+  }
+  function closeAuthModal() {
+    authModal.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+  function showAuthStep(mode) {
+    const tabs = document.querySelectorAll(".auth-tab");
+    [loginForm, signupForm, otpEmailForm, otpPhoneForm, authSuccess].forEach(el => el.style.display = "none");
+    if (mode === "login")   { loginForm.style.display = "";   tabs.forEach(t => t.classList.toggle("selected", t.dataset.mode === "login")); }
+    else if (mode === "signup") { signupForm.style.display = "";  tabs.forEach(t => t.classList.toggle("selected", t.dataset.mode === "signup")); }
+    else if (mode === "otp-email") otpEmailForm.style.display = "";
+    else if (mode === "otp-phone") otpPhoneForm.style.display = "";
+    else if (mode === "success")   authSuccess.style.display = "";
+    document.getElementById("auth-tabs").style.display = (mode === "login" || mode === "signup") ? "" : "none";
+  }
+  function clearAuthErrors() {
+    ["login-error", "signup-error", "otp-email-error", "otp-phone-error"].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.remove("visible");
+      el.textContent = "";
+    });
+  }
+  function showErr(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add("visible");
+  }
+
+  // Tabs
+  document.querySelectorAll(".auth-tab").forEach(t => {
+    t.addEventListener("click", () => showAuthStep(t.dataset.mode));
+  });
+  authOpenBtn.addEventListener("click", () => openAuthModal("login"));
+  authCloseBtn.addEventListener("click", closeAuthModal);
+  authModal.addEventListener("click", e => { if (e.target === authModal) closeAuthModal(); });
+  gateSigninBtn.addEventListener("click", () => openAuthModal("login"));
+
+  // Sign in
+  loginForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    clearAuthErrors();
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+    const submitBtn = document.getElementById("login-submit");
+    submitBtn.disabled = true; submitBtn.textContent = "Signing in…";
+    try {
+      const { error } = await supa.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      showAuthStep("success");
+    } catch (err) {
+      showErr("login-error", err.message || "Sign-in failed.");
+    } finally {
+      submitBtn.disabled = false; submitBtn.textContent = "Sign in";
+    }
+  });
+
+  // Sign up
+  signupForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    clearAuthErrors();
+    const email = document.getElementById("signup-email").value.trim();
+    const password = document.getElementById("signup-password").value;
+    const phoneCC = document.getElementById("signup-phone-cc").value;
+    const phoneRaw = document.getElementById("signup-phone").value.trim();
+    const phone = phoneRaw ? (phoneCC + phoneRaw).replace(/\s+/g, "") : "";
+    pendingSignupPhone = phone;
+    const submitBtn = document.getElementById("signup-submit");
+    submitBtn.disabled = true; submitBtn.textContent = "Creating account…";
+    try {
+      const { data, error } = await supa.auth.signUp({
+        email, password,
+        options: { data: phone ? { phone } : {} },
+      });
+      if (error) throw error;
+      document.getElementById("otp-email-target").textContent = email;
+      showAuthStep("otp-email");
+    } catch (err) {
+      showErr("signup-error", err.message || "Sign-up failed.");
+    } finally {
+      submitBtn.disabled = false; submitBtn.textContent = "Create account";
+    }
+  });
+
+  // Email OTP verify
+  otpEmailForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    clearAuthErrors();
+    const email = document.getElementById("signup-email").value.trim();
+    const token = document.getElementById("otp-email-code").value.trim();
+    const submitBtn = document.getElementById("otp-email-submit");
+    submitBtn.disabled = true; submitBtn.textContent = "Verifying…";
+    try {
+      const { error } = await supa.auth.verifyOtp({ email, token, type: "signup" });
+      if (error) throw error;
+      // Email verified. If phone was provided, trigger phone OTP via updateUser.
+      if (pendingSignupPhone) {
+        try {
+          const { error: upErr } = await supa.auth.updateUser({ phone: pendingSignupPhone });
+          if (upErr) throw upErr;
+          document.getElementById("otp-phone-target").textContent = pendingSignupPhone;
+          showAuthStep("otp-phone");
+          return;
+        } catch (phErr) {
+          console.error("Phone OTP send failed:", phErr);
+          // Fall through to success — user verified email at least.
+        }
+      }
+      showAuthStep("success");
+    } catch (err) {
+      showErr("otp-email-error", err.message || "Verification failed.");
+    } finally {
+      submitBtn.disabled = false; submitBtn.textContent = "Verify email";
+    }
+  });
+  document.getElementById("otp-email-resend").addEventListener("click", async () => {
+    clearAuthErrors();
+    const email = document.getElementById("signup-email").value.trim();
+    try {
+      const { error } = await supa.auth.resend({ type: "signup", email });
+      if (error) throw error;
+      showErr("otp-email-error", "Code resent. Check your inbox.");
+      document.getElementById("otp-email-error").style.background = "#ecfdf5";
+      document.getElementById("otp-email-error").style.color = "#065f46";
+      document.getElementById("otp-email-error").style.borderColor = "#a7f3d0";
+    } catch (err) {
+      showErr("otp-email-error", err.message || "Could not resend.");
+    }
+  });
+
+  // Phone OTP verify
+  otpPhoneForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    clearAuthErrors();
+    const phone = pendingSignupPhone;
+    const token = document.getElementById("otp-phone-code").value.trim();
+    const submitBtn = document.getElementById("otp-phone-submit");
+    submitBtn.disabled = true; submitBtn.textContent = "Verifying…";
+    try {
+      const { error } = await supa.auth.verifyOtp({ phone, token, type: "phone_change" });
+      if (error) throw error;
+      showAuthStep("success");
+    } catch (err) {
+      showErr("otp-phone-error", err.message || "Verification failed.");
+    } finally {
+      submitBtn.disabled = false; submitBtn.textContent = "Verify phone";
+    }
+  });
+  document.getElementById("otp-phone-skip").addEventListener("click", () => showAuthStep("success"));
+  document.getElementById("auth-continue").addEventListener("click", closeAuthModal);
+
+  // Sign out
+  authSignoutBtn.addEventListener("click", async () => {
+    if (!supa) return;
+    await supa.auth.signOut();
+  });
+
+  // Update auth UI based on current user
+  function updateAuthUI() {
+    const signedIn = !!currentUser;
+    authOpenBtn.style.display = signedIn ? "none" : "";
+    authPill.style.display = signedIn ? "" : "none";
+    gateBanner.style.display = signedIn ? "none" : "";
+    if (signedIn) {
+      const email = currentUser.email || currentUser.phone || "Account";
+      authPillEmail.textContent = email.length > 22 ? email.substring(0, 20) + "…" : email;
+      authAvatar.textContent = (email[0] || "?").toUpperCase();
+      // Prefill booking form
+      const emailField = document.getElementById("email");
+      const phoneField = document.getElementById("phone");
+      const phoneCcField = document.getElementById("phone-cc");
+      if (emailField && !emailField.value) emailField.value = currentUser.email || "";
+      if (phoneField && !phoneField.value && currentUser.phone) {
+        // Detect CC by trying longest prefix from the verified phone
+        const raw = String(currentUser.phone).replace(/[^\d+]/g, "");
+        if (raw.startsWith("+")) {
+          const digits = raw.substring(1);
+          for (let len = 3; len >= 1; len--) {
+            const candidate = "+" + digits.substring(0, len);
+            if (countryByCode(candidate)) {
+              phoneCcField.value = candidate;
+              phoneField.value = digits.substring(len);
+              applyPhoneLimit(phoneField, phoneCcField);
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Auth gate on payment
+  // Wrap the existing pay-button click so it requires sign-in first.
+  const _payBtn = document.getElementById("pay");
+  if (_payBtn) {
+    _payBtn.addEventListener("click", e => {
+      if (!currentUser) {
+        e.stopImmediatePropagation();
+        openAuthModal("login");
+      }
+    }, true);
+  }
+
+  // Initial session + listener
+  if (supa) {
+    supa.auth.getSession().then(({ data: { session } }) => {
+      currentUser = session?.user || null;
+      updateAuthUI();
+    });
+    supa.auth.onAuthStateChange((_event, session) => {
+      currentUser = session?.user || null;
+      updateAuthUI();
+    });
+  } else {
+    // Show a one-time notice on the gate banner if Supabase isn't configured.
+    gateBanner.style.display = "";
+    gateBanner.innerHTML = "Authentication is not configured. Set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> in index.html.";
+  }
 
   document.getElementById("year").textContent = new Date().getFullYear();
   updatePaymentMethodVisibility();
