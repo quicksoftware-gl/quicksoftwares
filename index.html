@@ -1244,7 +1244,8 @@
       <h3>Booking confirmed</h3>
       <div>Reference: <span class="ref" id="success-ref"></span></div>
       <div>Payment ID: <span class="ref" id="success-pid"></span></div>
-      <div style="margin-top: 8px; font-size: 13px;">A confirmation has been sent to our team. We'll contact you shortly to confirm the appointment.</div>
+      <div style="margin-top: 8px; font-size: 13px;">A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.</div>
+      <div id="success-save-status" style="margin-top: 6px; font-size: 12px; color: var(--muted);"></div>
     </div>
     <div class="gate-banner" id="gate-banner" style="display: none;">
       Sign in to confirm your booking.
@@ -2936,8 +2937,15 @@
   bookingsModal.addEventListener("click", e => { if (e.target === bookingsModal) closeBookingsModal(); });
 
   // ---- Persist booking to Supabase after a successful payment ----
+  function setSaveStatus(text, color) {
+    const el = document.getElementById("success-save-status");
+    if (!el) return;
+    el.textContent = text;
+    if (color) el.style.color = color;
+  }
   async function saveBookingToSupabase(booking, paymentId) {
-    if (!supa || !currentUser) return;
+    if (!supa) { setSaveStatus("Database not configured — booking not saved to account.", "#92400e"); return; }
+    if (!currentUser) { setSaveStatus("Not signed in — booking saved by email only.", "#92400e"); return; }
     const row = {
       user_id: currentUser.id,
       ref: booking.ref,
@@ -2968,9 +2976,16 @@
     };
     try {
       const { error } = await supa.from("bookings").insert(row);
-      if (error) console.error("Booking save failed:", error);
+      if (error) {
+        console.error("Booking save failed:", error);
+        setSaveStatus(`Database save failed: ${error.message || error.code || "unknown"}. The booking is still confirmed via email.`, "#b91c1c");
+      } else {
+        console.log("Booking saved to Supabase:", booking.ref);
+        setSaveStatus("✓ Saved to your account. View under My Bookings.", "#065f46");
+      }
     } catch (err) {
       console.error("Booking save failed:", err);
+      setSaveStatus(`Database save failed: ${err.message || err}. The booking is still confirmed via email.`, "#b91c1c");
     }
   }
   // The Razorpay / PayPal / free-order handlers all call showSuccess(ref, pid)
