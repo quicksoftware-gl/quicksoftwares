@@ -999,6 +999,48 @@
   .status-pill.scheduled { background: #eff6ff; color: #1d4ed8; }
   .status-pill.pending   { background: #fef3c7; color: #92400e; }
   .status-pill.cancelled { background: #fef2f2; color: #b91c1c; }
+  .edit-booking-btn {
+    margin-top: 12px;
+    padding: 9px 16px;
+    background: var(--accent-grad);
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .edit-booking-btn:hover { transform: translateY(-1px); opacity: 0.95; }
+  .editing-banner {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1px solid #93c5fd;
+    color: #1e40af;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .editing-banner .cancel-edit {
+    background: #fff;
+    border: 1.5px solid #93c5fd;
+    color: #1e40af;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+  }
+  .editing-banner .cancel-edit:hover { background: #eff6ff; }
   .gate-banner {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     border: 1px solid #fbbf24;
@@ -1714,6 +1756,7 @@
     paymentMethod: "razorpay",
     couponCode: "",
     coupon: null,   // { type: "percent" | "flat_inr", value: number }
+    editingRef: null, // booking ref currently being modified, or null
   };
 
   // ---- Currency helpers ------------------------------------------------
@@ -2135,6 +2178,8 @@
       updateBookingPayment(ref, pid, isFree ? "pending" : "scheduled")
         .then(reportSaveResult);
     }
+    // Clear modify-mode (if we were editing) — booking is now committed.
+    if (typeof cancelEdit === "function") cancelEdit();
   }
 
   // ---- Validation ------------------------------------------------------
@@ -2368,21 +2413,27 @@
     const v = validateForm();
     if (!v.ok) return showError(v.error);
 
-    const ref = "QS-" + Date.now().toString(36).toUpperCase();
+    const isEditing = !!state.editingRef;
+    const ref = state.editingRef || ("QS-" + Date.now().toString(36).toUpperCase());
     const booking = buildBooking(v, ref);
     currentBooking = booking;
     try { localStorage.setItem("lastBooking", JSON.stringify(booking)); } catch (e) {}
 
     payBtn.disabled = true;
-    payBtn.textContent = "Saving booking…";
+    payBtn.textContent = isEditing ? "Updating booking…" : "Saving booking…";
     payLoading.classList.add("visible");
 
-    // 1. Persist to Supabase IMMEDIATELY (status = "pending", no payment_id yet).
+    // 1. Persist to Supabase — UPDATE existing pending row if editing, else INSERT.
     //    If this fails we still proceed — the booking is also delivered by email
     //    on payment success.
-    const saveResult = await insertBooking(booking, "", "pending");
+    let saveResult;
+    if (isEditing) {
+      saveResult = await updateBookingDetails(ref, booking);
+    } else {
+      saveResult = await insertBooking(booking, "", "pending");
+    }
     if (!saveResult.ok && saveResult.reason !== "not_configured" && saveResult.reason !== "not_signed_in") {
-      console.warn("DB insert failed but proceeding:", saveResult.reason);
+      console.warn("DB save failed but proceeding:", saveResult.reason);
     }
 
     // 2. Free order — no payment gateway. Mark as confirmed and email.
@@ -2914,8 +2965,126 @@
           <div class="booking-amount">${b.charged_amount} ${escapeHtml(b.charged_currency)} · ${escapeHtml(b.payment_method)}</div>
         </div>
       `;
+      if (status === "pending") {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "edit-booking-btn";
+        btn.textContent = "Modify booking";
+        btn.addEventListener("click", () => {
+          closeBookingsModal();
+          loadBookingIntoForm(b);
+        });
+        card.appendChild(btn);
+      }
       bookingsList.appendChild(card);
     });
+  }
+
+  // ---- Modify pending booking flow ----
+  function showEditingBanner(ref) {
+    let banner = document.getElementById("editing-banner");
+    if (!banner) {
+      banner = document.createElement("div");
+      banner.id = "editing-banner";
+      banner.className = "editing-banner";
+      document.querySelector("main").prepend(banner);
+    }
+    banner.innerHTML = `<span>Editing booking <strong>${escapeHtml(ref)}</strong>. Confirm to save changes — no new row will be created.</span>
+      <button type="button" class="cancel-edit">Cancel</button>`;
+    banner.querySelector(".cancel-edit").addEventListener("click", cancelEdit);
+  }
+  function cancelEdit() {
+    state.editingRef = null;
+    const banner = document.getElementById("editing-banner");
+    if (banner) banner.remove();
+  }
+
+  function loadBookingIntoForm(b) {
+    state.editingRef = b.ref;
+
+    // Service
+    const svc = SERVICES.find(s => s.id === b.service_id);
+    if (svc) {
+      state.serviceId = b.service_id;
+      document.querySelectorAll(".service").forEach(n => n.classList.toggle("selected", n.dataset.id === b.service_id));
+      softwareDetailsEl.classList.add("visible");
+    }
+
+    // Quantity + software names
+    state.quantity = b.quantity || 1;
+    state.softwareNames = Array.isArray(b.software_names) ? b.software_names.slice() : [""];
+    qtyEl.value = String(state.quantity);
+    renderSoftwareNames();
+
+    // Currency
+    if (b.charged_currency && CURRENCY_META[b.charged_currency]) {
+      state.currency = b.charged_currency;
+      currencyEl.value = state.currency;
+    }
+
+    // Date
+    state.date = b.booking_date || "";
+    if (state.date) dateEl.value = state.date;
+
+    // Mode
+    state.mode = b.mode || "remote";
+    document.getElementById("mode").value = state.mode;
+
+    // Time
+    state.time = b.time_ist || "";
+    updateModeUI();   // also calls updateSummary
+    renderSlots();    // re-render with the saved currency + selected slot
+
+    // Coupon
+    cancelEdit; // no-op to silence linter
+    if (b.coupon_code && b.coupon_type && b.coupon_value != null && COUPONS[b.coupon_code]) {
+      state.couponCode = b.coupon_code;
+      state.coupon = { type: b.coupon_type, value: Number(b.coupon_value) };
+      couponInput.value = b.coupon_code;
+      couponInput.readOnly = true;
+      couponInput.classList.add("applied");
+      couponBtn.textContent = "Remove";
+      couponBtn.classList.add("remove");
+      couponMsg.textContent = "✓ Coupon applied";
+      couponMsg.className = "coupon-msg success";
+    } else {
+      removeCoupon();
+    }
+
+    // Customer details
+    document.getElementById("name").value = b.customer_name || "";
+    document.getElementById("email").value = b.customer_email || "";
+    if (b.customer_phone) {
+      const parts = String(b.customer_phone).trim().split(/\s+/);
+      const ccCandidate = parts[0];
+      const numCandidate = parts.slice(1).join("").replace(/\D/g, "");
+      const phoneCcField = document.getElementById("phone-cc");
+      const phoneField = document.getElementById("phone");
+      if (countryByCode(ccCandidate) && numCandidate) {
+        phoneCcField.value = ccCandidate;
+        phoneField.value = numCandidate;
+      } else {
+        phoneField.value = String(b.customer_phone).replace(/\D/g, "");
+      }
+      applyPhoneLimit(phoneField, phoneCcField);
+    }
+    document.getElementById("device").value = b.device || "";
+    document.getElementById("notes").value = b.notes || "";
+
+    // Payment method (auto-synced via currency, but force a re-render)
+    state.paymentMethod = state.currency === "USD" ? "paypal" : "razorpay";
+    renderPaymentMethods();
+    updatePaymentMethodVisibility();
+
+    // Final price/summary refresh
+    rerenderPrices();
+    updateTierHint();
+    updateAutodeskTags();
+    updateSummary();
+    resetPaymentUI();
+
+    showEditingBanner(b.ref);
+    document.querySelector("header.hero").scrollIntoView({ behavior: "smooth" });
   }
   async function openBookingsModal() {
     bookingsModal.classList.add("visible");
@@ -3027,6 +3196,57 @@
       return { ok: true };
     } catch (err) {
       console.error("Booking update exception:", err);
+      return { ok: false, reason: err.message || String(err) };
+    }
+  }
+
+  // Update all editable fields of an existing pending booking (called when
+  // the customer Modifies a booking and clicks Confirm again).
+  async function updateBookingDetails(ref, booking) {
+    if (!supa) return { ok: false, reason: "not_configured" };
+    if (!currentUser) return { ok: false, reason: "not_signed_in" };
+    const row = {
+      service_id: booking.service,
+      service_name: booking.serviceName,
+      quantity: booking.quantity,
+      software_names: booking.softwareNames,
+      autodesk_count: booking.autodeskCount,
+      subtotal_inr: booking.subtotalINR,
+      price_inr: booking.priceINR,
+      charged_amount: booking.chargedAmount,
+      charged_currency: booking.chargedCurrency,
+      coupon_code: booking.couponCode || null,
+      coupon_type: booking.couponType || null,
+      coupon_value: booking.couponValue || null,
+      payment_method: booking.paymentMethod,
+      booking_date: booking.date,
+      time_ist: booking.timeIst || null,
+      time_display: booking.timeDisplay || null,
+      mode: booking.mode,
+      customer_name: booking.name,
+      customer_email: booking.email,
+      customer_phone: booking.phone || null,
+      device: booking.device || null,
+      notes: booking.notes || null,
+    };
+    try {
+      const { data, error } = await supa.from("bookings")
+        .update(row)
+        .eq("ref", ref)
+        .eq("user_id", currentUser.id)
+        .eq("status", "pending")  // safety: only pending rows are modifiable
+        .select();
+      if (error) {
+        console.error("Booking modify update failed:", error);
+        return { ok: false, reason: error.message };
+      }
+      if (!data || !data.length) {
+        return { ok: false, reason: "Booking is no longer pending or not found." };
+      }
+      console.log("Booking details updated:", ref);
+      return { ok: true };
+    } catch (err) {
+      console.error("Booking modify update exception:", err);
       return { ok: false, reason: err.message || String(err) };
     }
   }
