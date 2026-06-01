@@ -1153,61 +1153,66 @@
   // ---- Country dialling codes (alphabetical by country name) ----------
   // Flags rendered via ISO-2 regional-indicator Unicode (works on Mac/iOS;
   // falls back to "IN", "US", etc. on systems without emoji-flag fonts).
+  // Standard mobile NSN (national significant number) length per country.
+  // Source: ITU-T E.164 national plans / national telecom regulators.
   const COUNTRY_CODES = [
-    { iso: "IN", code: "+91",  name: "India" },
-    { iso: "US", code: "+1",   name: "United States" },
-    { iso: "GB", code: "+44",  name: "United Kingdom" },
-    { iso: "AE", code: "+971", name: "UAE" },
-    { iso: "SA", code: "+966", name: "Saudi Arabia" },
-    { iso: "AU", code: "+61",  name: "Australia" },
-    { iso: "CA", code: "+1",   name: "Canada" },
-    { iso: "SG", code: "+65",  name: "Singapore" },
-    { iso: "DE", code: "+49",  name: "Germany" },
-    { iso: "FR", code: "+33",  name: "France" },
-    { iso: "ES", code: "+34",  name: "Spain" },
-    { iso: "IT", code: "+39",  name: "Italy" },
-    { iso: "NL", code: "+31",  name: "Netherlands" },
-    { iso: "CH", code: "+41",  name: "Switzerland" },
-    { iso: "BE", code: "+32",  name: "Belgium" },
-    { iso: "AT", code: "+43",  name: "Austria" },
-    { iso: "SE", code: "+46",  name: "Sweden" },
-    { iso: "NO", code: "+47",  name: "Norway" },
-    { iso: "DK", code: "+45",  name: "Denmark" },
-    { iso: "FI", code: "+358", name: "Finland" },
-    { iso: "IE", code: "+353", name: "Ireland" },
-    { iso: "PT", code: "+351", name: "Portugal" },
-    { iso: "PL", code: "+48",  name: "Poland" },
-    { iso: "CZ", code: "+420", name: "Czech Republic" },
-    { iso: "GR", code: "+30",  name: "Greece" },
-    { iso: "HU", code: "+36",  name: "Hungary" },
-    { iso: "RO", code: "+40",  name: "Romania" },
-    { iso: "RU", code: "+7",   name: "Russia" },
-    { iso: "TR", code: "+90",  name: "Turkey" },
-    { iso: "IL", code: "+972", name: "Israel" },
-    { iso: "EG", code: "+20",  name: "Egypt" },
-    { iso: "ZA", code: "+27",  name: "South Africa" },
-    { iso: "NG", code: "+234", name: "Nigeria" },
-    { iso: "KE", code: "+254", name: "Kenya" },
-    { iso: "MY", code: "+60",  name: "Malaysia" },
-    { iso: "ID", code: "+62",  name: "Indonesia" },
-    { iso: "TH", code: "+66",  name: "Thailand" },
-    { iso: "PH", code: "+63",  name: "Philippines" },
-    { iso: "VN", code: "+84",  name: "Vietnam" },
-    { iso: "JP", code: "+81",  name: "Japan" },
-    { iso: "KR", code: "+82",  name: "South Korea" },
-    { iso: "CN", code: "+86",  name: "China" },
-    { iso: "HK", code: "+852", name: "Hong Kong" },
-    { iso: "TW", code: "+886", name: "Taiwan" },
-    { iso: "NZ", code: "+64",  name: "New Zealand" },
-    { iso: "BR", code: "+55",  name: "Brazil" },
-    { iso: "MX", code: "+52",  name: "Mexico" },
-    { iso: "AR", code: "+54",  name: "Argentina" },
-    { iso: "CL", code: "+56",  name: "Chile" },
-    { iso: "PK", code: "+92",  name: "Pakistan" },
-    { iso: "BD", code: "+880", name: "Bangladesh" },
-    { iso: "LK", code: "+94",  name: "Sri Lanka" },
-    { iso: "NP", code: "+977", name: "Nepal" },
+    { iso: "IN", code: "+91",  name: "India",          digits: 10 },
+    { iso: "US", code: "+1",   name: "United States",  digits: 10 },
+    { iso: "GB", code: "+44",  name: "United Kingdom", digits: 10 },
+    { iso: "AE", code: "+971", name: "UAE",            digits: 9  },
+    { iso: "SA", code: "+966", name: "Saudi Arabia",   digits: 9  },
+    { iso: "AU", code: "+61",  name: "Australia",      digits: 9  },
+    { iso: "CA", code: "+1",   name: "Canada",         digits: 10 },
+    { iso: "SG", code: "+65",  name: "Singapore",      digits: 8  },
+    { iso: "DE", code: "+49",  name: "Germany",        digits: 11 },
+    { iso: "FR", code: "+33",  name: "France",         digits: 9  },
+    { iso: "ES", code: "+34",  name: "Spain",          digits: 9  },
+    { iso: "IT", code: "+39",  name: "Italy",          digits: 10 },
+    { iso: "NL", code: "+31",  name: "Netherlands",    digits: 9  },
+    { iso: "CH", code: "+41",  name: "Switzerland",    digits: 9  },
+    { iso: "BE", code: "+32",  name: "Belgium",        digits: 9  },
+    { iso: "AT", code: "+43",  name: "Austria",        digits: 11 },
+    { iso: "SE", code: "+46",  name: "Sweden",         digits: 9  },
+    { iso: "NO", code: "+47",  name: "Norway",         digits: 8  },
+    { iso: "DK", code: "+45",  name: "Denmark",        digits: 8  },
+    { iso: "FI", code: "+358", name: "Finland",        digits: 9  },
+    { iso: "IE", code: "+353", name: "Ireland",        digits: 9  },
+    { iso: "PT", code: "+351", name: "Portugal",       digits: 9  },
+    { iso: "PL", code: "+48",  name: "Poland",         digits: 9  },
+    { iso: "CZ", code: "+420", name: "Czech Republic", digits: 9  },
+    { iso: "GR", code: "+30",  name: "Greece",         digits: 10 },
+    { iso: "HU", code: "+36",  name: "Hungary",        digits: 9  },
+    { iso: "RO", code: "+40",  name: "Romania",        digits: 9  },
+    { iso: "RU", code: "+7",   name: "Russia",         digits: 10 },
+    { iso: "TR", code: "+90",  name: "Turkey",         digits: 10 },
+    { iso: "IL", code: "+972", name: "Israel",         digits: 9  },
+    { iso: "EG", code: "+20",  name: "Egypt",          digits: 10 },
+    { iso: "ZA", code: "+27",  name: "South Africa",   digits: 9  },
+    { iso: "NG", code: "+234", name: "Nigeria",        digits: 10 },
+    { iso: "KE", code: "+254", name: "Kenya",          digits: 9  },
+    { iso: "MY", code: "+60",  name: "Malaysia",       digits: 9  },
+    { iso: "ID", code: "+62",  name: "Indonesia",      digits: 10 },
+    { iso: "TH", code: "+66",  name: "Thailand",       digits: 9  },
+    { iso: "PH", code: "+63",  name: "Philippines",    digits: 10 },
+    { iso: "VN", code: "+84",  name: "Vietnam",        digits: 9  },
+    { iso: "JP", code: "+81",  name: "Japan",          digits: 10 },
+    { iso: "KR", code: "+82",  name: "South Korea",    digits: 10 },
+    { iso: "CN", code: "+86",  name: "China",          digits: 11 },
+    { iso: "HK", code: "+852", name: "Hong Kong",      digits: 8  },
+    { iso: "TW", code: "+886", name: "Taiwan",         digits: 9  },
+    { iso: "NZ", code: "+64",  name: "New Zealand",    digits: 9  },
+    { iso: "BR", code: "+55",  name: "Brazil",         digits: 11 },
+    { iso: "MX", code: "+52",  name: "Mexico",         digits: 10 },
+    { iso: "AR", code: "+54",  name: "Argentina",      digits: 10 },
+    { iso: "CL", code: "+56",  name: "Chile",          digits: 9  },
+    { iso: "PK", code: "+92",  name: "Pakistan",       digits: 10 },
+    { iso: "BD", code: "+880", name: "Bangladesh",     digits: 10 },
+    { iso: "LK", code: "+94",  name: "Sri Lanka",      digits: 9  },
+    { iso: "NP", code: "+977", name: "Nepal",          digits: 10 },
   ];
+  function countryByCode(code) {
+    return COUNTRY_CODES.find(c => c.code === code) || null;
+  }
   function isoToFlag(iso) {
     return iso.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
   }
@@ -1772,7 +1777,13 @@
     if (state.mode !== "email-link" && !state.time) return { ok: false, error: "Please pick a time slot." };
     if (!name) return { ok: false, error: "Please enter your name." };
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: "Please enter a valid email." };
-    if (phoneRaw.length < 6) return { ok: false, error: "Please enter a valid phone number." };
+    const phoneCountry = countryByCode(phoneCC);
+    if (phoneCountry && phoneRaw.length !== phoneCountry.digits) {
+      return { ok: false, error: `Phone number must be ${phoneCountry.digits} digits for ${phoneCountry.name}.` };
+    }
+    if (!phoneCountry && phoneRaw.length < 6) {
+      return { ok: false, error: "Please enter a valid phone number." };
+    }
     return { ok: true, svc, name, email, phone, softwareNames: names };
   }
 
@@ -2137,7 +2148,13 @@
 
     if (!name) return showContactError("Please enter your name.");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return showContactError("Please enter a valid email.");
-    if (phoneRaw.length < 6) return showContactError("Please enter a valid phone number.");
+    const contactCountry = countryByCode(phoneCC);
+    if (contactCountry && phoneRaw.length !== contactCountry.digits) {
+      return showContactError(`Phone number must be ${contactCountry.digits} digits for ${contactCountry.name}.`);
+    }
+    if (!contactCountry && phoneRaw.length < 6) {
+      return showContactError("Please enter a valid phone number.");
+    }
     if (!query) return showContactError("Please enter your query.");
 
     if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY.startsWith("YOUR_")) {
@@ -2184,7 +2201,20 @@
   populateCountryCodes(document.getElementById("phone-cc"), "IN");
   populateCountryCodes(document.getElementById("c-phone-cc"), "IN");
 
-  // ---- Phone input: digits only, auto-detect country code on paste/type ----
+  // ---- Phone input: digits only, country-driven max length, auto-detect ----
+  function applyPhoneLimit(inp, cc) {
+    const country = countryByCode(cc.value);
+    if (!country) {
+      inp.removeAttribute("maxlength");
+      inp.placeholder = "Phone number";
+      return;
+    }
+    inp.maxLength = country.digits;
+    inp.placeholder = `${country.digits} digits`;
+    if (inp.value.length > country.digits) {
+      inp.value = inp.value.substring(0, country.digits);
+    }
+  }
   function attachPhoneAutoDetect(inputId, ccId) {
     const inp = document.getElementById(inputId);
     const cc = document.getElementById(ccId);
@@ -2195,16 +2225,23 @@
         const allDigits = plusMatch[1] + (plusMatch[2] || "").replace(/\D/g, "");
         for (let len = 3; len >= 1; len--) {
           const candidate = "+" + allDigits.substring(0, len);
-          if (COUNTRY_CODES.find(c => c.code === candidate)) {
+          if (countryByCode(candidate)) {
             cc.value = candidate;
             inp.value = allDigits.substring(len);
+            applyPhoneLimit(inp, cc);
             return;
           }
         }
       }
-      const cleaned = val.replace(/\D/g, "");
+      let cleaned = val.replace(/\D/g, "");
+      const country = countryByCode(cc.value);
+      if (country && cleaned.length > country.digits) {
+        cleaned = cleaned.substring(0, country.digits);
+      }
       if (cleaned !== val) inp.value = cleaned;
     });
+    cc.addEventListener("change", () => applyPhoneLimit(inp, cc));
+    applyPhoneLimit(inp, cc);
   }
   attachPhoneAutoDetect("phone", "phone-cc");
   attachPhoneAutoDetect("c-phone", "c-phone-cc");
