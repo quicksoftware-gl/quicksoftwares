@@ -2171,12 +2171,15 @@
     paypalContainer.innerHTML = "";
     payLoading.classList.remove("visible");
     successEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Capture whether this booking was a modify (state.editingRef set) before
+    // we clear the edit state below.
+    const wasEdit = !!state.editingRef;
     // Mark the pending row as paid + scheduled. Fallback inserts if the
     // initial save somehow didn't happen.
     const isFree = String(pid).startsWith("FREE-");
     if (typeof updateBookingPayment === "function" && currentBooking) {
       updateBookingPayment(ref, pid, isFree ? "pending" : "scheduled")
-        .then(reportSaveResult);
+        .then(result => reportSaveResult(result, wasEdit));
     }
     // Clear modify-mode (if we were editing) — booking is now committed.
     if (typeof cancelEdit === "function") cancelEdit();
@@ -2424,16 +2427,26 @@
     payLoading.classList.add("visible");
 
     // 1. Persist to Supabase — UPDATE existing pending row if editing, else INSERT.
-    //    If this fails we still proceed — the booking is also delivered by email
-    //    on payment success.
     let saveResult;
     if (isEditing) {
       saveResult = await updateBookingDetails(ref, booking);
+      // In edit mode, a failed update must STOP the flow — otherwise the customer
+      // would pay for changes that didn't persist.
+      if (!saveResult.ok) {
+        payLoading.classList.remove("visible");
+        payBtn.disabled = false;
+        payBtn.textContent = "Confirm Booking";
+        showError(`Could not update booking: ${saveResult.reason}. Refresh and try again.`);
+        return;
+      }
+      console.log("Modify saved →", ref);
     } else {
       saveResult = await insertBooking(booking, "", "pending");
-    }
-    if (!saveResult.ok && saveResult.reason !== "not_configured" && saveResult.reason !== "not_signed_in") {
-      console.warn("DB save failed but proceeding:", saveResult.reason);
+      // Best-effort for new bookings — proceed even if DB is unavailable so the
+      // payment gateway / email path still work.
+      if (!saveResult.ok && saveResult.reason !== "not_configured" && saveResult.reason !== "not_signed_in") {
+        console.warn("DB insert failed but proceeding:", saveResult.reason);
+      }
     }
 
     // 2. Free order — no payment gateway. Mark as confirmed and email.
@@ -3255,9 +3268,10 @@
     }
   }
 
-  function reportSaveResult(result) {
+  function reportSaveResult(result, wasEdit) {
     if (result.ok) {
-      setSaveStatus("✓ Saved to your account. View under My Bookings.", "#065f46");
+      const verb = wasEdit ? "Updated" : "Saved";
+      setSaveStatus(`✓ ${verb} in your account. View under My Bookings.`, "#065f46");
     } else if (result.reason === "not_configured" || result.reason === "not_signed_in") {
       setSaveStatus("Booking saved by email only (not signed in or DB unavailable).", "#92400e");
     } else {
