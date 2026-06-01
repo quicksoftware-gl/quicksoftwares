@@ -544,6 +544,17 @@
     font-weight: 600;
     margin-top: 2px;
   }
+  .free-notice {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 1px solid #86efac;
+    color: #065f46;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14.5px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    text-align: center;
+  }
   .total .strike {
     font-size: 0.58em;
     color: var(--muted);
@@ -1012,19 +1023,24 @@
       <div class="total" id="sum-total">—</div>
     </div>
 
-    <label style="margin-bottom: 8px;">Payment method</label>
-    <div class="pay-methods" id="pay-methods">
-      <div class="pay-method selected" data-method="razorpay">
-        <div class="pm-name">Razorpay</div>
-        <div class="pm-desc">Cards, UPI, netbanking, wallets · INR</div>
-      </div>
-      <div class="pay-method" data-method="paypal">
-        <div class="pm-name">PayPal</div>
-        <div class="pm-desc">PayPal balance & cards · USD</div>
+    <div id="payment-method-section">
+      <label style="margin-bottom: 8px;">Payment method</label>
+      <div class="pay-methods" id="pay-methods">
+        <div class="pay-method selected" data-method="razorpay">
+          <div class="pm-name">Razorpay</div>
+          <div class="pm-desc">Cards, UPI, netbanking, wallets · INR</div>
+        </div>
+        <div class="pay-method" data-method="paypal">
+          <div class="pm-name">PayPal</div>
+          <div class="pm-desc">PayPal balance & cards · USD</div>
+        </div>
       </div>
     </div>
+    <div class="free-notice" id="free-notice" style="display: none;">
+      🎉 No payment required — your booking is free with this coupon.
+    </div>
 
-    <button class="btn" id="pay">Continue to payment</button>
+    <button class="btn" id="pay">Confirm Booking</button>
     <div class="pay-loading" id="pay-loading">Preparing payment…</div>
     <div id="paypal-button-container"></div>
     <p class="notice">
@@ -1675,6 +1691,7 @@
     if (!svc) {
       sumTotalEl.textContent = "—";
       sumDiscountEl.textContent = "";
+      updatePaymentVisibility();
       return;
     }
     if (state.couponDiscount > 0) {
@@ -1687,6 +1704,17 @@
       sumDiscountEl.textContent = "";
       sumTotalEl.textContent = formatPrice(currentPriceINR());
     }
+    updatePaymentVisibility();
+  }
+
+  function updatePaymentVisibility() {
+    const svc = getService();
+    const isFree = svc && discountedPriceINR() <= 0;
+    const section = document.getElementById("payment-method-section");
+    const notice = document.getElementById("free-notice");
+    if (!section || !notice) return;
+    section.style.display = isFree ? "none" : "";
+    notice.style.display = isFree ? "" : "none";
   }
 
   // ---- UI helpers ------------------------------------------------------
@@ -1702,7 +1730,7 @@
     paypalContainer.innerHTML = "";
     payBtn.style.display = "";
     payBtn.disabled = false;
-    payBtn.textContent = "Continue to payment";
+    payBtn.textContent = "Confirm Booking";
     payLoading.classList.remove("visible");
   }
   function showSuccess(ref, pid) {
