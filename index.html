@@ -99,6 +99,73 @@
     gap: 8px;
     z-index: 2;
   }
+  .hero-offers {
+    position: absolute;
+    bottom: 22px;
+    left: 24px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    padding: 9px 16px 9px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    font-family: inherit;
+    transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+  }
+  .hero-offers:hover { background: rgba(255, 255, 255, 0.32); transform: translateY(-1px); }
+  .hero-offers:active { transform: translateY(1px); }
+  .hero-offers .offers-spark {
+    color: #fde68a;
+    font-size: 14px;
+    line-height: 1;
+  }
+  /* Offer cards in the modal */
+  .offer-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%);
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  }
+  .offer-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(79, 70, 229, 0.12);
+  }
+  .offer-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent);
+    background: #fff;
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid #c7d2fe;
+    letter-spacing: 0.04em;
+    flex: 0 0 auto;
+  }
+  .offer-desc {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-align: right;
+  }
   .hero-socials a {
     width: 30px;
     height: 30px;
@@ -1219,6 +1286,11 @@
       justify-content: center;
       margin: 22px auto 0;
     }
+    .hero-offers {
+      position: static;
+      margin: 22px auto 0;
+      display: inline-flex;
+    }
 
     /* Main spacing */
     main { padding: 0 14px; margin: -36px auto 48px; }
@@ -1307,6 +1379,10 @@
   <span class="hero-pill">Available now</span>
   <h1>Book a software installation</h1>
   <p>Pick a service, choose a convenient time, and we'll handle the rest. Global remote installation service.</p>
+  <button type="button" class="hero-offers" id="offers-open" aria-label="View active offers">
+    <span class="offers-spark" aria-hidden="true">✦</span>
+    Offers
+  </button>
   <div class="social-links hero-socials" id="hero-socials">
     <a class="wa" href="https://wa.me/917838127423" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp (+91 78381 27423)">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
@@ -1469,6 +1545,20 @@
   <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close preview">&times;</button>
   <img id="lightbox-img" src="" alt="" />
   <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
+
+<!-- Offers modal -->
+<div class="modal-overlay" id="offers-modal" role="dialog" aria-modal="true" aria-labelledby="offers-title">
+  <div class="modal-panel">
+    <button type="button" class="modal-close" id="offers-close" aria-label="Close">&times;</button>
+    <h2 id="offers-title">Active Offers</h2>
+    <p class="section-sub" style="padding-left: 0;">Use any of these codes in the discount coupon field at checkout.</p>
+    <div id="offers-list"></div>
+    <p class="catalog-empty" id="offers-empty" style="display: none;">
+      <strong>No active offers right now.</strong>
+      Check back later for new discount codes.
+    </p>
+  </div>
 </div>
 
 <!-- Terms & Conditions modal -->
@@ -2805,6 +2895,50 @@
   attachPhoneAutoDetect("phone", "phone-cc");
   attachPhoneAutoDetect("c-phone", "c-phone-cc");
 
+
+  // ---- Offers modal ----
+  const offersModal = document.getElementById("offers-modal");
+  const offersOpenBtn = document.getElementById("offers-open");
+  const offersCloseBtn = document.getElementById("offers-close");
+  const offersList = document.getElementById("offers-list");
+  const offersEmpty = document.getElementById("offers-empty");
+
+  function renderOffers() {
+    offersList.innerHTML = "";
+    const entries = Object.entries(COUPONS);
+    if (!entries.length) { offersEmpty.style.display = ""; return; }
+    offersEmpty.style.display = "none";
+    entries.forEach(([code, entry]) => {
+      const card = document.createElement("div");
+      card.className = "offer-card";
+      const codeEl = document.createElement("span");
+      codeEl.className = "offer-code";
+      codeEl.textContent = code;
+      const desc = document.createElement("span");
+      desc.className = "offer-desc";
+      desc.textContent = entry.type === "flat_inr"
+        ? `Flat price of ${formatPrice(entry.value, "INR")}`
+        : `${Math.round(entry.value * 100)}% off your booking`;
+      card.appendChild(codeEl);
+      card.appendChild(desc);
+      offersList.appendChild(card);
+    });
+  }
+  function openOffersModal() {
+    renderOffers();
+    offersModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+  }
+  function closeOffersModal() {
+    offersModal.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+  offersOpenBtn.addEventListener("click", openOffersModal);
+  offersCloseBtn.addEventListener("click", closeOffersModal);
+  offersModal.addEventListener("click", e => { if (e.target === offersModal) closeOffersModal(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && offersModal.classList.contains("visible")) closeOffersModal();
+  });
 
   // ---- Terms & Conditions modal ----
   const termsModal = document.getElementById("terms-modal");
