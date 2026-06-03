@@ -744,6 +744,54 @@
     border-color: #fca5a5 !important;
     background-color: #fff1f2 !important;
   }
+  /* Custom autocomplete dropdown — works on both desktop and mobile,
+     replacing the native <datalist> which is unreliable on iOS Safari. */
+  .sw-field { position: relative; }
+  .sw-suggest {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 4px 0 0;
+    padding: 4px 0;
+    list-style: none;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 50;
+    -webkit-overflow-scrolling: touch;
+  }
+  .sw-suggest[hidden] { display: none; }
+  .sw-suggest li {
+    padding: 10px 12px;
+    font-size: 14px;
+    color: var(--ink);
+    cursor: pointer;
+    line-height: 1.3;
+    /* min tap target for mobile */
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+  }
+  .sw-suggest li:hover,
+  .sw-suggest li.active { background: #f1f5f9; }
+  .sw-suggest li mark {
+    background: #fef9c3;
+    color: inherit;
+    padding: 0;
+    border-radius: 2px;
+  }
+  .sw-suggest .sw-empty {
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--muted, #64748b);
+    cursor: default;
+    min-height: 0;
+  }
+  .sw-suggest .sw-empty:hover { background: transparent; }
   .email-link-note {
     background: #e0f2fe;
     border: 1px solid #bae6fd;
@@ -2144,22 +2192,39 @@
     if (set.size === 0) return true;
     return set.has(v);
   }
-  function ensureDatalistForService(svc) {
-    const id = `sw-options-${svc.id}`;
-    let dl = document.getElementById(id);
-    if (!dl) {
-      dl = document.createElement("datalist");
-      dl.id = id;
-      document.body.appendChild(dl);
+  // Custom autocomplete dropdown — used on both desktop and mobile.
+  const SUGGEST_LIMIT = 20;
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  function highlightMatch(name, query) {
+    const safe = escapeHtml(name);
+    if (!query) return safe;
+    const q = query.trim().toLowerCase();
+    if (!q) return safe;
+    const lower = name.toLowerCase();
+    const idx = lower.indexOf(q);
+    if (idx < 0) return safe;
+    const before = escapeHtml(name.slice(0, idx));
+    const hit    = escapeHtml(name.slice(idx, idx + q.length));
+    const after  = escapeHtml(name.slice(idx + q.length));
+    return `${before}<mark>${hit}</mark>${after}`;
+  }
+  function filteredSuggestions(svc, query) {
+    const all = softwareSuggestions(svc);
+    const q = (query || "").trim().toLowerCase();
+    if (!q) return all.slice(0, SUGGEST_LIMIT);
+    return all.filter(n => n.toLowerCase().includes(q)).slice(0, SUGGEST_LIMIT);
+  }
+  function populateSuggestList(ul, svc, query) {
+    const matches = filteredSuggestions(svc, query);
+    if (!matches.length) {
+      ul.innerHTML = `<li class="sw-empty">No matches. You can contact us to enquiry.</li>`;
+      return;
     }
-    const names = softwareSuggestions(svc);
-    // Only rebuild if the list changed (cheap length+first/last check).
-    const signature = `${names.length}|${names[0] || ""}|${names[names.length - 1] || ""}`;
-    if (dl.dataset.signature !== signature) {
-      dl.innerHTML = names.map(n => `<option value="${n.replace(/"/g, "&quot;")}"></option>`).join("");
-      dl.dataset.signature = signature;
-    }
-    return id;
+    ul.innerHTML = matches
+      .map(n => `<li role="option" data-value="${escapeHtml(n)}">${highlightMatch(n, query)}</li>`)
+      .join("");
   }
 
   function renderNamesForPanel(panel, svc) {
@@ -2168,19 +2233,37 @@
     container.innerHTML = "";
     while (ss.softwareNames.length < ss.quantity) ss.softwareNames.push("");
     ss.softwareNames.length = ss.quantity;
-    const listId = ensureDatalistForService(svc);
     for (let i = 0; i < ss.quantity; i++) {
       const wrap = document.createElement("div");
-      wrap.className = "field";
+      wrap.className = "field sw-field";
       wrap.innerHTML = `
         <label>Software ${i + 1} name *</label>
-        <input type="text" data-idx="${i}" list="${listId}" autocomplete="off" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
+        <input type="text" data-idx="${i}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
+        <ul class="sw-suggest" role="listbox" hidden></ul>
         <div class="sw-tag"></div>
         <div class="sw-warn">You can contact us to enquiry about a Software availability which is not listed. <a data-open-contact="1">Contact us</a></div>
       `;
       container.appendChild(wrap);
       const inp = wrap.querySelector("input");
+      const ul  = wrap.querySelector(".sw-suggest");
       inp.value = ss.softwareNames[i] || "";
+
+      function openSuggest() {
+        populateSuggestList(ul, svc, inp.value);
+        ul.hidden = false;
+      }
+      function closeSuggest() { ul.hidden = true; }
+      function pickSuggest(value) {
+        inp.value = value;
+        const idx = Number(inp.dataset.idx);
+        ss.softwareNames[idx] = value;
+        updateAutodeskTagInWrap(wrap, svc, value);
+        updateSoftwareWarnInWrap(wrap, svc, value);
+        updateTierHintForPanel(panel, svc);
+        updateSummary();
+        closeSuggest();
+      }
+
       inp.addEventListener("input", e => {
         const idx = Number(e.target.dataset.idx);
         ss.softwareNames[idx] = e.target.value;
@@ -2188,7 +2271,30 @@
         updateSoftwareWarnInWrap(wrap, svc, e.target.value);
         updateTierHintForPanel(panel, svc);
         updateSummary();
+        openSuggest();
       });
+      inp.addEventListener("focus", openSuggest);
+      // mousedown on a suggestion fires before blur on the input — pick from there.
+      ul.addEventListener("mousedown", e => {
+        const li = e.target.closest("li[data-value]");
+        if (!li) return;
+        e.preventDefault();
+        pickSuggest(li.dataset.value);
+      });
+      // Touch support: pointerdown covers both mouse and touch in modern browsers,
+      // but we keep mousedown above for very old browsers. touchstart adds an
+      // extra-safe path on iOS where pointer events sometimes lag.
+      ul.addEventListener("touchstart", e => {
+        const li = e.target.closest("li[data-value]");
+        if (!li) return;
+        e.preventDefault();
+        pickSuggest(li.dataset.value);
+      }, { passive: false });
+      inp.addEventListener("blur", () => {
+        // Defer so a tap/click on a suggestion can land first.
+        setTimeout(closeSuggest, 150);
+      });
+
       // Clicking the "Contact us" link inside the warning opens the contact modal.
       wrap.querySelector(".sw-warn a[data-open-contact]").addEventListener("click", () => {
         const btn = document.getElementById("contact-open");
