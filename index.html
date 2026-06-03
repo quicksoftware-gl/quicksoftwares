@@ -727,6 +727,23 @@
     width: fit-content;
   }
   .sw-tag.visible { display: inline-block; }
+  .sw-warn {
+    display: none;
+    margin-top: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #991b1b;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+  .sw-warn.visible { display: block; }
+  .sw-warn a { color: #7f1d1d; text-decoration: underline; cursor: pointer; }
+  input.sw-invalid {
+    border-color: #fca5a5 !important;
+    background-color: #fff1f2 !important;
+  }
   .email-link-note {
     background: #e0f2fe;
     border: 1px solid #bae6fd;
@@ -2107,6 +2124,26 @@
     const key = SOFTWARE_LIST_KEY[svc.id];
     return Array.isArray(all[key]) ? all[key] : [];
   }
+  // Case-insensitive allowed-name lookup per service, memoized.
+  const _allowedSets = {};
+  function allowedSetForService(svc) {
+    const sig = softwareSuggestions(svc).length;
+    const cached = _allowedSets[svc.id];
+    if (cached && cached.sig === sig) return cached.set;
+    const set = new Set(softwareSuggestions(svc).map(n => n.trim().toLowerCase()));
+    _allowedSets[svc.id] = { sig, set };
+    return set;
+  }
+  // Empty values are handled by the missing-name check, so we don't flag them
+  // here. If the manifest hasn't loaded (set is empty), we skip the strict
+  // check so the form still works.
+  function isAllowedSoftwareName(svc, value) {
+    const v = (value || "").trim().toLowerCase();
+    if (!v) return true;
+    const set = allowedSetForService(svc);
+    if (set.size === 0) return true;
+    return set.has(v);
+  }
   function ensureDatalistForService(svc) {
     const id = `sw-options-${svc.id}`;
     let dl = document.getElementById(id);
@@ -2139,6 +2176,7 @@
         <label>Software ${i + 1} name *</label>
         <input type="text" data-idx="${i}" list="${listId}" autocomplete="off" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
         <div class="sw-tag"></div>
+        <div class="sw-warn">You can contact us to enquiry about a Software availability which is not listed. <a data-open-contact="1">Contact us</a></div>
       `;
       container.appendChild(wrap);
       const inp = wrap.querySelector("input");
@@ -2147,10 +2185,17 @@
         const idx = Number(e.target.dataset.idx);
         ss.softwareNames[idx] = e.target.value;
         updateAutodeskTagInWrap(wrap, svc, e.target.value);
+        updateSoftwareWarnInWrap(wrap, svc, e.target.value);
         updateTierHintForPanel(panel, svc);
         updateSummary();
       });
+      // Clicking the "Contact us" link inside the warning opens the contact modal.
+      wrap.querySelector(".sw-warn a[data-open-contact]").addEventListener("click", () => {
+        const btn = document.getElementById("contact-open");
+        if (btn) btn.click();
+      });
       updateAutodeskTagInWrap(wrap, svc, ss.softwareNames[i] || "");
+      updateSoftwareWarnInWrap(wrap, svc, ss.softwareNames[i] || "");
     }
   }
 
@@ -2162,6 +2207,21 @@
     } else {
       tag.textContent = "";
       tag.classList.remove("visible");
+    }
+  }
+
+  function updateSoftwareWarnInWrap(wrap, svc, name) {
+    const warn = wrap.querySelector(".sw-warn");
+    const input = wrap.querySelector("input");
+    if (!warn || !input) return;
+    const value = (name || "").trim();
+    // Empty input: not invalid here (required-field handles that). Hide the warning.
+    if (!value || isAllowedSoftwareName(svc, value)) {
+      warn.classList.remove("visible");
+      input.classList.remove("sw-invalid");
+    } else {
+      warn.classList.add("visible");
+      input.classList.add("sw-invalid");
     }
   }
 
@@ -2508,6 +2568,13 @@
       const missingIdx = names.findIndex(n => !n);
       if (missingIdx >= 0) {
         return { ok: false, error: `For ${svc.name}: please enter the name of Software ${missingIdx + 1}.` };
+      }
+      const invalidIdx = names.findIndex(n => !isAllowedSoftwareName(svc, n));
+      if (invalidIdx >= 0) {
+        return {
+          ok: false,
+          error: `For ${svc.name}: "${names[invalidIdx]}" is not in our list. You can contact us to enquiry about a Software availability which is not listed.`
+        };
       }
       perService.push({ svc, quantity: ss.quantity, softwareNames: names });
     }
