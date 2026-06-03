@@ -3,10 +3,12 @@
 window.COUPONS = {
   "20OFF": {
     "type": "percent",
-    "value": 0.2
+    "value": 0.2,
+    "applies_to": "both"
   },
   "BHOLEKRIPA": {
     "type": "flat_inr",
-    "value": 10.0
+    "value": 10.0,
+    "applies_to": "both"
   }
 };

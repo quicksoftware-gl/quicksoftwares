@@ -5,15 +5,17 @@ Regenerate coupons-manifest.js by reading Discount.xlsx.
 Run this after editing Discount.xlsx:
     ./update-coupons.py
 
-The .xlsx supports two coupon types via three columns:
-    Discount_Coupon   Discount_Percentage   Flat_Price_INR
-    50OFF             0.5                   (blank)         → 50% off
-    20OFF             0.2                   (blank)         → 20% off
-    BHOLEKRIPA        (blank)               10              → flat ₹10
+The .xlsx supports two coupon types via four columns:
+    Discount_Coupon   Discount_Percentage   Flat_Price_INR   Applies_To
+    50OFF             0.5                   (blank)          both
+    20OFF             0.2                   (blank)          windows
+    BHOLEKRIPA        (blank)               10               macbook
     ...
 
 Row 1 is the header. Codes are uppercased. Each row should fill exactly
 one of Discount_Percentage (0.0–1.0) or Flat_Price_INR (positive INR).
+Applies_To controls which service the coupon discounts: "windows",
+"macbook", or "both" (default if blank or unrecognized).
 """
 import json
 import os
@@ -81,6 +83,7 @@ def read_xlsx(path):
                     continue
                 pct_raw = row_cells.get("B", "")
                 flat_raw = row_cells.get("C", "")
+                applies_raw = (row_cells.get("D", "") or "").strip().lower()
                 pct = None
                 flat = None
                 try:
@@ -94,10 +97,17 @@ def read_xlsx(path):
                 except (ValueError, TypeError):
                     print(f"  ! {code}: invalid flat price '{flat_raw}' — ignored", file=sys.stderr)
 
+                if applies_raw in ("windows", "macbook", "both"):
+                    applies_to = applies_raw
+                else:
+                    if applies_raw:
+                        print(f"  ! {code}: unknown Applies_To '{applies_raw}', defaulting to 'both'", file=sys.stderr)
+                    applies_to = "both"
+
                 if flat is not None and flat > 0:
-                    coupons[code] = {"type": "flat_inr", "value": flat}
+                    coupons[code] = {"type": "flat_inr", "value": flat, "applies_to": applies_to}
                 elif pct is not None and 0 <= pct <= 1:
-                    coupons[code] = {"type": "percent", "value": pct}
+                    coupons[code] = {"type": "percent", "value": pct, "applies_to": applies_to}
                 else:
                     print(f"  ! Skipping {code}: needs Discount_Percentage (0..1) OR Flat_Price_INR (>0)", file=sys.stderr)
     return coupons

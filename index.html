@@ -2031,16 +2031,53 @@
       return sum + priceFor(svc, ss.softwareNames.slice(0, ss.quantity));
     }, 0);
   }
+  // Subtotal for one specific service (0 if not selected).
+  function subtotalForServiceId(svcId) {
+    const svc = getServiceById(svcId);
+    if (!svc) return 0;
+    const ss = state.services[svc.id];
+    if (!ss || !ss.selected) return 0;
+    return priceFor(svc, ss.softwareNames.slice(0, ss.quantity));
+  }
+  function couponScope(coupon) { return (coupon && coupon.applies_to) || "both"; }
+  function serviceIdForScope(scope) {
+    if (scope === "windows") return "win-soft";
+    if (scope === "macbook") return "mac-soft";
+    return null;
+  }
+  function couponScopeLabel(scope) {
+    if (scope === "windows") return "Windows Softwares";
+    if (scope === "macbook") return "Macbook Softwares";
+    return "";
+  }
+  // Is the currently-applied coupon's scope still in the cart?
+  function couponEligible(coupon) {
+    const scope = couponScope(coupon);
+    if (scope === "both") return true;
+    const id = serviceIdForScope(scope);
+    return !!(id && state.services[id] && state.services[id].selected);
+  }
   function discountedPriceINR() {
     const sub = currentPriceINR();
     if (!state.coupon) return sub;
-    if (state.coupon.type === "flat_inr") return Math.min(sub, state.coupon.value);
-    return sub * (1 - state.coupon.value);
+    if (!couponEligible(state.coupon)) return sub;
+    const scope = couponScope(state.coupon);
+    // Flat-price coupons cap the WHOLE bill whenever the scoped service is in
+    // the cart. Per-service percent coupons discount only the eligible portion.
+    if (state.coupon.type === "flat_inr") {
+      return Math.min(sub, state.coupon.value);
+    }
+    if (scope === "both") return sub * (1 - state.coupon.value);
+    const targetSub = subtotalForServiceId(serviceIdForScope(scope));
+    const otherSub  = sub - targetSub;
+    return otherSub + targetSub * (1 - state.coupon.value);
   }
   function couponLabel() {
     if (!state.coupon) return "";
-    if (state.coupon.type === "flat_inr") return `Flat ${formatPrice(state.coupon.value)} (${state.couponCode})`;
-    return `− ${Math.round(state.coupon.value * 100)}% off (${state.couponCode})`;
+    const scope = couponScope(state.coupon);
+    const tail  = scope === "both" ? "" : ` — ${couponScopeLabel(scope)} only`;
+    if (state.coupon.type === "flat_inr") return `Flat ${formatPrice(state.coupon.value)} (${state.couponCode})${tail}`;
+    return `− ${Math.round(state.coupon.value * 100)}% off (${state.couponCode})${tail}`;
   }
 
   // ---- One-use-per-email coupon tracking (localStorage) ---------------
@@ -2094,10 +2131,24 @@
       ss.selected = !ss.selected;
       el.classList.toggle("selected", ss.selected);
       renderSoftwareDetails();
+      revokeCouponIfIneligible();
       updateSummary();
     });
     servicesEl.appendChild(el);
   });
+
+  // If the user toggled services such that the active coupon no longer matches
+  // any of them, remove it and surface a friendly message.
+  function revokeCouponIfIneligible() {
+    if (!state.coupon) return;
+    if (couponEligible(state.coupon)) return;
+    const scope = couponScope(state.coupon);
+    const scopeLabel = couponScopeLabel(scope);
+    const wasCode = state.couponCode;
+    removeCoupon();
+    couponMsg.textContent = `Coupon ${wasCode} removed — it only applies to ${scopeLabel}.`;
+    couponMsg.className = "coupon-msg error";
+  }
 
   function rerenderPrices() {
     document.querySelectorAll(".service").forEach(el => {
@@ -2412,6 +2463,13 @@
       couponMsg.className = "coupon-msg error";
       return;
     }
+    if (!couponEligible(entry)) {
+      const scopeLabel = couponScopeLabel(couponScope(entry));
+      couponMsg.textContent = `Coupon ${code} is valid only for ${scopeLabel}. Please add that service before applying.`;
+      couponMsg.className = "coupon-msg error";
+      couponInput.classList.add("invalid");
+      return;
+    }
     state.couponCode = code;
     state.coupon = entry;
     couponInput.value = code;
@@ -2419,9 +2477,11 @@
     couponInput.classList.add("applied");
     couponBtn.textContent = "Remove";
     couponBtn.classList.add("remove");
+    const scope = couponScope(entry);
+    const scopeSuffix = scope === "both" ? "" : ` on ${couponScopeLabel(scope)}`;
     couponMsg.textContent = entry.type === "flat_inr"
-      ? `✓ Flat price of ${formatPrice(entry.value, "INR")} applied`
-      : `✓ ${Math.round(entry.value * 100)}% discount applied`;
+      ? `✓ Flat price of ${formatPrice(entry.value, "INR")} applied${scopeSuffix}`
+      : `✓ ${Math.round(entry.value * 100)}% discount applied${scopeSuffix}`;
     couponMsg.className = "coupon-msg success";
     updateSummary();
   }
@@ -3191,12 +3251,14 @@
   const offersEmpty = document.getElementById("offers-empty");
 
   // Coupons that exist but should NOT appear in the public Offers modal.
-  // They still work if a customer types the code into the discount field.
-  const INTERNAL_COUPONS = new Set(["BHOLEKRIPA"]);
+  // Flat-price codes are also hidden (they're typically internal/seasonal).
+  const INTERNAL_COUPONS = new Set();
 
   function renderOffers() {
     offersList.innerHTML = "";
-    const entries = Object.entries(COUPONS).filter(([code]) => !INTERNAL_COUPONS.has(code));
+    const entries = Object.entries(COUPONS).filter(([code, entry]) =>
+      !INTERNAL_COUPONS.has(code) && entry.type !== "flat_inr"
+    );
     if (!entries.length) { offersEmpty.style.display = ""; return; }
     offersEmpty.style.display = "none";
     entries.forEach(([code, entry]) => {
@@ -3207,9 +3269,9 @@
       codeEl.textContent = code;
       const desc = document.createElement("span");
       desc.className = "offer-desc";
-      desc.textContent = entry.type === "flat_inr"
-        ? `Flat price of ${formatPrice(entry.value, "INR")}`
-        : `${Math.round(entry.value * 100)}% off your booking`;
+      const scope = couponScope(entry);
+      const scopeTail = scope === "both" ? "" : ` — ${couponScopeLabel(scope)} only`;
+      desc.textContent = `${Math.round(entry.value * 100)}% off your booking${scopeTail}`;
       card.appendChild(codeEl);
       card.appendChild(desc);
       offersList.appendChild(card);
