@@ -2219,7 +2219,7 @@
   function populateSuggestList(ul, svc, query) {
     const matches = filteredSuggestions(svc, query);
     if (!matches.length) {
-      ul.innerHTML = `<li class="sw-empty">No matches. You can contact us to enquiry.</li>`;
+      ul.innerHTML = `<li class="sw-empty">Can't find the software you're looking for? Contact us to inquire about the availability of software not currently listed on our website.</li>`;
       return;
     }
     ul.innerHTML = matches
@@ -2241,7 +2241,7 @@
         <input type="text" data-idx="${i}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
         <ul class="sw-suggest" role="listbox" hidden></ul>
         <div class="sw-tag"></div>
-        <div class="sw-warn">You can contact us to enquiry about a Software availability which is not listed. <a data-open-contact="1">Contact us</a></div>
+        <div class="sw-warn">Can't find the software you're looking for? Contact us to inquire about the availability of software not currently listed on our website. <a data-open-contact="1">Contact us</a></div>
       `;
       container.appendChild(wrap);
       const inp = wrap.querySelector("input");
@@ -2679,7 +2679,7 @@
       if (invalidIdx >= 0) {
         return {
           ok: false,
-          error: `For ${svc.name}: "${names[invalidIdx]}" is not in our list. You can contact us to enquiry about a Software availability which is not listed.`
+          error: `For ${svc.name}: "${names[invalidIdx]}" is not in our list. Can't find the software you're looking for? Contact us to inquire about the availability of software not currently listed on our website.`
         };
       }
       perService.push({ svc, quantity: ss.quantity, softwareNames: names });
