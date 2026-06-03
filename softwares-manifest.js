@@ -102,7 +102,11 @@ window.SOFTWARES = {
     "Parashara's Light Professional 9",
     "Kundli Chakra Professional",
     "Navis Work 2026",
-    "Navis Work 2024"
+    "Navis Work 2024",
+    "Icecream Screen Recorder",
+    "WinRAR Professional",
+    "MiniTool Power Data Recovery 2026",
+    "EaseUS Data Recovery Wizard Technician"
   ],
   "macbook": [
     "Autocad 2026",
