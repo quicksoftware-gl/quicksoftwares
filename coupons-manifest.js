@@ -15,5 +15,10 @@ window.COUPONS = {
     "type": "percent",
     "value": 0.3,
     "applies_to": "windows"
+  },
+  "MAC25": {
+    "type": "percent",
+    "value": 0.25,
+    "applies_to": "macbook"
   }
 };
