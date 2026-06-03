@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="catalog-manifest.js"></script>
 <script src="coupons-manifest.js"></script>
+<script src="softwares-manifest.js"></script>
 <style>
   :root {
     --bg: #0f172a;
@@ -2098,18 +2099,45 @@
     updateTierHintForPanel(panel, svc);
   }
 
+  // Suggestion list source per service. Names come from softwares-manifest.js
+  // (auto-generated from Softwares.xlsx by update-softwares.py).
+  const SOFTWARE_LIST_KEY = { "win-soft": "windows", "mac-soft": "macbook" };
+  function softwareSuggestions(svc) {
+    const all = (typeof window !== "undefined" && window.SOFTWARES) || {};
+    const key = SOFTWARE_LIST_KEY[svc.id];
+    return Array.isArray(all[key]) ? all[key] : [];
+  }
+  function ensureDatalistForService(svc) {
+    const id = `sw-options-${svc.id}`;
+    let dl = document.getElementById(id);
+    if (!dl) {
+      dl = document.createElement("datalist");
+      dl.id = id;
+      document.body.appendChild(dl);
+    }
+    const names = softwareSuggestions(svc);
+    // Only rebuild if the list changed (cheap length+first/last check).
+    const signature = `${names.length}|${names[0] || ""}|${names[names.length - 1] || ""}`;
+    if (dl.dataset.signature !== signature) {
+      dl.innerHTML = names.map(n => `<option value="${n.replace(/"/g, "&quot;")}"></option>`).join("");
+      dl.dataset.signature = signature;
+    }
+    return id;
+  }
+
   function renderNamesForPanel(panel, svc) {
     const ss = state.services[svc.id];
     const container = panel.querySelector(".software-names");
     container.innerHTML = "";
     while (ss.softwareNames.length < ss.quantity) ss.softwareNames.push("");
     ss.softwareNames.length = ss.quantity;
+    const listId = ensureDatalistForService(svc);
     for (let i = 0; i < ss.quantity; i++) {
       const wrap = document.createElement("div");
       wrap.className = "field";
       wrap.innerHTML = `
         <label>Software ${i + 1} name *</label>
-        <input type="text" data-idx="${i}" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
+        <input type="text" data-idx="${i}" list="${listId}" autocomplete="off" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
         <div class="sw-tag"></div>
       `;
       container.appendChild(wrap);
