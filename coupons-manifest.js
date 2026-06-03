@@ -10,5 +10,10 @@ window.COUPONS = {
     "type": "flat_inr",
     "value": 10.0,
     "applies_to": "both"
+  },
+  "WIN30": {
+    "type": "percent",
+    "value": 0.3,
+    "applies_to": "windows"
   }
 };
