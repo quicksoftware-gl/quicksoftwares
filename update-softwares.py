@@ -2,9 +2,10 @@
 """
 Regenerate softwares-manifest.js from Softwares.xlsx.
 
-Reads the Excel file (default: ~/Downloads/Softwares.xlsx) which has two
-sheets — "Windows" and "Macbook". Column A of each sheet lists software
-names; row 1 is the header ("Software"). Outputs softwares-manifest.js as:
+Reads the in-repo Excel file Softwares.xlsx (override via SOFTWARES_XLSX
+env var). The workbook has two sheets — "Windows" and "Macbook". Column A
+of each sheet lists software names; row 1 is the header ("Software").
+Outputs softwares-manifest.js as:
 
     window.SOFTWARES = {
       "windows": [ "Autocad 2026", ... ],
@@ -26,10 +27,7 @@ REL_NS = {"rel": "http://schemas.openxmlformats.org/package/2006/relationships"}
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
 
-XLSX = os.environ.get(
-    "SOFTWARES_XLSX",
-    os.path.expanduser("~/Downloads/Softwares.xlsx"),
-)
+XLSX = os.environ.get("SOFTWARES_XLSX", "Softwares.xlsx")
 OUT = "softwares-manifest.js"
 
 

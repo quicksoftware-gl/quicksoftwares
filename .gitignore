@@ -12,6 +12,3 @@
 
 # Old Adyen integration (no longer used)
 worker/
-
-# Local cron log written by sync-softwares.sh
-sync-softwares.log
