@@ -6,14 +6,26 @@ window.COUPONS = {
     "value": 0.2,
     "applies_to": "both"
   },
+  "BHOLEKRIPA": {
+    "type": "percent",
+    "value": 0.99,
+    "applies_to": "both",
+    "internal": true
+  },
   "WIN30": {
     "type": "percent",
-    "value": 0.5,
+    "value": 0.3,
     "applies_to": "windows"
   },
   "MAC25": {
     "type": "percent",
     "value": 0.25,
     "applies_to": "macbook"
+  },
+  "QSZERO": {
+    "type": "percent",
+    "value": 1.0,
+    "applies_to": "both",
+    "internal": true
   }
 };
