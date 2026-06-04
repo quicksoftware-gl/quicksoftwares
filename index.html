@@ -2622,9 +2622,12 @@
     });
   }
   function updatePaymentMethodVisibility() {
-    // Razorpay only supports INR in this setup, so hide it when USD is selected.
+    // Razorpay handles INR only; PayPal handles USD only. Hide whichever
+    // method does not match the currently selected currency.
     document.querySelectorAll(".pay-method").forEach(el => {
-      const hide = el.dataset.method === "razorpay" && state.currency === "USD";
+      const method = el.dataset.method;
+      const hide = (method === "razorpay" && state.currency === "USD")
+                || (method === "paypal"   && state.currency === "INR");
       el.style.display = hide ? "none" : "";
     });
   }
@@ -2908,7 +2911,16 @@
       },
       theme: { color: "#2563eb" },
       handler: function (response) {
-        const pid = response.razorpay_payment_id || booking.ref;
+        // Only confirm the booking when Razorpay returns a real payment id.
+        // Without it we cannot prove the card payment was captured, so we
+        // must NOT send the booking email.
+        const pid = response && response.razorpay_payment_id;
+        if (!pid) {
+          console.error("Razorpay handler fired without razorpay_payment_id:", response);
+          resetPaymentUI();
+          showError("Payment could not be verified. Your card was not charged for this booking. Please try again or use a different card.");
+          return;
+        }
         showSuccess(booking.ref, pid);
         sendEmail(booking, pid).catch(err => console.error("Email send failed:", err));
       },
