@@ -13,7 +13,7 @@ window.COUPONS = {
   },
   "WIN30": {
     "type": "percent",
-    "value": 0.3,
+    "value": 0.5,
     "applies_to": "windows"
   },
   "MAC25": {
