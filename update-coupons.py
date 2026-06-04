@@ -6,14 +6,17 @@ Run this after editing Discount.xlsx:
     ./update-coupons.py
 
 The .xlsx supports two coupon types via four columns:
-    Discount_Coupon   Discount_Percentage   Flat_Price_INR   Applies_To
-    50OFF             0.5                   (blank)          both
-    20OFF             0.2                   (blank)          windows
-    BHOLEKRIPA        (blank)               10               macbook
+    Discount_Coupon   Discount_Percentage   Internal_Discount_Percentage   Applies_To
+    50OFF             0.5                   (blank)                        both
+    20OFF             0.2                   (blank)                        windows
+    BHOLEKRIPA        (blank)               0.25                           macbook
     ...
 
 Row 1 is the header. Codes are uppercased. Each row should fill exactly
-one of Discount_Percentage (0.0–1.0) or Flat_Price_INR (positive INR).
+one of Discount_Percentage (0.0–1.0) or Internal_Discount_Percentage
+(0.0–1.0). Both behave identically as percentage discounts; coupons
+defined via Internal_Discount_Percentage are marked internal-only and
+are hidden from the public "Offers" modal on the site.
 Applies_To controls which service the coupon discounts: "windows",
 "macbook", or "both" (default if blank or unrecognized).
 """
@@ -82,20 +85,20 @@ def read_xlsx(path):
                 if not code:
                     continue
                 pct_raw = row_cells.get("B", "")
-                flat_raw = row_cells.get("C", "")
+                internal_raw = row_cells.get("C", "")
                 applies_raw = (row_cells.get("D", "") or "").strip().lower()
                 pct = None
-                flat = None
+                internal_pct = None
                 try:
                     if pct_raw not in (None, ""):
                         pct = float(pct_raw)
                 except (ValueError, TypeError):
-                    print(f"  ! {code}: invalid percentage '{pct_raw}' — ignored", file=sys.stderr)
+                    print(f"  ! {code}: invalid Discount_Percentage '{pct_raw}' — ignored", file=sys.stderr)
                 try:
-                    if flat_raw not in (None, ""):
-                        flat = float(flat_raw)
+                    if internal_raw not in (None, ""):
+                        internal_pct = float(internal_raw)
                 except (ValueError, TypeError):
-                    print(f"  ! {code}: invalid flat price '{flat_raw}' — ignored", file=sys.stderr)
+                    print(f"  ! {code}: invalid Internal_Discount_Percentage '{internal_raw}' — ignored", file=sys.stderr)
 
                 if applies_raw in ("windows", "macbook", "both"):
                     applies_to = applies_raw
@@ -104,12 +107,17 @@ def read_xlsx(path):
                         print(f"  ! {code}: unknown Applies_To '{applies_raw}', defaulting to 'both'", file=sys.stderr)
                     applies_to = "both"
 
-                if flat is not None and flat > 0:
-                    coupons[code] = {"type": "flat_inr", "value": flat, "applies_to": applies_to}
+                if internal_pct is not None and 0 <= internal_pct <= 1:
+                    coupons[code] = {
+                        "type": "percent",
+                        "value": internal_pct,
+                        "applies_to": applies_to,
+                        "internal": True,
+                    }
                 elif pct is not None and 0 <= pct <= 1:
                     coupons[code] = {"type": "percent", "value": pct, "applies_to": applies_to}
                 else:
-                    print(f"  ! Skipping {code}: needs Discount_Percentage (0..1) OR Flat_Price_INR (>0)", file=sys.stderr)
+                    print(f"  ! Skipping {code}: needs Discount_Percentage (0..1) OR Internal_Discount_Percentage (0..1)", file=sys.stderr)
     return coupons
 
 

@@ -3293,13 +3293,14 @@
   const offersEmpty = document.getElementById("offers-empty");
 
   // Coupons that exist but should NOT appear in the public Offers modal.
-  // Flat-price codes are also hidden (they're typically internal/seasonal).
+  // Codes marked internal (via the Internal_Discount_Percentage column in
+  // Discount.xlsx) are hidden, as are any legacy flat-price codes.
   const INTERNAL_COUPONS = new Set();
 
   function renderOffers() {
     offersList.innerHTML = "";
     const entries = Object.entries(COUPONS).filter(([code, entry]) =>
-      !INTERNAL_COUPONS.has(code) && entry.type !== "flat_inr"
+      !INTERNAL_COUPONS.has(code) && entry.type !== "flat_inr" && !entry.internal
     );
     if (!entries.length) { offersEmpty.style.display = ""; return; }
     offersEmpty.style.display = "none";
