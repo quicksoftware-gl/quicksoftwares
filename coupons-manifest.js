@@ -6,11 +6,6 @@ window.COUPONS = {
     "value": 0.2,
     "applies_to": "both"
   },
-  "BHOLEKRIPA": {
-    "type": "flat_inr",
-    "value": 10.0,
-    "applies_to": "both"
-  },
   "WIN30": {
     "type": "percent",
     "value": 0.5,
