@@ -1601,7 +1601,7 @@
       <div class="pay-methods" id="pay-methods">
         <div class="pay-method selected" data-method="razorpay">
           <div class="pm-name">Razorpay</div>
-          <div class="pm-desc">Cards, UPI, netbanking, wallets · INR</div>
+          <div class="pm-desc">Cards, UPI, netbanking, wallets · INR or USD</div>
         </div>
         <div class="pay-method" data-method="paypal">
           <div class="pm-name">PayPal / Debit / Credit Card</div>
@@ -1617,7 +1617,7 @@
     <div class="pay-loading" id="pay-loading">Preparing payment…</div>
     <div id="paypal-button-container"></div>
     <p class="notice">
-      Razorpay processes INR payments; PayPal processes USD payments. The currency dropdown will switch automatically.
+      Razorpay accepts INR and USD; PayPal handles USD only. Picking PayPal switches the currency to USD automatically.
     </p>
   </section>
 
@@ -1776,7 +1776,7 @@
   // ---- PayPal ----------------------------------------------------------
   // Get this from https://developer.paypal.com → My Apps & Credentials → Client ID.
   // Use the "sandbox" Client ID for testing, "live" Client ID for production.
-  const PAYPAL_CLIENT_ID = "Ady38Sa7yIrNs80ZfkKIDdDrO6Fj_sfbuX2ZqOPzfvyVOkB2E9syU7PyJ-gIylmzXqfidUd5GBLlLQF_";
+  const PAYPAL_CLIENT_ID = "ATXa5Qa06t276BmDmMReQ7wH-trzjGeIcT_EJD-gtBsOPUpFBCOTKbW763UNhTh1MCBjExG05u5zBFcI";
 
   // ---- Web3Forms (email delivery) --------------------------------------
   // Free form-to-email service. Register quicksoftwares.global@gmail.com at
@@ -2622,23 +2622,23 @@
     });
   }
   function updatePaymentMethodVisibility() {
-    // Razorpay handles INR only; PayPal handles USD only. Hide whichever
-    // method does not match the currently selected currency.
+    // Razorpay supports both INR and USD (international payments must be
+    // enabled on the Razorpay account). PayPal only handles USD here, so
+    // hide PayPal whenever INR is selected.
     document.querySelectorAll(".pay-method").forEach(el => {
       const method = el.dataset.method;
-      const hide = (method === "razorpay" && state.currency === "USD")
-                || (method === "paypal"   && state.currency === "INR");
+      const hide = (method === "paypal" && state.currency === "INR");
       el.style.display = hide ? "none" : "";
     });
   }
   document.querySelectorAll(".pay-method").forEach(el => {
     el.addEventListener("click", () => {
       state.paymentMethod = el.dataset.method;
-      // Sync currency to whichever the method requires
-      const requiredCurrency = state.paymentMethod === "paypal" ? "USD" : "INR";
-      if (state.currency !== requiredCurrency) {
-        state.currency = requiredCurrency;
-        currencyEl.value = requiredCurrency;
+      // PayPal requires USD; Razorpay accepts whatever currency the
+      // customer has already selected.
+      if (state.paymentMethod === "paypal" && state.currency !== "USD") {
+        state.currency = "USD";
+        currencyEl.value = "USD";
         rerenderPrices();
         updateWhatsappForCurrency();
       }
@@ -2897,8 +2897,10 @@
     }
     const options = {
       key: RAZORPAY_KEY_ID,
-      amount: Math.round(booking.chargedAmount * 100), // paise
-      currency: "INR",
+      // Razorpay uses the currency's lowest sub-unit: paise for INR,
+      // cents for USD. The x100 factor applies to both.
+      amount: Math.round(booking.chargedAmount * 100),
+      currency: booking.chargedCurrency,
       name: MERCHANT_NAME,
       description: booking.serviceName,
       prefill: { name: booking.name, email: booking.email, contact: booking.phone },
