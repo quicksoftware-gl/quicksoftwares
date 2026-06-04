@@ -2986,10 +2986,18 @@
         onApprove: async (data, actions) => {
           try {
             const details = await actions.order.capture();
+            // Always log the full capture response so we can audit what
+            // PayPal returned for failed bookings.
+            console.log("PayPal capture response:", details);
+
             // PayPal can resolve capture() without throwing even when the
             // capture did not actually complete (declined / pending /
-            // instrument-declined). Only confirm the booking when the order
-            // AND the inner capture both report COMPLETED.
+            // instrument-declined). Confirm the booking ONLY when ALL of
+            // these hold:
+            //   1) Order status is COMPLETED
+            //   2) Inner capture status is COMPLETED
+            //   3) Captured amount matches what we asked PayPal to charge
+            //   4) Captured currency is USD
             const orderStatus = details && details.status;
             const capture = details
               && details.purchase_units
@@ -2998,19 +3006,30 @@
               && details.purchase_units[0].payments.captures
               && details.purchase_units[0].payments.captures[0];
             const captureStatus = capture && capture.status;
+            const capturedAmount = capture && capture.amount && capture.amount.value;
+            const capturedCurrency = capture && capture.amount && capture.amount.currency_code;
+            const expectedAmount = booking.chargedAmount.toFixed(2);
+
             if (orderStatus !== "COMPLETED" || captureStatus !== "COMPLETED") {
-              console.error("PayPal capture not completed:", details);
+              console.error("PayPal capture not completed:", { orderStatus, captureStatus, details });
               resetPaymentUI();
-              showError("Payment failed: PayPal reported status " + (captureStatus || orderStatus || "UNKNOWN") + ". Your card was not charged for this booking. Please try again or use a different card.");
+              showError("Payment failed: PayPal reported status " + (captureStatus || orderStatus || "UNKNOWN") + ". Your card was not charged. Booking NOT confirmed. Please try again or use a different card.");
               return;
             }
+            if (capturedCurrency !== "USD" || Number(capturedAmount) !== Number(expectedAmount)) {
+              console.error("PayPal capture amount/currency mismatch:", { expectedAmount, capturedAmount, capturedCurrency, details });
+              resetPaymentUI();
+              showError("Payment verification failed: captured " + capturedAmount + " " + capturedCurrency + " but booking expected " + expectedAmount + " USD. Booking NOT confirmed. Please contact support with reference " + booking.ref + ".");
+              return;
+            }
+
             const pid = (capture && capture.id) || (details && details.id) || data.orderID || booking.ref;
             showSuccess(booking.ref, pid);
             sendEmail(booking, pid).catch(err => console.error("Email send failed:", err));
           } catch (err) {
             console.error("PayPal capture failed:", err);
             resetPaymentUI();
-            showError("Payment failed: " + (err && err.message ? err.message : "PayPal could not capture the payment") + ". Your booking has NOT been confirmed.");
+            showError("Payment failed: " + (err && err.message ? err.message : "PayPal could not capture the payment") + ". Your card was not charged. Booking NOT confirmed.");
           }
         },
         onCancel: () => {
