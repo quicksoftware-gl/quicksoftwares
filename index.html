@@ -1574,7 +1574,7 @@
     <h2><span class="step-num">4</span> Confirm &amp; pay</h2>
     <div class="error" id="error"></div>
     <div class="success" id="success">
-      <h3>Booking confirmed</h3>
+      <h3>Payment successful — booking confirmed</h3>
       <div>Reference: <span class="ref" id="success-ref"></span></div>
       <div>Payment ID: <span class="ref" id="success-pid"></span></div>
       <div style="margin-top: 8px; font-size: 13px;">A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.</div>
@@ -2711,7 +2711,11 @@
   const payLoading = document.getElementById("pay-loading");
   const paypalContainer = document.getElementById("paypal-button-container");
 
-  function showError(msg) { errorEl.textContent = msg; errorEl.classList.add("visible"); }
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.add("visible");
+    errorEl.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
   function clearError() { errorEl.classList.remove("visible"); errorEl.textContent = ""; }
   function resetPaymentUI() {
     paypalContainer.innerHTML = "";
@@ -2911,7 +2915,7 @@
       modal: {
         ondismiss: function () {
           resetPaymentUI();
-          showError("Payment cancelled. You can try again.");
+          showError("Payment cancelled — booking not confirmed. You can try again.");
         },
       },
     };
@@ -2919,7 +2923,7 @@
     rzp.on("payment.failed", function (resp) {
       console.error("Razorpay failure:", resp.error);
       resetPaymentUI();
-      showError("Payment failed: " + (resp.error && resp.error.description ? resp.error.description : "please try again"));
+      showError("Payment failed: " + (resp.error && resp.error.description ? resp.error.description : "please try again") + ". Your booking has NOT been confirmed.");
     });
     payLoading.classList.remove("visible");
     payBtn.style.display = "none";
@@ -2966,23 +2970,41 @@
         onApprove: async (data, actions) => {
           try {
             const details = await actions.order.capture();
-            const pid = (details && details.id) || data.orderID || booking.ref;
+            // PayPal can resolve capture() without throwing even when the
+            // capture did not actually complete (declined / pending /
+            // instrument-declined). Only confirm the booking when the order
+            // AND the inner capture both report COMPLETED.
+            const orderStatus = details && details.status;
+            const capture = details
+              && details.purchase_units
+              && details.purchase_units[0]
+              && details.purchase_units[0].payments
+              && details.purchase_units[0].payments.captures
+              && details.purchase_units[0].payments.captures[0];
+            const captureStatus = capture && capture.status;
+            if (orderStatus !== "COMPLETED" || captureStatus !== "COMPLETED") {
+              console.error("PayPal capture not completed:", details);
+              resetPaymentUI();
+              showError("Payment failed: PayPal reported status " + (captureStatus || orderStatus || "UNKNOWN") + ". Your booking has NOT been confirmed. Please try again or use a different payment method.");
+              return;
+            }
+            const pid = (capture && capture.id) || (details && details.id) || data.orderID || booking.ref;
             showSuccess(booking.ref, pid);
             sendEmail(booking, pid).catch(err => console.error("Email send failed:", err));
           } catch (err) {
             console.error("PayPal capture failed:", err);
             resetPaymentUI();
-            showError("PayPal capture failed: " + (err && err.message ? err.message : "please try again"));
+            showError("Payment failed: " + (err && err.message ? err.message : "PayPal could not capture the payment") + ". Your booking has NOT been confirmed.");
           }
         },
         onCancel: () => {
           resetPaymentUI();
-          showError("Payment cancelled. You can try again.");
+          showError("Payment cancelled — booking not confirmed. You can try again.");
         },
         onError: (err) => {
           console.error("PayPal error:", err);
           resetPaymentUI();
-          showError("PayPal error: " + (err && err.message ? err.message : "please try again"));
+          showError("Payment failed: " + (err && err.message ? err.message : "PayPal reported an error") + ". Your booking has NOT been confirmed.");
         },
       }).render(paypalContainer);
     });
