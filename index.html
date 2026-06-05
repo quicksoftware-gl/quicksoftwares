@@ -1604,8 +1604,8 @@
           <div class="pm-desc">Cards, UPI, netbanking, wallets · INR or USD</div>
         </div>
         <div class="pay-method" data-method="paypal">
-          <div class="pm-name">PayPal / Debit / Credit Card</div>
-          <div class="pm-desc">PayPal balance or Debit/Credit Card · USD</div>
+          <div class="pm-name">PayPal</div>
+          <div class="pm-desc">PayPal balance · USD</div>
         </div>
       </div>
     </div>
@@ -2541,8 +2541,9 @@
   const currencyEl = document.getElementById("currency");
   currencyEl.addEventListener("change", e => {
     state.currency = e.target.value;
-    // Auto-select the matching payment method for clarity
-    state.paymentMethod = state.currency === "USD" ? "paypal" : "razorpay";
+    // Razorpay is the default for both currencies; users can still pick
+    // PayPal explicitly (which keeps the currency on USD).
+    state.paymentMethod = "razorpay";
     renderPaymentMethods();
     updatePaymentMethodVisibility();
     rerenderPrices();
@@ -2954,7 +2955,7 @@
       return;
     }
     const s = document.createElement("script");
-    s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(PAYPAL_CLIENT_ID)}&currency=USD&intent=capture&enable-funding=card&components=buttons,funding-eligibility`;
+    s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(PAYPAL_CLIENT_ID)}&currency=USD&intent=capture&disable-funding=card`;
     s.onload = () => { paypalSdkLoaded = true; cb(); };
     s.onerror = () => {
       showError("PayPal SDK failed to load. Check your internet connection.");
@@ -2973,10 +2974,9 @@
         return;
       }
 
-      // Shared config for both the PayPal button and the Debit/Credit Card
-      // button. onApprove verifies the capture status before treating the
-      // payment as successful, so card and PayPal payments are gated the
-      // same way: booking is only confirmed when status === COMPLETED.
+      // onApprove verifies the capture status before treating the payment
+      // as successful: the booking is only confirmed when both the order
+      // and inner capture report status === COMPLETED.
       const sharedConfig = {
         createOrder: (data, actions) => actions.order.create({
           purchase_units: [{
@@ -3045,31 +3045,13 @@
         },
       };
 
-      // 1) Standard PayPal button (PayPal balance / account).
-      const paypalBtn = paypal.Buttons(Object.assign({
+      // PayPal-only checkout. Card payments are handled via Razorpay, so
+      // we render just the PayPal-balance button here and disable the
+      // card funding source on the SDK URL.
+      paypal.Buttons(Object.assign({
         style: { layout: "vertical", shape: "rect", label: "pay", color: "gold" },
         fundingSource: paypal.FUNDING && paypal.FUNDING.PAYPAL,
-      }, sharedConfig));
-      if (paypalBtn.isEligible && paypalBtn.isEligible()) {
-        paypalBtn.render(paypalContainer);
-      }
-
-      // 2) Explicit Debit / Credit Card button. Rendered separately so the
-      // card option is obvious; uses the same verified-capture handlers
-      // above so card payments only confirm the booking on COMPLETED.
-      const cardFunding = paypal.FUNDING && paypal.FUNDING.CARD;
-      const cardBtn = cardFunding && paypal.Buttons(Object.assign({
-        style: { layout: "vertical", shape: "rect", label: "pay", color: "black" },
-        fundingSource: cardFunding,
-      }, sharedConfig));
-      if (cardBtn && cardBtn.isEligible && cardBtn.isEligible()) {
-        cardBtn.render(paypalContainer);
-      } else {
-        const note = document.createElement("div");
-        note.style.cssText = "font-size:12.5px;color:var(--muted);margin-top:8px;";
-        note.textContent = "Debit/Credit Card via PayPal is not available in your region or on this account. You can still pay with a card by clicking the PayPal button and choosing \"Pay with Debit or Credit Card\" in the popup.";
-        paypalContainer.appendChild(note);
-      }
+      }, sharedConfig)).render(paypalContainer);
     });
   }
 
