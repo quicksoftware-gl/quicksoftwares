@@ -27,5 +27,11 @@ window.COUPONS = {
     "value": 1.0,
     "applies_to": "both",
     "internal": true
+  },
+  "FLAT90": {
+    "type": "percent",
+    "value": 0.9,
+    "applies_to": "both",
+    "internal": true
   }
 };
