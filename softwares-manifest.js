@@ -319,7 +319,7 @@ window.SOFTWARES = {
     },
     {
       "name": "Autocad 2027",
-      "version": "2000"
+      "version": "Latest"
     }
   ],
   "macbook": [
@@ -562,7 +562,7 @@ window.SOFTWARES = {
     },
     {
       "name": "Autocad 2027",
-      "version": "10000"
+      "version": "Latest"
     }
   ]
 };
