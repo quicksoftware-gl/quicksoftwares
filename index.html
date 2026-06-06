@@ -731,6 +731,19 @@
     width: fit-content;
   }
   .sw-tag.visible { display: inline-block; }
+  .sw-price-note {
+    display: none;
+    margin-top: 4px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #92400e;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    padding: 4px 10px;
+    border-radius: 999px;
+    width: fit-content;
+  }
+  .sw-price-note.visible { display: inline-block; }
   .sw-warn {
     display: none;
     margin-top: 6px;
@@ -1947,16 +1960,33 @@
   }
 
   // Compute the total price by walking the entered software names.
-  // For services that allow Autodesk detection: each Autodesk-named software
-  // costs the autodeskPrice; the remaining softwares are charged the tier
-  // price for their count. For other services, the full quantity is tier-priced.
+  // Custom-priced softwares (price set in Softwares.xlsx column B) replace
+  // the tier/Autodesk pricing for that line. Autodesk-named softwares
+  // without a custom price cost svc.autodeskPrice each. The remaining
+  // regular softwares share the service-tier price for their count.
   function priceFor(svc, names) {
     const qty = Math.max(1, names.length || 1);
-    if (!svc.allowAutodesk) return tierPrice(svc, qty);
-    const autodeskCount = names.filter(isAutodeskName).length;
-    const otherCount = qty - autodeskCount;
-    let total = autodeskCount * svc.autodeskPrice;
-    if (otherCount > 0) total += tierPrice(svc, otherCount);
+    let customSum = 0;
+    let autodeskCount = 0;
+    let regularCount = 0;
+    for (const name of names) {
+      const cp = customPriceFor(svc, name);
+      if (cp !== null) {
+        customSum += cp;
+      } else if (svc.allowAutodesk && isAutodeskName(name)) {
+        autodeskCount++;
+      } else {
+        regularCount++;
+      }
+    }
+    let total = customSum + autodeskCount * svc.autodeskPrice;
+    if (regularCount > 0) {
+      total += tierPrice(svc, regularCount);
+    } else if (customSum === 0 && autodeskCount === 0) {
+      // No software entered at all — fall back to tier(qty) so initial
+      // pricing keeps showing the starting price.
+      total = tierPrice(svc, qty);
+    }
     return total;
   }
   function startingPrice(svc) { return svc.tiers[0].price; }
@@ -2239,7 +2269,10 @@
   function softwareSuggestions(svc) {
     const all = (typeof window !== "undefined" && window.SOFTWARES) || {};
     const key = SOFTWARE_LIST_KEY[svc.id];
-    return Array.isArray(all[key]) ? all[key] : [];
+    const list = Array.isArray(all[key]) ? all[key] : [];
+    // Normalize legacy string entries to {name} objects so the rest of
+    // the code can treat the manifest uniformly.
+    return list.map(it => typeof it === "string" ? { name: it } : it);
   }
   // Case-insensitive allowed-name lookup per service, memoized.
   const _allowedSets = {};
@@ -2247,9 +2280,30 @@
     const sig = softwareSuggestions(svc).length;
     const cached = _allowedSets[svc.id];
     if (cached && cached.sig === sig) return cached.set;
-    const set = new Set(softwareSuggestions(svc).map(n => n.trim().toLowerCase()));
+    const set = new Set(softwareSuggestions(svc).map(it => it.name.trim().toLowerCase()));
     _allowedSets[svc.id] = { sig, set };
     return set;
+  }
+  // Custom-price lookup per service, memoized. Returns number or null.
+  const _priceMaps = {};
+  function priceMapForService(svc) {
+    const sig = softwareSuggestions(svc).length;
+    const cached = _priceMaps[svc.id];
+    if (cached && cached.sig === sig) return cached.map;
+    const map = new Map();
+    for (const it of softwareSuggestions(svc)) {
+      if (typeof it.price === "number" && it.price > 0) {
+        map.set(it.name.trim().toLowerCase(), it.price);
+      }
+    }
+    _priceMaps[svc.id] = { sig, map };
+    return map;
+  }
+  function customPriceFor(svc, name) {
+    const v = (name || "").trim().toLowerCase();
+    if (!v) return null;
+    const p = priceMapForService(svc).get(v);
+    return typeof p === "number" ? p : null;
   }
   // Empty values are handled by the missing-name check, so we don't flag them
   // here. If the manifest hasn't loaded (set is empty), we skip the strict
@@ -2283,7 +2337,7 @@
     const all = softwareSuggestions(svc);
     const q = (query || "").trim().toLowerCase();
     if (!q) return all.slice(0, SUGGEST_LIMIT);
-    return all.filter(n => n.toLowerCase().includes(q)).slice(0, SUGGEST_LIMIT);
+    return all.filter(it => it.name.toLowerCase().includes(q)).slice(0, SUGGEST_LIMIT);
   }
   function populateSuggestList(ul, svc, query) {
     const matches = filteredSuggestions(svc, query);
@@ -2292,7 +2346,7 @@
       return;
     }
     ul.innerHTML = matches
-      .map(n => `<li role="option" data-value="${escapeHtml(n)}">${highlightMatch(n, query)}</li>`)
+      .map(it => `<li role="option" data-value="${escapeHtml(it.name)}">${highlightMatch(it.name, query)}</li>`)
       .join("");
   }
 
@@ -2310,6 +2364,7 @@
         <input type="text" data-idx="${i}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
         <ul class="sw-suggest" role="listbox" hidden></ul>
         <div class="sw-tag"></div>
+        <div class="sw-price-note"></div>
         <div class="sw-warn">Can't find the software you're looking for? Contact us to inquire about the availability of software not currently listed on our website. <a data-open-contact="1">Contact us</a></div>
       `;
       container.appendChild(wrap);
@@ -2327,6 +2382,7 @@
         const idx = Number(inp.dataset.idx);
         ss.softwareNames[idx] = value;
         updateAutodeskTagInWrap(wrap, svc, value);
+        updateSoftwarePriceNoteInWrap(wrap, svc, value);
         updateSoftwareWarnInWrap(wrap, svc, value);
         updateTierHintForPanel(panel, svc);
         updateSummary();
@@ -2337,6 +2393,7 @@
         const idx = Number(e.target.dataset.idx);
         ss.softwareNames[idx] = e.target.value;
         updateAutodeskTagInWrap(wrap, svc, e.target.value);
+        updateSoftwarePriceNoteInWrap(wrap, svc, e.target.value);
         updateSoftwareWarnInWrap(wrap, svc, e.target.value);
         updateTierHintForPanel(panel, svc);
         updateSummary();
@@ -2370,18 +2427,33 @@
         if (btn) btn.click();
       });
       updateAutodeskTagInWrap(wrap, svc, ss.softwareNames[i] || "");
+      updateSoftwarePriceNoteInWrap(wrap, svc, ss.softwareNames[i] || "");
       updateSoftwareWarnInWrap(wrap, svc, ss.softwareNames[i] || "");
     }
   }
 
   function updateAutodeskTagInWrap(wrap, svc, name) {
     const tag = wrap.querySelector(".sw-tag");
-    if (svc.allowAutodesk && isAutodeskName(name)) {
+    const hasCustom = customPriceFor(svc, name) !== null;
+    if (svc.allowAutodesk && isAutodeskName(name) && !hasCustom) {
       tag.textContent = `Autodesk software detected · ${formatPrice(svc.autodeskPrice)}`;
       tag.classList.add("visible");
     } else {
       tag.textContent = "";
       tag.classList.remove("visible");
+    }
+  }
+
+  function updateSoftwarePriceNoteInWrap(wrap, svc, name) {
+    const note = wrap.querySelector(".sw-price-note");
+    if (!note) return;
+    const cp = customPriceFor(svc, name);
+    if (cp !== null) {
+      note.textContent = `Price Changed due to the Latest Version · ${formatPrice(cp)}`;
+      note.classList.add("visible");
+    } else {
+      note.textContent = "";
+      note.classList.remove("visible");
     }
   }
 
@@ -2405,26 +2477,38 @@
     const el = panel.querySelector(".tier-hint");
     el.className = "tier-hint";
     const lines = [];
-    const svcPrice = priceFor(svc, ss.softwareNames.slice(0, ss.quantity));
+    const names = ss.softwareNames.slice(0, ss.quantity);
+    let customSum = 0;
+    let customCount = 0;
+    let adCount = 0;
+    let regularCount = 0;
+    for (const name of names) {
+      const cp = customPriceFor(svc, name);
+      if (cp !== null) { customSum += cp; customCount++; }
+      else if (svc.allowAutodesk && isAutodeskName(name)) adCount++;
+      else regularCount++;
+    }
+    const svcPrice = priceFor(svc, names);
+    if (customCount > 0) {
+      lines.push(`${customCount} custom-priced software${customCount > 1 ? "s" : ""}: ${formatPrice(customSum)} (price changed due to the latest version).`);
+    }
     if (svc.allowAutodesk) {
-      const adCount = ss.softwareNames.slice(0, ss.quantity).filter(isAutodeskName).length;
-      const otherCount = ss.quantity - adCount;
       if (adCount > 0) {
         el.classList.add("autodesk");
         lines.push(`${adCount} Autodesk software${adCount > 1 ? "s" : ""} × ${formatPrice(svc.autodeskPrice)} = ${formatPrice(adCount * svc.autodeskPrice)}.`);
       }
-      if (otherCount > 0) {
-        lines.push(`${otherCount} other software${otherCount > 1 ? "s" : ""}: ${formatPrice(tierPrice(svc, otherCount))}.`);
+      if (regularCount > 0) {
+        lines.push(`${regularCount} other software${regularCount > 1 ? "s" : ""}: ${formatPrice(tierPrice(svc, regularCount))}.`);
       }
       lines.push(`Subtotal: ${formatPrice(svcPrice)}.`);
       lines.push(`${unlimitedMsg(svc)} (regular softwares only).`);
       lines.push(`Autodesk products (AutoCAD, 3ds Max, Revit) are priced individually at ${formatPrice(svc.autodeskPrice)} each.`);
     } else {
       const explicitMax = svc.tiers[svc.tiers.length - 2]?.upTo ?? 0;
-      const inUnlimited = ss.quantity > explicitMax;
+      const inUnlimited = regularCount > explicitMax;
       if (inUnlimited) {
         el.classList.add("unlimited");
-        lines.push(`${unlimitedMsg(svc)} — applied (you've selected ${ss.quantity}).`);
+        lines.push(`${unlimitedMsg(svc)} — applied (you've selected ${regularCount} regular).`);
       } else {
         lines.push(`Current price: ${formatPrice(svcPrice)} for ${ss.quantity} software${ss.quantity === 1 ? "" : "s"}.`);
         lines.push(`${unlimitedMsg(svc)} if you need more.`);
@@ -2447,6 +2531,7 @@
       const ss = state.services[svc.id];
       panel.querySelectorAll(".software-names .field").forEach((wrap, i) => {
         updateAutodeskTagInWrap(wrap, svc, ss.softwareNames[i] || "");
+        updateSoftwarePriceNoteInWrap(wrap, svc, ss.softwareNames[i] || "");
       });
     });
   }

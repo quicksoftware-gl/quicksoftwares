@@ -3,12 +3,20 @@
 Regenerate softwares-manifest.js from Softwares.xlsx.
 
 Reads the in-repo Excel file Softwares.xlsx (override via SOFTWARES_XLSX
-env var). The workbook has two sheets — "Windows" and "Macbook". Column A
-of each sheet lists software names; row 1 is the header ("Software").
+env var). The workbook has two sheets — "Windows" and "Macbook". Row 1
+is the header. Column A holds the software name, column B holds an
+optional custom price (numeric, INR). Softwares with a price in column B
+override the service-tier pricing for that line and show a "Price
+Changed due to the Latest Version" note in the UI.
+
 Outputs softwares-manifest.js as:
 
     window.SOFTWARES = {
-      "windows": [ "Autocad 2026", ... ],
+      "windows": [
+        { "name": "Autocad 2026", "price": 5000 },
+        { "name": "Autocad 2024" },
+        ...
+      ],
       "macbook": [ ... ]
     };
 
@@ -85,36 +93,47 @@ def cell_value(c, strings):
     return raw or ""
 
 
-def read_sheet_column_a(z, zip_path, strings):
-    """Return a list of cleaned, deduped names from column A, skipping the header."""
+def read_sheet_rows(z, zip_path, strings):
+    """Return [{name, price?}] for each data row.
+    Column A = software name (required). Column B = price (optional)."""
     with z.open(zip_path) as f:
         tree = ET.parse(f)
-    names = []
+    items = []
     seen = set()
     header_seen = False
     for row in tree.getroot().findall(".//main:row", NS):
-        a_cell = None
+        cells = {}
         for c in row.findall("main:c", NS):
             ref = c.get("r", "")
             col = "".join(ch for ch in ref if ch.isalpha())
-            if col == "A":
-                a_cell = c
-                break
+            if col in ("A", "B"):
+                cells[col] = c
+        a_cell = cells.get("A")
         if a_cell is None:
             continue
-        val = cell_value(a_cell, strings).strip()
-        if not val:
+        name = cell_value(a_cell, strings).strip()
+        if not name:
             continue
         if not header_seen:
             header_seen = True
-            # Most workbooks use "Software" as the header; skip whatever row 1 holds.
             continue
-        key = val.lower()
+        key = name.lower()
         if key in seen:
             continue
         seen.add(key)
-        names.append(val)
-    return names
+        item = {"name": name}
+        b_cell = cells.get("B")
+        if b_cell is not None:
+            price_raw = cell_value(b_cell, strings).strip()
+            if price_raw:
+                try:
+                    price = float(price_raw)
+                    if price > 0:
+                        item["price"] = int(price) if price.is_integer() else price
+                except ValueError:
+                    pass
+        items.append(item)
+    return items
 
 
 def read_softwares(path):
@@ -132,7 +151,7 @@ def read_softwares(path):
                 # Ignore unexpected sheets but log them.
                 print(f"  ! Skipping sheet '{sheet_name}' (expected Windows or Macbook)", file=sys.stderr)
                 continue
-            out[key] = read_sheet_column_a(z, zip_path, strings)
+            out[key] = read_sheet_rows(z, zip_path, strings)
     return out
 
 
