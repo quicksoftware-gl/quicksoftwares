@@ -2645,6 +2645,7 @@
       }
       renderPaymentMethods();
       resetPaymentUI();
+      updatePayButtonVisibility();
     });
   });
 
@@ -2706,6 +2707,15 @@
     if (!section || !notice) return;
     section.style.display = isFree ? "none" : "";
     notice.style.display = isFree ? "" : "none";
+    updatePayButtonVisibility();
+  }
+  function updatePayButtonVisibility() {
+    const hasService = anyServiceSelected();
+    const isFree = hasService && discountedPriceINR() <= 0;
+    const usePaypal = state.paymentMethod === "paypal" && hasService && !isFree;
+    payBtn.style.display = usePaypal ? "none" : "";
+    paypalContainer.style.display = usePaypal ? "" : "none";
+    if (usePaypal) ensurePaypalButton();
   }
 
   // ---- UI helpers ------------------------------------------------------
@@ -2726,11 +2736,13 @@
   function clearError() { errorEl.classList.remove("visible"); errorEl.textContent = ""; }
   function resetPaymentUI() {
     paypalContainer.innerHTML = "";
+    paypalButtonRendered = false;
     payBtn.style.display = "";
     payBtn.disabled = false;
     payBtn.textContent = "Confirm Booking";
     newBookingBtn.style.display = "none";
     payLoading.classList.remove("visible");
+    updatePayButtonVisibility();
   }
   function showSuccess(ref, pid) {
     document.getElementById("success-ref").textContent = ref;
@@ -2952,45 +2964,55 @@
 
   // ---- PayPal flow -----------------------------------------------------
   let paypalSdkLoaded = false;
+  let paypalSdkLoading = false;
   function loadPaypalSdk(cb) {
     if (paypalSdkLoaded) return cb();
+    if (paypalSdkLoading) return;
     if (!PAYPAL_CLIENT_ID || PAYPAL_CLIENT_ID.startsWith("YOUR_")) {
       showError("Set PAYPAL_CLIENT_ID in index.html to your PayPal Client ID.");
-      resetPaymentUI();
       return;
     }
+    paypalSdkLoading = true;
     const s = document.createElement("script");
     s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(PAYPAL_CLIENT_ID)}&currency=USD&intent=capture&disable-funding=card`;
-    s.onload = () => { paypalSdkLoaded = true; cb(); };
+    s.onload = () => { paypalSdkLoaded = true; paypalSdkLoading = false; cb(); };
     s.onerror = () => {
+      paypalSdkLoading = false;
       showError("PayPal SDK failed to load. Check your internet connection.");
-      resetPaymentUI();
     };
     document.head.appendChild(s);
   }
-  function startPaypal(booking) {
+  let paypalButtonRendered = false;
+  function ensurePaypalButton() {
+    if (paypalButtonRendered) return;
     loadPaypalSdk(() => {
-      payLoading.classList.remove("visible");
-      payBtn.style.display = "none";
-      paypalContainer.innerHTML = "";
+      if (paypalButtonRendered) return;
       if (typeof paypal === "undefined") {
         showError("PayPal SDK not available.");
-        resetPaymentUI();
         return;
       }
+      paypalButtonRendered = true;
 
       // onApprove verifies the capture status before treating the payment
       // as successful: the booking is only confirmed when both the order
       // and inner capture report status === COMPLETED.
       const sharedConfig = {
+        onClick: (data, actions) => {
+          const booking = prepareBookingForPayment();
+          if (!booking || booking.chargedAmount <= 0) {
+            return actions.reject();
+          }
+          return actions.resolve();
+        },
         createOrder: (data, actions) => actions.order.create({
           purchase_units: [{
-            amount: { value: booking.chargedAmount.toFixed(2), currency_code: "USD" },
-            description: `${booking.serviceName} — ${booking.ref}`,
-            custom_id: booking.ref,
+            amount: { value: currentBooking.chargedAmount.toFixed(2), currency_code: "USD" },
+            description: `${currentBooking.serviceName} — ${currentBooking.ref}`,
+            custom_id: currentBooking.ref,
           }],
         }),
         onApprove: async (data, actions) => {
+          const booking = currentBooking;
           try {
             const details = await actions.order.capture();
             // Always log the full capture response so we can audit what
@@ -3060,29 +3082,31 @@
     });
   }
 
-  // ---- Pay button ------------------------------------------------------
-  payBtn.addEventListener("click", () => {
+  // ---- Booking prep (shared between #pay and the PayPal button) --------
+  function prepareBookingForPayment() {
     clearError();
     const v = validateForm();
-    if (!v.ok) return showError(v.error);
-
+    if (!v.ok) { showError(v.error); return null; }
     const ref = "QS-" + Date.now().toString(36).toUpperCase();
     const booking = buildBooking(v, ref);
-    currentBooking = booking;
-    try { localStorage.setItem("lastBooking", JSON.stringify(booking)); } catch (e) {}
-
-    // Double-check the coupon hasn't been used by this email (in case
-    // the email was changed after the coupon was applied).
     if (booking.couponCode && isCouponUsedByEmail(booking.email, booking.couponCode)) {
       showError(`Coupon ${booking.couponCode} has already been used with ${booking.email}. Please remove the coupon to continue.`);
-      return;
+      return null;
     }
+    currentBooking = booking;
+    try { localStorage.setItem("lastBooking", JSON.stringify(booking)); } catch (e) {}
+    return booking;
+  }
+
+  // ---- Pay button (Razorpay + free path only) --------------------------
+  payBtn.addEventListener("click", () => {
+    const booking = prepareBookingForPayment();
+    if (!booking) return;
 
     payBtn.disabled = true;
     payBtn.textContent = "Preparing payment…";
     payLoading.classList.add("visible");
 
-    // Free order — no payment gateway. Mark as confirmed and email.
     if (booking.chargedAmount <= 0) {
       const freeId = "FREE-" + booking.ref;
       payLoading.classList.remove("visible");
@@ -3091,12 +3115,11 @@
       return;
     }
 
-    // Open the relevant payment gateway.
     if (booking.paymentMethod === "razorpay") {
       startRazorpay(booking);
-    } else {
-      startPaypal(booking);
     }
+    // PayPal is handled directly by the rendered PayPal button — clicking
+    // the yellow button opens the PayPal popup without going through #pay.
   });
 
   // ---- (Admin / auth removed in this revision) ----
