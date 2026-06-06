@@ -1036,7 +1036,12 @@
   .success .ref { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; }
   #paypal-button-container { margin-top: 12px; width: 100%; }
   #paypal-button-container:empty { display: none; }
-  #paypal-button-container .paypal-buttons { width: 100% !important; max-width: none !important; }
+  #paypal-button-container .paypal-buttons,
+  #paypal-button-container .paypal-button-row {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: none !important;
+  }
   .pay-loading {
     text-align: center;
     color: var(--muted);
@@ -2645,7 +2650,6 @@
       }
       renderPaymentMethods();
       resetPaymentUI();
-      updatePayButtonVisibility();
     });
   });
 
@@ -2707,15 +2711,6 @@
     if (!section || !notice) return;
     section.style.display = isFree ? "none" : "";
     notice.style.display = isFree ? "" : "none";
-    updatePayButtonVisibility();
-  }
-  function updatePayButtonVisibility() {
-    const hasService = anyServiceSelected();
-    const isFree = hasService && discountedPriceINR() <= 0;
-    const usePaypal = state.paymentMethod === "paypal" && hasService && !isFree;
-    payBtn.style.display = usePaypal ? "none" : "";
-    paypalContainer.style.display = usePaypal ? "" : "none";
-    if (usePaypal) ensurePaypalButton();
   }
 
   // ---- UI helpers ------------------------------------------------------
@@ -2742,7 +2737,6 @@
     payBtn.textContent = "Confirm Booking";
     newBookingBtn.style.display = "none";
     payLoading.classList.remove("visible");
-    updatePayButtonVisibility();
   }
   function showSuccess(ref, pid) {
     document.getElementById("success-ref").textContent = ref;
@@ -2983,12 +2977,15 @@
     document.head.appendChild(s);
   }
   let paypalButtonRendered = false;
-  function ensurePaypalButton() {
-    if (paypalButtonRendered) return;
+  function startPaypal(booking) {
     loadPaypalSdk(() => {
-      if (paypalButtonRendered) return;
+      payLoading.classList.remove("visible");
+      payBtn.style.display = "none";
+      paypalContainer.innerHTML = "";
+      paypalButtonRendered = false;
       if (typeof paypal === "undefined") {
         showError("PayPal SDK not available.");
+        resetPaymentUI();
         return;
       }
       paypalButtonRendered = true;
@@ -2997,22 +2994,14 @@
       // as successful: the booking is only confirmed when both the order
       // and inner capture report status === COMPLETED.
       const sharedConfig = {
-        onClick: (data, actions) => {
-          const booking = prepareBookingForPayment();
-          if (!booking || booking.chargedAmount <= 0) {
-            return actions.reject();
-          }
-          return actions.resolve();
-        },
         createOrder: (data, actions) => actions.order.create({
           purchase_units: [{
-            amount: { value: currentBooking.chargedAmount.toFixed(2), currency_code: "USD" },
-            description: `${currentBooking.serviceName} — ${currentBooking.ref}`,
-            custom_id: currentBooking.ref,
+            amount: { value: booking.chargedAmount.toFixed(2), currency_code: "USD" },
+            description: `${booking.serviceName} — ${booking.ref}`,
+            custom_id: booking.ref,
           }],
         }),
         onApprove: async (data, actions) => {
-          const booking = currentBooking;
           try {
             const details = await actions.order.capture();
             // Always log the full capture response so we can audit what
@@ -3117,9 +3106,9 @@
 
     if (booking.paymentMethod === "razorpay") {
       startRazorpay(booking);
+    } else {
+      startPaypal(booking);
     }
-    // PayPal is handled directly by the rendered PayPal button — clicking
-    // the yellow button opens the PayPal popup without going through #pay.
   });
 
   // ---- (Admin / auth removed in this revision) ----
