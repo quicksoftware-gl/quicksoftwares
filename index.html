@@ -1979,7 +1979,10 @@
         regularCount++;
       }
     }
-    let total = customSum + autodeskCount * svc.autodeskPrice;
+    let total = customSum;
+    if (svc.allowAutodesk && autodeskCount > 0) {
+      total += autodeskCount * svc.autodeskPrice;
+    }
     if (regularCount > 0) {
       total += tierPrice(svc, regularCount);
     } else if (customSum === 0 && autodeskCount === 0) {
