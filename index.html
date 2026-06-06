@@ -1924,6 +1924,7 @@
         { upTo: Infinity, price: 4000 },
       ],
       allowAutodesk: false,
+      latestSurcharge: 500,
     },
     {
       id: "mac-soft",
@@ -1937,6 +1938,7 @@
       ],
       allowAutodesk: true,
       autodeskPrice: 7500,
+      latestSurcharge: 1500,
     },
   ];
 
@@ -1960,35 +1962,31 @@
   }
 
   // Compute the total price by walking the entered software names.
-  // Custom-priced softwares (price set in Softwares.xlsx column B) replace
-  // the tier/Autodesk pricing for that line. Autodesk-named softwares
-  // without a custom price cost svc.autodeskPrice each. The remaining
-  // regular softwares share the service-tier price for their count.
+  // Autodesk-named softwares cost svc.autodeskPrice each on services
+  // with allowAutodesk. Remaining (regular) softwares share the
+  // service-tier price for their count. Each software whose version in
+  // Softwares.xlsx is "Latest" adds svc.latestSurcharge on top.
   function priceFor(svc, names) {
-    const qty = Math.max(1, names.length || 1);
-    let customSum = 0;
     let autodeskCount = 0;
     let regularCount = 0;
+    let latestCount = 0;
     for (const name of names) {
-      const cp = customPriceFor(svc, name);
-      if (cp !== null) {
-        customSum += cp;
-      } else if (svc.allowAutodesk && isAutodeskName(name)) {
+      if (svc.allowAutodesk && isAutodeskName(name)) {
         autodeskCount++;
       } else {
         regularCount++;
       }
+      if (isLatestVersion(svc, name)) latestCount++;
     }
-    let total = customSum;
+    let total = 0;
     if (svc.allowAutodesk && autodeskCount > 0) {
       total += autodeskCount * svc.autodeskPrice;
     }
     if (regularCount > 0) {
       total += tierPrice(svc, regularCount);
-    } else if (customSum === 0 && autodeskCount === 0) {
-      // No software entered at all — fall back to tier(qty) so initial
-      // pricing keeps showing the starting price.
-      total = tierPrice(svc, qty);
+    }
+    if (latestCount > 0 && svc.latestSurcharge) {
+      total += latestCount * svc.latestSurcharge;
     }
     return total;
   }
@@ -2287,26 +2285,30 @@
     _allowedSets[svc.id] = { sig, set };
     return set;
   }
-  // Custom-price lookup per service, memoized. Returns number or null.
-  const _priceMaps = {};
-  function priceMapForService(svc) {
+  // Version lookup per service, memoized. Returns the trimmed version
+  // string from the manifest (column B of Softwares.xlsx) or null.
+  const _versionMaps = {};
+  function versionMapForService(svc) {
     const sig = softwareSuggestions(svc).length;
-    const cached = _priceMaps[svc.id];
+    const cached = _versionMaps[svc.id];
     if (cached && cached.sig === sig) return cached.map;
     const map = new Map();
     for (const it of softwareSuggestions(svc)) {
-      if (typeof it.price === "number" && it.price > 0) {
-        map.set(it.name.trim().toLowerCase(), it.price);
+      if (typeof it.version === "string" && it.version.trim()) {
+        map.set(it.name.trim().toLowerCase(), it.version.trim());
       }
     }
-    _priceMaps[svc.id] = { sig, map };
+    _versionMaps[svc.id] = { sig, map };
     return map;
   }
-  function customPriceFor(svc, name) {
+  function versionFor(svc, name) {
     const v = (name || "").trim().toLowerCase();
     if (!v) return null;
-    const p = priceMapForService(svc).get(v);
-    return typeof p === "number" ? p : null;
+    return versionMapForService(svc).get(v) || null;
+  }
+  function isLatestVersion(svc, name) {
+    const ver = versionFor(svc, name);
+    return typeof ver === "string" && ver.toLowerCase() === "latest";
   }
   // Empty values are handled by the missing-name check, so we don't flag them
   // here. If the manifest hasn't loaded (set is empty), we skip the strict
@@ -2437,8 +2439,7 @@
 
   function updateAutodeskTagInWrap(wrap, svc, name) {
     const tag = wrap.querySelector(".sw-tag");
-    const hasCustom = customPriceFor(svc, name) !== null;
-    if (svc.allowAutodesk && isAutodeskName(name) && !hasCustom) {
+    if (svc.allowAutodesk && isAutodeskName(name)) {
       tag.textContent = `Autodesk software detected · ${formatPrice(svc.autodeskPrice)}`;
       tag.classList.add("visible");
     } else {
@@ -2450,9 +2451,8 @@
   function updateSoftwarePriceNoteInWrap(wrap, svc, name) {
     const note = wrap.querySelector(".sw-price-note");
     if (!note) return;
-    const cp = customPriceFor(svc, name);
-    if (cp !== null) {
-      note.textContent = `Price Changed due to the Latest Version · ${formatPrice(cp)}`;
+    if (isLatestVersion(svc, name) && svc.latestSurcharge) {
+      note.textContent = `Price Changed due to the Latest Version · +${formatPrice(svc.latestSurcharge)}`;
       note.classList.add("visible");
     } else {
       note.textContent = "";
@@ -2481,20 +2481,15 @@
     el.className = "tier-hint";
     const lines = [];
     const names = ss.softwareNames.slice(0, ss.quantity);
-    let customSum = 0;
-    let customCount = 0;
     let adCount = 0;
     let regularCount = 0;
+    let latestCount = 0;
     for (const name of names) {
-      const cp = customPriceFor(svc, name);
-      if (cp !== null) { customSum += cp; customCount++; }
-      else if (svc.allowAutodesk && isAutodeskName(name)) adCount++;
+      if (svc.allowAutodesk && isAutodeskName(name)) adCount++;
       else regularCount++;
+      if (isLatestVersion(svc, name)) latestCount++;
     }
     const svcPrice = priceFor(svc, names);
-    if (customCount > 0) {
-      lines.push(`${customCount} custom-priced software${customCount > 1 ? "s" : ""}: ${formatPrice(customSum)} (price changed due to the latest version).`);
-    }
     if (svc.allowAutodesk) {
       if (adCount > 0) {
         el.classList.add("autodesk");
@@ -2502,6 +2497,9 @@
       }
       if (regularCount > 0) {
         lines.push(`${regularCount} other software${regularCount > 1 ? "s" : ""}: ${formatPrice(tierPrice(svc, regularCount))}.`);
+      }
+      if (latestCount > 0 && svc.latestSurcharge) {
+        lines.push(`${latestCount} latest-version software${latestCount > 1 ? "s" : ""}: +${formatPrice(latestCount * svc.latestSurcharge)}.`);
       }
       lines.push(`Subtotal: ${formatPrice(svcPrice)}.`);
       lines.push(`${unlimitedMsg(svc)} (regular softwares only).`);
@@ -2511,10 +2509,13 @@
       const inUnlimited = regularCount > explicitMax;
       if (inUnlimited) {
         el.classList.add("unlimited");
-        lines.push(`${unlimitedMsg(svc)} — applied (you've selected ${regularCount} regular).`);
+        lines.push(`${unlimitedMsg(svc)} — applied (you've selected ${regularCount}).`);
       } else {
         lines.push(`Current price: ${formatPrice(svcPrice)} for ${ss.quantity} software${ss.quantity === 1 ? "" : "s"}.`);
         lines.push(`${unlimitedMsg(svc)} if you need more.`);
+      }
+      if (latestCount > 0 && svc.latestSurcharge) {
+        lines.push(`${latestCount} latest-version software${latestCount > 1 ? "s" : ""}: +${formatPrice(latestCount * svc.latestSurcharge)} surcharge included.`);
       }
     }
     el.textContent = lines.join(" ");

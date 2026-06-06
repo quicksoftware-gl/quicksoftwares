@@ -319,7 +319,7 @@ window.SOFTWARES = {
     },
     {
       "name": "Autocad 2027",
-      "price": 2000
+      "version": "2000"
     }
   ],
   "macbook": [
@@ -562,7 +562,7 @@ window.SOFTWARES = {
     },
     {
       "name": "Autocad 2027",
-      "price": 10000
+      "version": "10000"
     }
   ]
 };

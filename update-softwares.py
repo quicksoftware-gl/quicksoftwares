@@ -5,15 +5,16 @@ Regenerate softwares-manifest.js from Softwares.xlsx.
 Reads the in-repo Excel file Softwares.xlsx (override via SOFTWARES_XLSX
 env var). The workbook has two sheets — "Windows" and "Macbook". Row 1
 is the header. Column A holds the software name, column B holds an
-optional custom price (numeric, INR). Softwares with a price in column B
-override the service-tier pricing for that line and show a "Price
-Changed due to the Latest Version" note in the UI.
+optional Version label (text). Softwares whose Version equals "Latest"
+(case-insensitive) trigger a platform-specific surcharge in the UI
+(+₹500 for Windows, +₹1500 for Macbook) and show a "Price Changed due
+to the Latest Version" note.
 
 Outputs softwares-manifest.js as:
 
     window.SOFTWARES = {
       "windows": [
-        { "name": "Autocad 2026", "price": 5000 },
+        { "name": "Autocad 2026", "version": "Latest" },
         { "name": "Autocad 2024" },
         ...
       ],
@@ -124,14 +125,9 @@ def read_sheet_rows(z, zip_path, strings):
         item = {"name": name}
         b_cell = cells.get("B")
         if b_cell is not None:
-            price_raw = cell_value(b_cell, strings).strip()
-            if price_raw:
-                try:
-                    price = float(price_raw)
-                    if price > 0:
-                        item["price"] = int(price) if price.is_integer() else price
-                except ValueError:
-                    pass
+            version = cell_value(b_cell, strings).strip()
+            if version:
+                item["version"] = version
         items.append(item)
     return items
 
