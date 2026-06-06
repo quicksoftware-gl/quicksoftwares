@@ -1036,12 +1036,19 @@
   .success .ref { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; }
   #paypal-button-container {
     margin-top: 12px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    text-align: center;
+    /* Match a single .pay-method tile width (half-row, minus the 12px
+       grid gap). Mobile breakpoint below collapses to full width. */
+    width: calc((100% - 12px) / 2);
+  }
+  @media (max-width: 520px) {
+    #paypal-button-container { width: 100%; }
   }
   #paypal-button-container:empty { display: none; }
+  #paypal-button-container .paypal-buttons {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
   .pay-loading {
     text-align: center;
     color: var(--muted);
