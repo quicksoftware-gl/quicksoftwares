@@ -1034,8 +1034,9 @@
   .success.visible { display: block; }
   .success h3 { margin: 0 0 6px; font-size: 16px; }
   .success .ref { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; }
-  #paypal-button-container { margin-top: 12px; }
+  #paypal-button-container { margin-top: 12px; width: 100%; }
   #paypal-button-container:empty { display: none; }
+  #paypal-button-container .paypal-buttons { width: 100% !important; max-width: none !important; }
   .pay-loading {
     text-align: center;
     color: var(--muted);
@@ -1601,11 +1602,11 @@
       <div class="pay-methods" id="pay-methods">
         <div class="pay-method selected" data-method="razorpay">
           <div class="pm-name">Razorpay</div>
-          <div class="pm-desc">Cards, UPI, netbanking, wallets · INR or USD</div>
+          <div class="pm-desc">Cards, UPI, netbanking, wallets · INR</div>
         </div>
         <div class="pay-method" data-method="paypal">
-          <div class="pm-name">PayPal</div>
-          <div class="pm-desc">PayPal balance · USD</div>
+          <div class="pm-name">Paypal/ Credit Cards/ Debit Cards</div>
+          <div class="pm-desc">PayPal balance or card · USD</div>
         </div>
       </div>
     </div>
@@ -1614,10 +1615,11 @@
     </div>
 
     <button class="btn" id="pay">Confirm Booking</button>
+    <button class="btn" id="new-booking" style="display: none;">New Booking</button>
     <div class="pay-loading" id="pay-loading">Preparing payment…</div>
     <div id="paypal-button-container"></div>
     <p class="notice">
-      Razorpay accepts INR and USD; PayPal handles USD only. Picking PayPal switches the currency to USD automatically.
+      Razorpay handles INR only; PayPal handles USD only. Switching currency selects the matching payment method automatically.
     </p>
   </section>
 
@@ -2541,9 +2543,7 @@
   const currencyEl = document.getElementById("currency");
   currencyEl.addEventListener("change", e => {
     state.currency = e.target.value;
-    // Razorpay is the default for both currencies; users can still pick
-    // PayPal explicitly (which keeps the currency on USD).
-    state.paymentMethod = "razorpay";
+    state.paymentMethod = state.currency === "USD" ? "paypal" : "razorpay";
     renderPaymentMethods();
     updatePaymentMethodVisibility();
     rerenderPrices();
@@ -2623,12 +2623,12 @@
     });
   }
   function updatePaymentMethodVisibility() {
-    // Razorpay supports both INR and USD (international payments must be
-    // enabled on the Razorpay account). PayPal only handles USD here, so
-    // hide PayPal whenever INR is selected.
+    // Razorpay handles INR only; PayPal handles USD only.
     document.querySelectorAll(".pay-method").forEach(el => {
       const method = el.dataset.method;
-      const hide = (method === "paypal" && state.currency === "INR");
+      const hide =
+        (method === "paypal" && state.currency === "INR") ||
+        (method === "razorpay" && state.currency === "USD");
       el.style.display = hide ? "none" : "";
     });
   }
@@ -2712,8 +2712,11 @@
   const errorEl = document.getElementById("error");
   const successEl = document.getElementById("success");
   const payBtn = document.getElementById("pay");
+  const newBookingBtn = document.getElementById("new-booking");
   const payLoading = document.getElementById("pay-loading");
   const paypalContainer = document.getElementById("paypal-button-container");
+
+  newBookingBtn.addEventListener("click", () => { window.location.reload(); });
 
   function showError(msg) {
     errorEl.textContent = msg;
@@ -2726,6 +2729,7 @@
     payBtn.style.display = "";
     payBtn.disabled = false;
     payBtn.textContent = "Confirm Booking";
+    newBookingBtn.style.display = "none";
     payLoading.classList.remove("visible");
   }
   function showSuccess(ref, pid) {
@@ -2733,6 +2737,7 @@
     document.getElementById("success-pid").textContent = pid;
     successEl.classList.add("visible");
     payBtn.style.display = "none";
+    newBookingBtn.style.display = "";
     paypalContainer.innerHTML = "";
     payLoading.classList.remove("visible");
     successEl.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -3049,7 +3054,7 @@
       // we render just the PayPal-balance button here and disable the
       // card funding source on the SDK URL.
       paypal.Buttons(Object.assign({
-        style: { layout: "vertical", shape: "rect", label: "pay", color: "gold" },
+        style: { layout: "vertical", shape: "rect", label: "pay", color: "gold", height: 50 },
         fundingSource: paypal.FUNDING && paypal.FUNDING.PAYPAL,
       }, sharedConfig)).render(paypalContainer);
     });
