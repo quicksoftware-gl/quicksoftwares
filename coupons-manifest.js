@@ -12,14 +12,14 @@ window.COUPONS = {
     "applies_to": "both",
     "internal": true
   },
-  "WIN30": {
+  "WIN10": {
     "type": "percent",
-    "value": 0.3,
+    "value": 0.1,
     "applies_to": "windows"
   },
-  "MAC25": {
+  "MAC15": {
     "type": "percent",
-    "value": 0.25,
+    "value": 0.15,
     "applies_to": "macbook"
   },
   "QSZERO": {

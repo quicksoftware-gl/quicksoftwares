@@ -106,7 +106,8 @@ window.SOFTWARES = {
     "Icecream Screen Recorder",
     "WinRAR Professional",
     "MiniTool Power Data Recovery 2026",
-    "EaseUS Data Recovery Wizard Technician"
+    "EaseUS Data Recovery Wizard Technician",
+    "Autocad 2027"
   ],
   "macbook": [
     "Autocad 2026",
@@ -187,6 +188,7 @@ window.SOFTWARES = {
     "Lumion Pro 12.5 (Parallel Desktop only)",
     "Final Cut Pro",
     "Navis Work 2026",
-    "Navis Work 2024"
+    "Navis Work 2024",
+    "Autocad 2027"
   ]
 };
