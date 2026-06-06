@@ -2565,6 +2565,15 @@
   maxDateObj.setDate(maxDateObj.getDate() + 60);
   dateEl.min = minDate;
   dateEl.max = maxDateObj.toISOString().slice(0, 10);
+  // Open the native calendar picker when the user clicks anywhere on the
+  // input (not just the dropdown arrow). showPicker() requires a user
+  // gesture and is supported in Chrome 99+, Edge 99+, Firefox 101+,
+  // Safari 16+.
+  dateEl.addEventListener("click", () => {
+    if (typeof dateEl.showPicker === "function") {
+      try { dateEl.showPicker(); } catch (e) { /* ignore */ }
+    }
+  });
   dateEl.addEventListener("change", () => {
     state.date = dateEl.value;
     state.time = "";
