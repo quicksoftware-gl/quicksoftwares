@@ -2267,13 +2267,22 @@
   // Suggestion list source per service. Names come from softwares-manifest.js
   // (auto-generated from Softwares.xlsx by update-softwares.py).
   const SOFTWARE_LIST_KEY = { "win-soft": "windows", "mac-soft": "macbook" };
+  const _suggestCache = {};
   function softwareSuggestions(svc) {
     const all = (typeof window !== "undefined" && window.SOFTWARES) || {};
     const key = SOFTWARE_LIST_KEY[svc.id];
     const list = Array.isArray(all[key]) ? all[key] : [];
-    // Normalize legacy string entries to {name} objects so the rest of
-    // the code can treat the manifest uniformly.
-    return list.map(it => typeof it === "string" ? { name: it } : it);
+    const cached = _suggestCache[svc.id];
+    if (cached && cached.src === list) return cached.sorted;
+    // Normalize legacy string entries to {name} objects, then sort
+    // alphabetically (case-insensitive) so the dropdown appears in
+    // alphabetical order regardless of the Excel row order.
+    const sorted = list
+      .map(it => typeof it === "string" ? { name: it } : it)
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+    _suggestCache[svc.id] = { src: list, sorted };
+    return sorted;
   }
   // Case-insensitive allowed-name lookup per service, memoized.
   const _allowedSets = {};
