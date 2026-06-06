@@ -318,7 +318,8 @@ window.SOFTWARES = {
       "name": "EaseUS Data Recovery Wizard Technician"
     },
     {
-      "name": "Autocad 2027"
+      "name": "Autocad 2027",
+      "price": 2000
     }
   ],
   "macbook": [
@@ -560,7 +561,8 @@ window.SOFTWARES = {
       "name": "Navis Work 2024"
     },
     {
-      "name": "Autocad 2027"
+      "name": "Autocad 2027",
+      "price": 10000
     }
   ]
 };
