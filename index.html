@@ -1042,17 +1042,6 @@
     text-align: center;
   }
   #paypal-button-container:empty { display: none; }
-  /* Force the PayPal-rendered button (and the wrapper PayPal injects) to
-     span the full container width, overriding PayPal's default 750px cap
-     on the vertical layout. */
-  #paypal-button-container > div,
-  #paypal-button-container .paypal-buttons,
-  #paypal-button-container .paypal-buttons-layout-vertical,
-  #paypal-button-container .paypal-button {
-    width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important;
-  }
   .pay-loading {
     text-align: center;
     color: var(--muted);
