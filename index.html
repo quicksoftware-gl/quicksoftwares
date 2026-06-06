@@ -3281,6 +3281,7 @@
       img.src = "catalog/" + fn;
       img.alt = caption;
       img.loading = "lazy";
+      img.decoding = "async";
       const cap = document.createElement("div");
       cap.className = "ci-caption";
       cap.textContent = caption;
