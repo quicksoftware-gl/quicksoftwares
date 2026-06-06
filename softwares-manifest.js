@@ -210,7 +210,8 @@ window.SOFTWARES = {
       "name": "Mastercam 2023"
     },
     {
-      "name": "Lumion Pro 2025"
+      "name": "Lumion Pro 2025",
+      "version": "Latest"
     },
     {
       "name": "Lumion Pro 2024"
