@@ -1034,7 +1034,13 @@
   .success.visible { display: block; }
   .success h3 { margin: 0 0 6px; font-size: 16px; }
   .success .ref { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; }
-  #paypal-button-container { margin-top: 12px; width: 100%; }
+  #paypal-button-container {
+    margin-top: 12px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
   #paypal-button-container:empty { display: none; }
   /* Force the PayPal-rendered button (and the wrapper PayPal injects) to
      span the full container width, overriding PayPal's default 750px cap
