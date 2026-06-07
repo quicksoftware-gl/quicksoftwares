@@ -2668,12 +2668,21 @@
 
   // ---- Date input ------------------------------------------------------
   const dateEl = document.getElementById("date");
+  // Use the *local* calendar date, not UTC — otherwise IST users browsing
+  // between midnight and 5:30 AM IST get yesterday's date as min and can
+  // select past dates on mobile.
+  function localDateStr(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
   const today = new Date();
-  const minDate = today.toISOString().slice(0, 10);
+  const minDate = localDateStr(today);
   const maxDateObj = new Date(today);
   maxDateObj.setDate(maxDateObj.getDate() + 60);
   dateEl.min = minDate;
-  dateEl.max = maxDateObj.toISOString().slice(0, 10);
+  dateEl.max = localDateStr(maxDateObj);
   // Open the native calendar picker when the user clicks anywhere on the
   // input (not just the dropdown arrow). showPicker() requires a user
   // gesture and is supported in Chrome 99+, Edge 99+, Firefox 101+,
@@ -2684,6 +2693,17 @@
     }
   });
   dateEl.addEventListener("change", () => {
+    // Some mobile date pickers (notably older iOS Safari builds) let the
+    // user scroll past the min attribute — enforce the floor here too.
+    if (dateEl.value && dateEl.value < minDate) {
+      dateEl.value = "";
+      state.date = "";
+      state.time = "";
+      renderSlots();
+      updateSummary();
+      showError("Please choose today or a future date.");
+      return;
+    }
     state.date = dateEl.value;
     state.time = "";
     renderSlots();
