@@ -28,5 +28,11 @@ window.COUPONS = {
     "value": 0.9,
     "applies_to": "both",
     "internal": true
+  },
+  "QS50PC": {
+    "type": "percent",
+    "value": 0.5,
+    "applies_to": "both",
+    "internal": true
   }
 };
