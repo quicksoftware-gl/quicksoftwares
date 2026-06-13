@@ -5,7 +5,8 @@ window.COUPONS = {
     "type": "percent",
     "value": 0.99,
     "applies_to": "both",
-    "internal": true
+    "internal": true,
+    "validity": "2026-06-12"
   },
   "WIN10": {
     "type": "percent",
