@@ -5,8 +5,7 @@ window.COUPONS = {
     "type": "percent",
     "value": 0.99,
     "applies_to": "both",
-    "internal": true,
-    "validity": "2026-06-12"
+    "internal": true
   },
   "WIN10": {
     "type": "percent",
@@ -34,6 +33,14 @@ window.COUPONS = {
     "type": "percent",
     "value": 0.5,
     "applies_to": "both",
-    "internal": true
+    "internal": true,
+    "validity": "2026-06-19"
+  },
+  "QS25WL": {
+    "type": "percent",
+    "value": 0.25,
+    "applies_to": "both",
+    "internal": true,
+    "validity": "2026-06-19"
   }
 };
