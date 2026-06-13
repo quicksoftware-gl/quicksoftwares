@@ -5,11 +5,11 @@ Regenerate coupons-manifest.js by reading Discount.xlsx.
 Run this after editing Discount.xlsx:
     ./update-coupons.py
 
-The .xlsx supports two coupon types via four columns:
-    Discount_Coupon   Discount_Percentage   Internal_Discount_Percentage   Applies_To
-    50OFF             0.5                   (blank)                        both
-    20OFF             0.2                   (blank)                        windows
-    BHOLEKRIPA        (blank)               0.25                           macbook
+The .xlsx supports two coupon types via five columns:
+    Discount_Coupon   Discount_Percentage   Internal_Discount_Percentage   Applies_To   Validity
+    50OFF             0.5                   (blank)                        both         2026-12-31
+    20OFF             0.2                   (blank)                        windows      (blank)
+    BHOLEKRIPA        (blank)               0.25                           macbook      2026-08-15
     ...
 
 Row 1 is the header. Codes are uppercased. Each row should fill exactly
@@ -19,12 +19,15 @@ defined via Internal_Discount_Percentage are marked internal-only and
 are hidden from the public "Offers" modal on the site.
 Applies_To controls which service the coupon discounts: "windows",
 "macbook", or "both" (default if blank or unrecognized).
+Validity is the last date the coupon works (inclusive), as a date cell
+or ISO string (YYYY-MM-DD). Blank = no expiry.
 """
 import json
 import os
 import sys
 import xml.etree.ElementTree as ET
 import zipfile
+from datetime import datetime, timedelta
 
 NS = {"main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
@@ -33,6 +36,34 @@ os.chdir(script_dir)
 
 XLSX = "Discount.xlsx"
 OUT = "coupons-manifest.js"
+
+
+def parse_validity(raw):
+    """Convert an Excel date-cell raw value into an ISO date string (YYYY-MM-DD).
+
+    Excel stores dates as serial numbers (days since 1899-12-30 in Windows
+    mode). If the user typed an ISO string in a text cell, accept that too.
+    Returns None if the value is blank or unparseable.
+    """
+    if raw is None or raw == "":
+        return None
+    s = str(raw).strip()
+    if not s:
+        return None
+    # Numeric → Excel serial date.
+    try:
+        n = float(s)
+        if n > 0:
+            # 1899-12-30 epoch handles the 1900 leap-year bug for serials > 60.
+            dt = datetime(1899, 12, 30) + timedelta(days=int(n))
+            return dt.strftime("%Y-%m-%d")
+    except (ValueError, TypeError):
+        pass
+    # ISO string fallback (accepts "2026-12-31" or "2026-12-31T..").
+    try:
+        return datetime.fromisoformat(s[:10]).strftime("%Y-%m-%d")
+    except (ValueError, TypeError):
+        return None
 
 
 def read_xlsx(path):
@@ -87,6 +118,7 @@ def read_xlsx(path):
                 pct_raw = row_cells.get("B", "")
                 internal_raw = row_cells.get("C", "")
                 applies_raw = (row_cells.get("D", "") or "").strip().lower()
+                validity = parse_validity(row_cells.get("E", ""))
                 pct = None
                 internal_pct = None
                 try:
@@ -118,6 +150,9 @@ def read_xlsx(path):
                     coupons[code] = {"type": "percent", "value": pct, "applies_to": applies_to}
                 else:
                     print(f"  ! Skipping {code}: needs Discount_Percentage (0..1) OR Internal_Discount_Percentage (0..1)", file=sys.stderr)
+                    continue
+                if validity:
+                    coupons[code]["validity"] = validity
     return coupons
 
 

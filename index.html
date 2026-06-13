@@ -2089,6 +2089,18 @@
     return priceFor(svc, ss.softwareNames.slice(0, ss.quantity));
   }
   function couponScope(coupon) { return (coupon && coupon.applies_to) || "both"; }
+  // Validity column from Discount.xlsx: a coupon is expired once the
+  // local calendar date is strictly past its validity (inclusive day).
+  function todayISO() {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${m}-${day}`;
+  }
+  function isCouponExpired(entry) {
+    if (!entry || !entry.validity) return false;
+    return todayISO() > entry.validity;
+  }
   function serviceIdForScope(scope) {
     if (scope === "windows") return "win-soft";
     if (scope === "macbook") return "mac-soft";
@@ -2567,6 +2579,15 @@
       couponMsg.className = "coupon-msg error";
       couponInput.classList.add("invalid");
       // Restart the shake animation if it's already shown
+      couponMsg.style.animation = "none";
+      void couponMsg.offsetWidth;
+      couponMsg.style.animation = "";
+      return;
+    }
+    if (isCouponExpired(entry)) {
+      couponMsg.textContent = `Coupon ${code} has expired.`;
+      couponMsg.className = "coupon-msg error";
+      couponInput.classList.add("invalid");
       couponMsg.style.animation = "none";
       void couponMsg.offsetWidth;
       couponMsg.style.animation = "";
@@ -3501,7 +3522,7 @@
   function renderOffers() {
     offersList.innerHTML = "";
     const entries = Object.entries(COUPONS).filter(([code, entry]) =>
-      !INTERNAL_COUPONS.has(code) && entry.type !== "flat_inr" && !entry.internal
+      !INTERNAL_COUPONS.has(code) && entry.type !== "flat_inr" && !entry.internal && !isCouponExpired(entry)
     );
     if (!entries.length) { offersEmpty.style.display = ""; return; }
     offersEmpty.style.display = "none";
