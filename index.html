@@ -2032,6 +2032,12 @@
   // services keyed by id: { selected, quantity, softwareNames }
   // Each selected service contributes its own qty + names + price to the
   // total. Customers can tick one OR both service cards.
+  // Default currency by region: Asia timezones → INR, elsewhere → USD.
+  const initialCurrency =
+    (Intl.DateTimeFormat().resolvedOptions().timeZone || "").startsWith("Asia/")
+      ? "INR"
+      : "USD";
+
   const state = {
     services: SERVICES.reduce((acc, svc) => {
       acc[svc.id] = { selected: false, quantity: 1, softwareNames: [""] };
@@ -2040,8 +2046,8 @@
     date: "",
     time: "",
     mode: "remote",
-    currency: "INR",
-    paymentMethod: "razorpay",
+    currency: initialCurrency,
+    paymentMethod: initialCurrency === "USD" ? "paypal" : "razorpay",
     couponCode: "",
     coupon: null,   // { type: "percent" | "flat_inr", value: number }
   };
@@ -2676,6 +2682,7 @@
 
   // ---- Currency dropdown ----------------------------------------------
   const currencyEl = document.getElementById("currency");
+  currencyEl.value = state.currency;
   currencyEl.addEventListener("change", e => {
     state.currency = e.target.value;
     state.paymentMethod = state.currency === "USD" ? "paypal" : "razorpay";
