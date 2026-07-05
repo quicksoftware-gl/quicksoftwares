@@ -2081,7 +2081,23 @@
   // ---- Currency / FX rate ---------------------------------------------
   // Prices are stored in INR. USD is computed from this rate. Edit when needed.
   // (No live API call — fully offline.)
-  const USD_PER_INR = 1 / 83;   // i.e. 1 USD ≈ 83 INR
+  // FX rate for converting INR prices to USD. Starts at a sensible
+  // fallback and gets replaced at page load with the current mid-market
+  // rate from api.frankfurter.dev (ECB reference rates, no API key,
+  // permissive CORS). If the fetch fails, the fallback stays in place.
+  let USD_PER_INR = 1 / 83;   // fallback ≈ 1 USD = 83 INR
+  (async function refreshUsdInrRate() {
+    try {
+      const res = await fetch("https://api.frankfurter.dev/v1/latest?base=USD&symbols=INR", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      const rate = Number(data && data.rates && data.rates.INR);
+      if (Number.isFinite(rate) && rate > 0) {
+        USD_PER_INR = 1 / rate;
+        if (typeof rerenderPrices === "function") rerenderPrices();
+      }
+    } catch (_) { /* keep fallback */ }
+  })();
 
   const MERCHANT_NAME = "Quick Softwares";
 
