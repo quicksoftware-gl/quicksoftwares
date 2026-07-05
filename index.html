@@ -349,6 +349,7 @@
     border-color: #a7f3d0;
   }
   .cta-remote:hover { background: #d1fae5; box-shadow: 0 12px 24px rgba(16, 185, 129, 0.22); border-color: #6ee7b7; }
+  .step-hidden { display: none !important; }
   .catalog-empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -1916,7 +1917,7 @@
   </section>
 
   <!-- Step 2: Date & time -->
-  <section class="card">
+  <section class="card step-hidden" id="step-datetime">
     <h2><span class="step-num">2</span> Pick a date &amp; time</h2>
     <p class="section-sub">Choose a date, then select an available 1-hour slot.</p>
     <div class="row">
@@ -1942,7 +1943,7 @@
   </section>
 
   <!-- Step 3: Customer details -->
-  <section class="card">
+  <section class="card step-hidden" id="step-details">
     <h2><span class="step-num">3</span> Your details</h2>
     <p class="section-sub">We'll use these to confirm your booking and reach you before the appointment.</p>
     <div class="row">
@@ -1975,7 +1976,7 @@
   </section>
 
   <!-- Step 4: Pay -->
-  <section class="card">
+  <section class="card step-hidden" id="step-pay">
     <h2><span class="step-num">4</span> Confirm &amp; pay</h2>
     <div class="error" id="error"></div>
     <div class="success" id="success">
@@ -3101,15 +3102,26 @@
   });
 
   // ---- CTA buttons below the catalog ----------------------------------
-  // Both scroll the customer to Step 2 (Date & Time). They also pre-select
-  // the installation mode: "Download Now" → email-link (setup link within
-  // 3 hours); "Book Remote Service" → remote (screen share at a slot).
+  // Steps 2–4 are hidden on page load; the CTA buttons reveal only what
+  // that flow needs:
+  //   Download Now → Step 3 + Step 4 (email-link mode; no time slot).
+  //   Book Remote Service → Step 2 + Step 3 + Step 4 (screen-share).
+  const stepDatetimeEl = document.getElementById("step-datetime");
+  const stepDetailsEl  = document.getElementById("step-details");
+  const stepPayEl      = document.getElementById("step-pay");
+  function revealSteps({ datetime, details, pay }) {
+    if (stepDatetimeEl) stepDatetimeEl.classList.toggle("step-hidden", !datetime);
+    if (stepDetailsEl)  stepDetailsEl.classList.toggle("step-hidden",  !details);
+    if (stepPayEl)      stepPayEl.classList.toggle("step-hidden",      !pay);
+  }
   function setModeFromCta(mode) {
     state.mode = mode;
     if (modeSelectEl) modeSelectEl.value = mode;
     updateModeUI();
-    const target = document.querySelector('h2 .step-num') && document.querySelectorAll('.card')[1];
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    const needsDateTime = mode === "remote";
+    revealSteps({ datetime: needsDateTime, details: true, pay: true });
+    const scrollTarget = needsDateTime ? stepDatetimeEl : stepDetailsEl;
+    if (scrollTarget) scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
   }
   const ctaDownloadBtn = document.getElementById("cta-download");
   const ctaRemoteBtn = document.getElementById("cta-remote");
