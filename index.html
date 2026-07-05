@@ -1799,9 +1799,8 @@
     </div>
     <div class="catalog-tabs" role="tablist" aria-label="Platform">
       <button type="button" class="catalog-tab is-active" role="tab" aria-selected="true" data-platform="windows" id="catalog-tab-windows">Windows</button>
-      <span class="catalog-tab-hint" data-platform="windows"></span>
       <button type="button" class="catalog-tab" role="tab" aria-selected="false" data-platform="macbook" id="catalog-tab-macbook">Macbook</button>
-      <span class="catalog-tab-hint" data-platform="macbook"></span>
+      <span class="catalog-tab-hint is-hidden" id="catalog-tab-hint" aria-live="polite"></span>
       <div class="catalog-search">
         <span class="catalog-search-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -2283,22 +2282,24 @@
     return `Add ${threshold} or more softwares at ${formatPrice(last.price)}`;
   }
   function renderTabHints() {
-    document.querySelectorAll(".catalog-tab-hint").forEach(el => {
-      const platform = el.dataset.platform;
-      const svcId = platform === "windows" ? "win-soft" : "mac-soft";
-      const svc = getServiceById(svcId);
-      if (!svc) return;
-      const ss = state.services[svc.id];
-      const n = ss ? ss.softwareNames.length : 0;
-      const penultimate = svc.tiers[svc.tiers.length - 2];
-      const threshold = (penultimate && Number.isFinite(penultimate.upTo))
-        ? penultimate.upTo + 1
-        : 4;
-      const isActive = platform === currentPlatform;
-      const hide = !isActive || n >= threshold;
-      el.classList.toggle("is-hidden", hide);
-      if (!hide) el.textContent = tabHintText(svc, n);
-    });
+    const el = document.getElementById("catalog-tab-hint");
+    if (!el) return;
+    const svcId = currentPlatform === "windows" ? "win-soft" : "mac-soft";
+    const svc = getServiceById(svcId);
+    if (!svc) { el.classList.add("is-hidden"); return; }
+    const ss = state.services[svc.id];
+    const n = ss ? ss.softwareNames.length : 0;
+    const penultimate = svc.tiers[svc.tiers.length - 2];
+    const threshold = (penultimate && Number.isFinite(penultimate.upTo))
+      ? penultimate.upTo + 1
+      : 4;
+    // Hide when nothing added, and once the unlimited tier is reached.
+    if (n <= 0 || n >= threshold) {
+      el.classList.add("is-hidden");
+      return;
+    }
+    el.classList.remove("is-hidden");
+    el.textContent = tabHintText(svc, n);
   }
 
   // Slot times are stored as IST (the business operates in IST).
