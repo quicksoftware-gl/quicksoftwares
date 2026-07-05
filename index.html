@@ -2231,7 +2231,7 @@
         <h3>Payment successful — booking confirmed</h3>
         <div>Reference: <span class="ref" id="success-ref"></span></div>
         <div>Payment ID: <span class="ref" id="success-pid"></span></div>
-        <div style="margin-top: 8px; font-size: 13px;">A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.</div>
+        <div id="success-message" style="margin-top: 8px; font-size: 13px;">A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.</div>
         <div id="download-links" class="download-links" style="display: none;">
           <div class="download-links-title">Your downloads</div>
           <div id="download-links-list" class="download-links-list"></div>
@@ -3624,12 +3624,15 @@
   function renderDownloadLinks() {
     const wrap = document.getElementById("download-links");
     const list = document.getElementById("download-links-list");
+    const msg  = document.getElementById("success-message");
     if (!wrap || !list) return;
     if (state.mode !== "email-link") {
       wrap.style.display = "none";
       list.innerHTML = "";
+      if (msg) msg.innerHTML = "A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.";
       return;
     }
+    if (msg) msg.textContent = "Download your softwares by clicking on the below link";
     list.innerHTML = "";
     SERVICES.forEach(svc => {
       const ss = state.services[svc.id];
