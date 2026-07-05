@@ -350,6 +350,18 @@
   }
   .cta-remote:hover { background: #d1fae5; box-shadow: 0 12px 24px rgba(16, 185, 129, 0.22); border-color: #6ee7b7; }
   .step-hidden { display: none !important; }
+  .checkout-step + .checkout-step {
+    margin-top: 26px;
+    padding-top: 26px;
+    border-top: 1px solid var(--border);
+  }
+  .visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
   .catalog-empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -1913,119 +1925,128 @@
     </div>
   </section>
 
-  <!-- Step 2: Date & time -->
-  <section class="card step-hidden" id="step-datetime">
-    <h2><span class="step-num" aria-hidden="true"></span> Pick a date &amp; time</h2>
-    <p class="section-sub">Choose a date, then select an available 1-hour slot.</p>
-    <div class="row">
-      <div class="field">
-        <label for="date">Date</label>
-        <input type="date" id="date" />
-      </div>
-      <div class="field">
-        <label for="mode">Installation mode</label>
-        <select id="mode">
-          <option value="remote">Remote (over screen-share)</option>
-          <option value="email-link">Link via email</option>
-        </select>
-      </div>
-    </div>
-    <div id="time-slot-section">
-      <label>Time slot</label>
-      <div class="slots" id="slots"></div>
-    </div>
-    <div id="email-link-note" class="email-link-note" style="display: none;">
-      We will provide you the setup link within 3hrs.
-    </div>
-  </section>
-
-  <!-- Step 3: Customer details -->
-  <section class="card step-hidden" id="step-details">
-    <h2><span class="step-num" aria-hidden="true"></span> Your details</h2>
-    <p class="section-sub">We'll use these to confirm your booking and reach you before the appointment.</p>
-    <div class="row">
-      <div class="field">
-        <label for="name">Full name *</label>
-        <input type="text" id="name" autocomplete="name" required />
-      </div>
-      <div class="field">
-        <label for="email">Email *</label>
-        <input type="email" id="email" autocomplete="email" required />
-      </div>
-    </div>
-    <div class="row">
-      <div class="field">
-        <label for="phone">Phone *</label>
-        <div class="phone-input">
-          <select id="phone-cc" aria-label="Country code"></select>
-          <input type="tel" id="phone" autocomplete="tel" required />
-        </div>
-      </div>
-      <div class="field">
-        <label for="device">Device / OS</label>
-        <input type="text" id="device" placeholder="e.g. Windows 11 laptop, MacBook Air M2" />
-      </div>
-    </div>
-    <div class="field">
-      <label for="notes">Notes for the technician</label>
-      <textarea id="notes" placeholder="Anything we should know? License keys, special requests, etc."></textarea>
-    </div>
-  </section>
-
-  <!-- Step 4: Pay -->
-  <section class="card step-hidden" id="step-pay">
-    <h2><span class="step-num" aria-hidden="true"></span> Confirm &amp; pay</h2>
-    <div class="error" id="error"></div>
-    <div class="success" id="success">
-      <h3>Payment successful — booking confirmed</h3>
-      <div>Reference: <span class="ref" id="success-ref"></span></div>
-      <div>Payment ID: <span class="ref" id="success-pid"></span></div>
-      <div style="margin-top: 8px; font-size: 13px;">A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.</div>
-    </div>
-    <div class="coupon-section">
-      <label for="coupon-input">Discount coupon</label>
-      <div class="coupon-row">
-        <input type="text" id="coupon-input" placeholder="Enter code (e.g. 20OFF)" autocomplete="off" />
-        <button type="button" class="coupon-btn" id="coupon-apply">Apply</button>
-      </div>
-      <div class="coupon-msg" id="coupon-msg"></div>
-    </div>
-    <div class="summary">
-      <div>
-        <div><strong id="sum-service">No service selected</strong></div>
-        <div style="color: var(--muted); font-size: 13px;" id="sum-when">Pick a date and time</div>
-        <div class="sum-discount" id="sum-discount"></div>
-      </div>
-      <div class="total" id="sum-total">—</div>
-    </div>
-
-    <div id="payment-method-section">
-      <label style="margin-bottom: 8px;">Payment method</label>
-      <div class="pay-methods" id="pay-methods">
-        <div class="pay-method selected" data-method="razorpay">
-          <div class="pm-name">Razorpay</div>
-          <div class="pm-desc">Cards, UPI, netbanking, wallets · INR</div>
-        </div>
-        <div class="pay-method" data-method="paypal">
-          <div class="pm-name">Paypal/ Credit Cards/ Debit Cards</div>
-          <div class="pm-desc">PayPal balance or card · USD</div>
-        </div>
-      </div>
-    </div>
-    <div class="free-notice" id="free-notice" style="display: none;">
-      🎉 No payment required — your booking is free with this coupon.
-    </div>
-
-    <button class="btn" id="pay">Confirm Booking</button>
-    <button class="btn" id="new-booking" style="display: none;">New Booking</button>
-    <div class="pay-loading" id="pay-loading">Preparing payment…</div>
-    <div id="paypal-button-container"></div>
-    <p class="notice">
-      Razorpay handles INR only; PayPal handles USD only. Switching currency selects the matching payment method automatically.
-    </p>
-  </section>
 
 </main>
+
+<!-- Checkout modal (Steps 2-4 live here now; opened by the CTA buttons) -->
+<div class="modal-overlay" id="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+  <div class="modal-panel modal-panel-wide">
+    <button type="button" class="modal-close" id="checkout-close" aria-label="Close">&times;</button>
+    <h2 id="checkout-title" class="visually-hidden">Complete your booking</h2>
+
+    <!-- Step 2: Date & time -->
+    <section class="checkout-step" id="step-datetime">
+      <h2><span class="step-num" aria-hidden="true"></span> Pick a date &amp; time</h2>
+      <p class="section-sub">Choose a date, then select an available 1-hour slot.</p>
+      <div class="row">
+        <div class="field">
+          <label for="date">Date</label>
+          <input type="date" id="date" />
+        </div>
+        <div class="field">
+          <label for="mode">Installation mode</label>
+          <select id="mode">
+            <option value="remote">Remote (over screen-share)</option>
+            <option value="email-link">Link via email</option>
+          </select>
+        </div>
+      </div>
+      <div id="time-slot-section">
+        <label>Time slot</label>
+        <div class="slots" id="slots"></div>
+      </div>
+      <div id="email-link-note" class="email-link-note" style="display: none;">
+        We will provide you the setup link within 3hrs.
+      </div>
+    </section>
+
+    <!-- Step 3: Customer details -->
+    <section class="checkout-step" id="step-details">
+      <h2><span class="step-num" aria-hidden="true"></span> Your details</h2>
+      <p class="section-sub">We'll use these to confirm your booking and reach you before the appointment.</p>
+      <div class="row">
+        <div class="field">
+          <label for="name">Full name *</label>
+          <input type="text" id="name" autocomplete="name" required />
+        </div>
+        <div class="field">
+          <label for="email">Email *</label>
+          <input type="email" id="email" autocomplete="email" required />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="phone">Phone *</label>
+          <div class="phone-input">
+            <select id="phone-cc" aria-label="Country code"></select>
+            <input type="tel" id="phone" autocomplete="tel" required />
+          </div>
+        </div>
+        <div class="field">
+          <label for="device">Device / OS</label>
+          <input type="text" id="device" placeholder="e.g. Windows 11 laptop, MacBook Air M2" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="notes">Notes for the technician</label>
+        <textarea id="notes" placeholder="Anything we should know? License keys, special requests, etc."></textarea>
+      </div>
+    </section>
+
+    <!-- Step 4: Pay -->
+    <section class="checkout-step" id="step-pay">
+      <h2><span class="step-num" aria-hidden="true"></span> Confirm &amp; pay</h2>
+      <div class="error" id="error"></div>
+      <div class="success" id="success">
+        <h3>Payment successful — booking confirmed</h3>
+        <div>Reference: <span class="ref" id="success-ref"></span></div>
+        <div>Payment ID: <span class="ref" id="success-pid"></span></div>
+        <div style="margin-top: 8px; font-size: 13px;">A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.</div>
+      </div>
+      <div class="coupon-section">
+        <label for="coupon-input">Discount coupon</label>
+        <div class="coupon-row">
+          <input type="text" id="coupon-input" placeholder="Enter code (e.g. 20OFF)" autocomplete="off" />
+          <button type="button" class="coupon-btn" id="coupon-apply">Apply</button>
+        </div>
+        <div class="coupon-msg" id="coupon-msg"></div>
+      </div>
+      <div class="summary">
+        <div>
+          <div><strong id="sum-service">No service selected</strong></div>
+          <div style="color: var(--muted); font-size: 13px;" id="sum-when">Pick a date and time</div>
+          <div class="sum-discount" id="sum-discount"></div>
+        </div>
+        <div class="total" id="sum-total">—</div>
+      </div>
+
+      <div id="payment-method-section">
+        <label style="margin-bottom: 8px;">Payment method</label>
+        <div class="pay-methods" id="pay-methods">
+          <div class="pay-method selected" data-method="razorpay">
+            <div class="pm-name">Razorpay</div>
+            <div class="pm-desc">Cards, UPI, netbanking, wallets · INR</div>
+          </div>
+          <div class="pay-method" data-method="paypal">
+            <div class="pm-name">Paypal/ Credit Cards/ Debit Cards</div>
+            <div class="pm-desc">PayPal balance or card · USD</div>
+          </div>
+        </div>
+      </div>
+      <div class="free-notice" id="free-notice" style="display: none;">
+        🎉 No payment required — your booking is free with this coupon.
+      </div>
+
+      <button class="btn" id="pay">Confirm Booking</button>
+      <button class="btn" id="new-booking" style="display: none;">New Booking</button>
+      <div class="pay-loading" id="pay-loading">Preparing payment…</div>
+      <div id="paypal-button-container"></div>
+      <p class="notice">
+        Razorpay handles INR only; PayPal handles USD only. Switching currency selects the matching payment method automatically.
+      </p>
+    </section>
+  </div>
+</div>
 
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
@@ -3098,28 +3119,41 @@
     updateModeUI();
   });
 
-  // ---- CTA buttons below the catalog ----------------------------------
-  // Steps 2–4 are hidden on page load; the CTA buttons reveal only what
-  // that flow needs:
-  //   Download Now → Step 3 + Step 4 (email-link mode; no time slot).
-  //   Book Remote Service → Step 2 + Step 3 + Step 4 (screen-share).
+  // ---- Checkout modal ------------------------------------------------
+  // Steps 2–4 live inside a modal overlay. The CTA buttons pre-select
+  // the installation mode, hide the date/time step when it's not needed
+  // (email-link installs don't require a time slot), then open the modal
+  // — same interaction pattern as the Contact us modal.
+  const checkoutModal = document.getElementById("checkout-modal");
+  const checkoutCloseBtn = document.getElementById("checkout-close");
   const stepDatetimeEl = document.getElementById("step-datetime");
-  const stepDetailsEl  = document.getElementById("step-details");
-  const stepPayEl      = document.getElementById("step-pay");
-  function revealSteps({ datetime, details, pay }) {
-    if (stepDatetimeEl) stepDatetimeEl.classList.toggle("step-hidden", !datetime);
-    if (stepDetailsEl)  stepDetailsEl.classList.toggle("step-hidden",  !details);
-    if (stepPayEl)      stepPayEl.classList.toggle("step-hidden",      !pay);
-  }
   function setModeFromCta(mode) {
     state.mode = mode;
     if (modeSelectEl) modeSelectEl.value = mode;
     updateModeUI();
     const needsDateTime = mode === "remote";
-    revealSteps({ datetime: needsDateTime, details: true, pay: true });
-    const scrollTarget = needsDateTime ? stepDatetimeEl : stepDetailsEl;
-    if (scrollTarget) scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (stepDatetimeEl) stepDatetimeEl.classList.toggle("step-hidden", !needsDateTime);
+    openCheckoutModal();
   }
+  function openCheckoutModal() {
+    if (!checkoutModal) return;
+    checkoutModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+    // Scroll the modal to the top on open so the first visible step is in view.
+    checkoutModal.scrollTop = 0;
+  }
+  function closeCheckoutModal() {
+    if (!checkoutModal) return;
+    checkoutModal.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+  if (checkoutCloseBtn) checkoutCloseBtn.addEventListener("click", closeCheckoutModal);
+  if (checkoutModal) {
+    checkoutModal.addEventListener("click", e => { if (e.target === checkoutModal) closeCheckoutModal(); });
+  }
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && checkoutModal && checkoutModal.classList.contains("visible")) closeCheckoutModal();
+  });
   const ctaDownloadBtn = document.getElementById("cta-download");
   const ctaRemoteBtn = document.getElementById("cta-remote");
   if (ctaDownloadBtn) ctaDownloadBtn.addEventListener("click", () => setModeFromCta("email-link"));
