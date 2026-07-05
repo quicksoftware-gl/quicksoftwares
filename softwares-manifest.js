@@ -4,7 +4,8 @@ window.SOFTWARES = {
   "windows": [
     {
       "name": "Autocad 2026",
-      "row": 2
+      "row": 2,
+      "link": "www.youtube.com"
     },
     {
       "name": "Autocad 2024",
