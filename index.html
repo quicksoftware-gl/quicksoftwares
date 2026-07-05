@@ -1532,7 +1532,6 @@
       <div class="brand">Quick Softwares</div>
     </div>
     <div class="hero-actions">
-      <button type="button" class="contact-trigger" id="catalog-open">Software Catalog</button>
       <button type="button" class="contact-trigger" id="contact-open">Contact us</button>
     </div>
   </div>
@@ -1689,21 +1688,22 @@
     </p>
   </section>
 
-</main>
-
-<!-- Software Catalog modal -->
-<div class="modal-overlay" id="catalog-modal" role="dialog" aria-modal="true" aria-labelledby="catalog-title">
-  <div class="modal-panel modal-panel-wide">
-    <button type="button" class="modal-close" id="catalog-close" aria-label="Close">&times;</button>
-    <h2 id="catalog-title">Software Catalog</h2>
-    <p class="section-sub" style="padding-left: 0;">All software we install. Click any item for a closer look.</p>
+  <!-- Software Catalog (inline) -->
+  <section class="card" id="catalog-section" aria-labelledby="catalog-title">
+    <div class="section-head">
+      <div>
+        <h2 id="catalog-title">Software Catalog</h2>
+        <p class="section-sub">All software we install. Click any item for a closer look.</p>
+      </div>
+    </div>
     <div class="catalog-tabs" role="tablist" aria-label="Platform">
       <button type="button" class="catalog-tab is-active" role="tab" aria-selected="true" data-platform="windows" id="catalog-tab-windows">Windows</button>
       <button type="button" class="catalog-tab" role="tab" aria-selected="false" data-platform="macbook" id="catalog-tab-macbook">Macbook</button>
     </div>
     <div id="catalog-grid" class="catalog-grid" role="tabpanel" aria-labelledby="catalog-tab-windows"></div>
-  </div>
-</div>
+  </section>
+
+</main>
 
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
@@ -3336,9 +3336,6 @@
     return CATALOG_IMG_EXTS.map(ext => `${dir}/${row}.${ext}`);
   }
 
-  const catalogModal = document.getElementById("catalog-modal");
-  const catalogOpenBtn = document.getElementById("catalog-open");
-  const catalogCloseBtn = document.getElementById("catalog-close");
   const catalogGrid = document.getElementById("catalog-grid");
   const catalogTabs = Array.from(document.querySelectorAll(".catalog-tab"));
   const lightbox = document.getElementById("lightbox");
@@ -3434,15 +3431,10 @@
     btn.addEventListener("click", () => setActiveTab(btn.dataset.platform));
   });
 
-  function openCatalogModal() {
-    setActiveTab(currentPlatform);
-    catalogModal.classList.add("visible");
-    document.body.style.overflow = "hidden";
-  }
-  function closeCatalogModal() {
-    catalogModal.classList.remove("visible");
-    if (!lightbox.classList.contains("visible")) document.body.style.overflow = "";
-  }
+  // Render the initial Windows tab immediately — the catalog is now
+  // inline on the home page, not behind a button.
+  setActiveTab(currentPlatform);
+
   function openLightbox(src, caption) {
     lightboxImg.src = src;
     lightboxImg.alt = caption;
@@ -3452,18 +3444,13 @@
   }
   function closeLightbox() {
     lightbox.classList.remove("visible");
-    if (!catalogModal.classList.contains("visible")) document.body.style.overflow = "";
+    document.body.style.overflow = "";
   }
 
-  catalogOpenBtn.addEventListener("click", openCatalogModal);
-  catalogCloseBtn.addEventListener("click", closeCatalogModal);
-  catalogModal.addEventListener("click", e => { if (e.target === catalogModal) closeCatalogModal(); });
   lightboxClose.addEventListener("click", closeLightbox);
   lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
   document.addEventListener("keydown", e => {
-    if (e.key !== "Escape") return;
-    if (lightbox.classList.contains("visible")) closeLightbox();
-    else if (catalogModal.classList.contains("visible")) closeCatalogModal();
+    if (e.key === "Escape" && lightbox.classList.contains("visible")) closeLightbox();
   });
 
   // ---- Contact form ---------------------------------------------------
