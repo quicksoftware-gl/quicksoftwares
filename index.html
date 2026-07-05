@@ -350,11 +350,24 @@
   }
   .cta-remote:hover { background: #d1fae5; box-shadow: 0 12px 24px rgba(16, 185, 129, 0.22); border-color: #6ee7b7; }
   .step-hidden { display: none !important; }
-  .checkout-step + .checkout-step {
-    margin-top: 26px;
-    padding-top: 26px;
-    border-top: 1px solid var(--border);
+  .view-hidden { display: none !important; }
+  .checkout-back {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 6px 10px 6px 0;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brand, #2563eb);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 12px;
+    border-radius: 6px;
   }
+  .checkout-back:hover { text-decoration: underline; }
   .visually-hidden {
     position: absolute !important;
     width: 1px; height: 1px;
@@ -1925,17 +1938,14 @@
     </div>
   </section>
 
-
-</main>
-
-<!-- Checkout modal (Steps 2-4 live here now; opened by the CTA buttons) -->
-<div class="modal-overlay" id="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
-  <div class="modal-panel modal-panel-wide">
-    <button type="button" class="modal-close" id="checkout-close" aria-label="Close">&times;</button>
-    <h2 id="checkout-title" class="visually-hidden">Complete your booking</h2>
+  <!-- Checkout view (Steps 2-4) — swapped in when a CTA is clicked -->
+  <div id="checkout-view" class="view-hidden">
+    <button type="button" class="checkout-back" id="checkout-back" aria-label="Back to catalog">
+      ← Back to catalog
+    </button>
 
     <!-- Step 2: Date & time -->
-    <section class="checkout-step" id="step-datetime">
+    <section class="card" id="step-datetime">
       <h2><span class="step-num" aria-hidden="true"></span> Pick a date &amp; time</h2>
       <p class="section-sub">Choose a date, then select an available 1-hour slot.</p>
       <div class="row">
@@ -1961,7 +1971,7 @@
     </section>
 
     <!-- Step 3: Customer details -->
-    <section class="checkout-step" id="step-details">
+    <section class="card" id="step-details">
       <h2><span class="step-num" aria-hidden="true"></span> Your details</h2>
       <p class="section-sub">We'll use these to confirm your booking and reach you before the appointment.</p>
       <div class="row">
@@ -1994,7 +2004,7 @@
     </section>
 
     <!-- Step 4: Pay -->
-    <section class="checkout-step" id="step-pay">
+    <section class="card" id="step-pay">
       <h2><span class="step-num" aria-hidden="true"></span> Confirm &amp; pay</h2>
       <div class="error" id="error"></div>
       <div class="success" id="success">
@@ -2046,7 +2056,8 @@
       </p>
     </section>
   </div>
-</div>
+
+</main>
 
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
@@ -3119,41 +3130,34 @@
     updateModeUI();
   });
 
-  // ---- Checkout modal ------------------------------------------------
-  // Steps 2–4 live inside a modal overlay. The CTA buttons pre-select
-  // the installation mode, hide the date/time step when it's not needed
-  // (email-link installs don't require a time slot), then open the modal
-  // — same interaction pattern as the Contact us modal.
-  const checkoutModal = document.getElementById("checkout-modal");
-  const checkoutCloseBtn = document.getElementById("checkout-close");
-  const stepDatetimeEl = document.getElementById("step-datetime");
+  // ---- Checkout view swap --------------------------------------------
+  // Steps 2–4 live in an in-page view (#checkout-view) that swaps in
+  // when a CTA is clicked. The catalog card (#catalog-section) hides,
+  // the checkout cards show, and the page scrolls to the top so the
+  // customer sees Step 2 (or Step 3, if the date/time step was hidden).
+  const catalogSectionEl = document.getElementById("catalog-section");
+  const checkoutViewEl   = document.getElementById("checkout-view");
+  const checkoutBackBtn  = document.getElementById("checkout-back");
+  const stepDatetimeEl   = document.getElementById("step-datetime");
   function setModeFromCta(mode) {
     state.mode = mode;
     if (modeSelectEl) modeSelectEl.value = mode;
     updateModeUI();
     const needsDateTime = mode === "remote";
     if (stepDatetimeEl) stepDatetimeEl.classList.toggle("step-hidden", !needsDateTime);
-    openCheckoutModal();
+    openCheckoutView();
   }
-  function openCheckoutModal() {
-    if (!checkoutModal) return;
-    checkoutModal.classList.add("visible");
-    document.body.style.overflow = "hidden";
-    // Scroll the modal to the top on open so the first visible step is in view.
-    checkoutModal.scrollTop = 0;
+  function openCheckoutView() {
+    if (catalogSectionEl) catalogSectionEl.classList.add("view-hidden");
+    if (checkoutViewEl)   checkoutViewEl.classList.remove("view-hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  function closeCheckoutModal() {
-    if (!checkoutModal) return;
-    checkoutModal.classList.remove("visible");
-    document.body.style.overflow = "";
+  function closeCheckoutView() {
+    if (checkoutViewEl)   checkoutViewEl.classList.add("view-hidden");
+    if (catalogSectionEl) catalogSectionEl.classList.remove("view-hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  if (checkoutCloseBtn) checkoutCloseBtn.addEventListener("click", closeCheckoutModal);
-  if (checkoutModal) {
-    checkoutModal.addEventListener("click", e => { if (e.target === checkoutModal) closeCheckoutModal(); });
-  }
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape" && checkoutModal && checkoutModal.classList.contains("visible")) closeCheckoutModal();
-  });
+  if (checkoutBackBtn) checkoutBackBtn.addEventListener("click", closeCheckoutView);
   const ctaDownloadBtn = document.getElementById("cta-download");
   const ctaRemoteBtn = document.getElementById("cta-remote");
   if (ctaDownloadBtn) ctaDownloadBtn.addEventListener("click", () => setModeFromCta("email-link"));
