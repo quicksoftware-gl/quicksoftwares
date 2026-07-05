@@ -215,9 +215,57 @@
   .modal-panel-wide { max-width: 960px; }
   .catalog-tabs {
     display: flex;
+    align-items: center;
     gap: 8px;
     margin: 6px 0 14px;
     border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .catalog-search {
+    margin-left: auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-bottom: 6px;
+  }
+  .catalog-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translate(0, calc(-50% - 3px));
+    color: var(--muted);
+    pointer-events: none;
+    display: inline-flex;
+  }
+  #catalog-search {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px 7px 32px;
+    font: inherit;
+    font-size: 13.5px;
+    color: var(--text-1);
+    background: #fff;
+    width: 220px;
+    max-width: 100%;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  #catalog-search:focus {
+    border-color: var(--brand, #2563eb);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+  .catalog-item.is-hidden { display: none !important; }
+  .catalog-empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--muted);
+    padding: 24px 20px;
+    background: #f8fafc;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    font-size: 13.5px;
   }
   .catalog-tab {
     appearance: none;
@@ -297,50 +345,6 @@
   .catalog-item.is-added .ci-badge {
     opacity: 1;
     transform: translateY(0);
-  }
-  .catalog-item .ci-count {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 8px;
-    background: #f8fafc;
-    border-top: 1px solid var(--border);
-  }
-  .ci-count-btn {
-    appearance: none;
-    width: 30px;
-    height: 30px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: #fff;
-    color: var(--text-2);
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    line-height: 1;
-    transition: background 0.12s, border-color 0.12s, transform 0.08s;
-  }
-  .ci-count-btn:hover:not(:disabled) {
-    background: #f1f5f9;
-    border-color: var(--border-hover);
-  }
-  .ci-count-btn:active:not(:disabled) { transform: scale(0.95); }
-  .ci-count-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-  .ci-count-value {
-    min-width: 22px;
-    text-align: center;
-    font-size: 14.5px;
-    font-weight: 700;
-    color: var(--text-2);
-    font-variant-numeric: tabular-nums;
   }
   .selection-panel {
     margin-top: 22px;
@@ -1720,6 +1724,12 @@
     <div class="catalog-tabs" role="tablist" aria-label="Platform">
       <button type="button" class="catalog-tab is-active" role="tab" aria-selected="true" data-platform="windows" id="catalog-tab-windows">Windows</button>
       <button type="button" class="catalog-tab" role="tab" aria-selected="false" data-platform="macbook" id="catalog-tab-macbook">Macbook</button>
+      <div class="catalog-search">
+        <span class="catalog-search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </span>
+        <input type="search" id="catalog-search" placeholder="Search softwares" aria-label="Search softwares" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+      </div>
     </div>
     <div id="catalog-grid" class="catalog-grid" role="tabpanel" aria-labelledby="catalog-tab-windows"></div>
     <div id="software-details" class="software-details"></div>
@@ -2361,20 +2371,18 @@
   const PLATFORM_TO_SVC_ID = { windows: "win-soft", macbook: "mac-soft" };
   function svcForPlatform(platform) { return getServiceById(PLATFORM_TO_SVC_ID[platform]); }
 
-  function countInState(platform, name) {
+  function hasSoftwareInState(platform, name) {
     const svc = svcForPlatform(platform);
-    if (!svc) return 0;
+    if (!svc) return false;
     const ss = state.services[svc.id];
     const target = name.trim().toLowerCase();
-    return ss.softwareNames.reduce(
-      (n, x) => n + ((x || "").trim().toLowerCase() === target ? 1 : 0),
-      0
-    );
+    return ss.softwareNames.some(n => (n || "").trim().toLowerCase() === target);
   }
 
-  function incFromCatalog(platform, name) {
+  function addFromCatalog(platform, name) {
     const svc = svcForPlatform(platform);
     if (!svc || !name) return;
+    if (hasSoftwareInState(platform, name)) return;
     const ss = state.services[svc.id];
     ss.softwareNames.push(name);
     ss.quantity = ss.softwareNames.length;
@@ -2382,23 +2390,7 @@
     onSelectionsChanged();
   }
 
-  function decFromCatalog(platform, name) {
-    const svc = svcForPlatform(platform);
-    if (!svc || !name) return;
-    const ss = state.services[svc.id];
-    const target = name.trim().toLowerCase();
-    for (let i = ss.softwareNames.length - 1; i >= 0; i--) {
-      if ((ss.softwareNames[i] || "").trim().toLowerCase() === target) {
-        ss.softwareNames.splice(i, 1);
-        break;
-      }
-    }
-    ss.quantity = ss.softwareNames.length;
-    ss.selected = ss.quantity > 0;
-    onSelectionsChanged();
-  }
-
-  function removeAllFromCatalog(platform, name) {
+  function removeFromCatalog(platform, name) {
     const svc = svcForPlatform(platform);
     if (!svc || !name) return;
     const ss = state.services[svc.id];
@@ -2411,7 +2403,7 @@
 
   function onSelectionsChanged() {
     renderSelections();
-    updateCatalogCounts();
+    markCatalogAddedStates();
     revokeCouponIfIneligible();
     updateSummary();
   }
@@ -2503,7 +2495,7 @@
     remove.className = "chip-remove";
     remove.setAttribute("aria-label", `Remove all ${name}`);
     remove.textContent = "×";
-    remove.addEventListener("click", () => removeAllFromCatalog(platform, name));
+    remove.addEventListener("click", () => removeFromCatalog(platform, name));
     chip.appendChild(label);
     chip.appendChild(remove);
     return chip;
@@ -2530,18 +2522,13 @@
     return parts.join(" · ");
   }
 
-  function updateCatalogCounts() {
+  function markCatalogAddedStates() {
     const platform = catalogGrid && catalogGrid.dataset.platform;
     if (!platform) return;
     catalogGrid.querySelectorAll(".catalog-item").forEach(el => {
       const name = el.dataset.name;
       if (!name) return;
-      const n = countInState(platform, name);
-      el.classList.toggle("is-added", n > 0);
-      const valueEl = el.querySelector(".ci-count-value");
-      if (valueEl) valueEl.textContent = String(n);
-      const decBtn = el.querySelector(".ci-count-btn[data-action=\"dec\"]");
-      if (decBtn) decBtn.disabled = n === 0;
+      el.classList.toggle("is-added", hasSoftwareInState(platform, name));
     });
   }
 
@@ -3359,6 +3346,7 @@
 
   const catalogGrid = document.getElementById("catalog-grid");
   const catalogTabs = Array.from(document.querySelectorAll(".catalog-tab"));
+  const catalogSearchInput = document.getElementById("catalog-search");
   const lightbox = document.getElementById("lightbox");
   const lightboxImg = document.getElementById("lightbox-img");
   const lightboxCaption = document.getElementById("lightbox-caption");
@@ -3424,6 +3412,13 @@
       const item = document.createElement("div");
       item.className = "catalog-item";
       item.dataset.name = entry.name;
+      // Keywords used by the search box: name plus optional version label
+      // from Softwares.xlsx (e.g. "Latest").
+      const keywords = [entry.name, entry.version || ""].join(" ").toLowerCase();
+      item.dataset.keywords = keywords;
+      item.setAttribute("role", "button");
+      item.setAttribute("tabindex", "0");
+      item.setAttribute("aria-label", `Add ${entry.name}`);
       const candidates = imageCandidatesFor(platform, entry.row);
       attachImageWithFallback(item, candidates, entry.name);
       const badge = document.createElement("span");
@@ -3434,36 +3429,15 @@
       cap.className = "ci-caption";
       cap.textContent = entry.name;
       item.appendChild(cap);
-
-      const count = document.createElement("div");
-      count.className = "ci-count";
-      const dec = document.createElement("button");
-      dec.type = "button";
-      dec.className = "ci-count-btn";
-      dec.dataset.action = "dec";
-      dec.setAttribute("aria-label", `Remove one ${entry.name}`);
-      dec.textContent = "−";
-      dec.disabled = true;
-      dec.addEventListener("click", () => decFromCatalog(platform, entry.name));
-      const value = document.createElement("span");
-      value.className = "ci-count-value";
-      value.textContent = "0";
-      value.setAttribute("aria-live", "polite");
-      const inc = document.createElement("button");
-      inc.type = "button";
-      inc.className = "ci-count-btn";
-      inc.dataset.action = "inc";
-      inc.setAttribute("aria-label", `Add ${entry.name}`);
-      inc.textContent = "+";
-      inc.addEventListener("click", () => incFromCatalog(platform, entry.name));
-      count.appendChild(dec);
-      count.appendChild(value);
-      count.appendChild(inc);
-      item.appendChild(count);
-
+      const activate = () => addFromCatalog(platform, entry.name);
+      item.addEventListener("click", activate);
+      item.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+      });
       catalogGrid.appendChild(item);
     });
-    updateCatalogCounts();
+    markCatalogAddedStates();
+    applyCatalogSearch();
     renderedPlatforms.add(platform);
   }
 
@@ -3475,12 +3449,50 @@
       btn.setAttribute("aria-selected", on ? "true" : "false");
     });
     renderPlatform(platform);
-    updateCatalogCounts();
+    markCatalogAddedStates();
+    applyCatalogSearch();
   }
 
   catalogTabs.forEach(btn => {
     btn.addEventListener("click", () => setActiveTab(btn.dataset.platform));
   });
+
+  // ---- Catalog keyword search ----
+  // Hide cards whose dataset.keywords (name + optional version) doesn't
+  // include every whitespace-separated token in the query. Shown in the
+  // tab bar so it's always reachable, and cleared on tab switch.
+  function applyCatalogSearch() {
+    if (!catalogGrid) return;
+    const q = (catalogSearchInput && catalogSearchInput.value || "").trim().toLowerCase();
+    const tokens = q ? q.split(/\s+/).filter(Boolean) : [];
+    let visible = 0;
+    catalogGrid.querySelectorAll(".catalog-item").forEach(el => {
+      const kw = el.dataset.keywords || "";
+      const match = tokens.every(t => kw.includes(t));
+      el.classList.toggle("is-hidden", !match);
+      if (match) visible++;
+    });
+    // Empty state ("No matches for X") — only when there are cards but none visible.
+    let empty = catalogGrid.querySelector(".catalog-empty-state");
+    const hasAnyCards = catalogGrid.querySelector(".catalog-item");
+    if (hasAnyCards && visible === 0) {
+      if (!empty) {
+        empty = document.createElement("div");
+        empty.className = "catalog-empty-state";
+        catalogGrid.appendChild(empty);
+      }
+      empty.textContent = q
+        ? `No softwares match "${catalogSearchInput.value.trim()}".`
+        : "";
+      empty.style.display = q ? "" : "none";
+    } else if (empty) {
+      empty.style.display = "none";
+    }
+  }
+
+  if (catalogSearchInput) {
+    catalogSearchInput.addEventListener("input", applyCatalogSearch);
+  }
 
   // Render the initial Windows tab immediately — the catalog is now
   // inline on the home page, not behind a button.
