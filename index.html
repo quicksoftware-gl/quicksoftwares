@@ -417,6 +417,44 @@
     border-radius: 6px;
   }
   .checkout-back:hover { text-decoration: underline; }
+  .checkout-summary-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 10px;
+  }
+  .checkout-summary-group + .checkout-summary-group { margin-top: 14px; }
+  .checkout-summary-heading {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-2);
+    margin: 0 0 6px;
+  }
+  .checkout-summary-list {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 0;
+    color: var(--text-1);
+    font-size: 14px;
+  }
+  .checkout-summary-list li { margin: 2px 0; }
+  .checkout-summary-total {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .checkout-summary-total strong {
+    color: var(--text-1);
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
   .visually-hidden {
     position: absolute !important;
     width: 1px; height: 1px;
@@ -1995,7 +2033,6 @@
     <div class="catalog-cta">
       <button type="button" class="cta-btn cta-download" id="cta-download" disabled>
         <span class="cta-title">Download Now</span>
-        <span class="cta-sub">Get a setup link by email within 3 hours</span>
       </button>
       <button type="button" class="cta-btn cta-remote" id="cta-remote" disabled>
         <span class="cta-title">Book Remote Service</span>
@@ -2012,6 +2049,9 @@
     <button type="button" class="checkout-back" id="checkout-back" aria-label="Back to catalog">
       ← Back to catalog
     </button>
+
+    <!-- Softwares the customer picked, rebuilt when the view opens -->
+    <section class="card" id="checkout-summary" aria-live="polite"></section>
 
     <!-- Step 2: Date & time -->
     <section class="card" id="step-datetime">
@@ -3231,7 +3271,57 @@
   function openCheckoutView() {
     if (catalogSectionEl) catalogSectionEl.classList.add("view-hidden");
     if (checkoutViewEl)   checkoutViewEl.classList.remove("view-hidden");
+    renderCheckoutSummary();
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  // "Your softwares" card at the top of the checkout view. Rebuilt
+  // each time the view opens so it reflects the current selections.
+  function renderCheckoutSummary() {
+    const el = document.getElementById("checkout-summary");
+    if (!el) return;
+    el.innerHTML = "";
+    const groups = [];
+    SERVICES.forEach(svc => {
+      const ss = state.services[svc.id];
+      if (!ss || !ss.selected || !ss.softwareNames.length) return;
+      groups.push({ svc, names: ss.softwareNames.slice() });
+    });
+    if (!groups.length) {
+      el.textContent = "No softwares selected.";
+      return;
+    }
+    const heading = document.createElement("div");
+    heading.className = "checkout-summary-title";
+    heading.textContent = "Your softwares";
+    el.appendChild(heading);
+
+    groups.forEach(g => {
+      const groupEl = document.createElement("div");
+      groupEl.className = "checkout-summary-group";
+      const h = document.createElement("div");
+      h.className = "checkout-summary-heading";
+      h.textContent = `${g.svc.name} · ${g.names.length}`;
+      groupEl.appendChild(h);
+      const ul = document.createElement("ul");
+      ul.className = "checkout-summary-list";
+      g.names.forEach(name => {
+        const li = document.createElement("li");
+        li.textContent = name;
+        ul.appendChild(li);
+      });
+      groupEl.appendChild(ul);
+      el.appendChild(groupEl);
+    });
+
+    const totalRow = document.createElement("div");
+    totalRow.className = "checkout-summary-total";
+    const totalLabel = document.createElement("span");
+    totalLabel.textContent = "Subtotal";
+    const totalValue = document.createElement("strong");
+    totalValue.textContent = formatPrice(currentPriceINR());
+    totalRow.appendChild(totalLabel);
+    totalRow.appendChild(totalValue);
+    el.appendChild(totalRow);
   }
   function closeCheckoutView() {
     if (checkoutViewEl)   checkoutViewEl.classList.add("view-hidden");
