@@ -165,6 +165,30 @@
   }
   .hero-offers:hover { background: rgba(255, 255, 255, 0.32); transform: translateY(-1px); }
   .hero-offers:active { transform: translateY(1px); }
+  .cart-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.28);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    margin-left: 4px;
+  }
+  .contact-trigger-offers {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .contact-trigger-offers .offers-spark {
+    color: #fde68a;
+    text-shadow: 0 0 6px rgba(253, 224, 71, 0.6);
+  }
   .hero-offers .offers-spark {
     color: #fde68a;
     font-size: 14px;
@@ -1977,15 +2001,19 @@
       <div class="brand">Quick Softwares</div>
     </div>
     <div class="hero-actions">
+      <button type="button" class="contact-trigger contact-trigger-offers" id="offers-open" aria-label="View active offers">
+        <span class="offers-spark" aria-hidden="true">✦</span>
+        Offers
+      </button>
       <button type="button" class="contact-trigger" id="contact-open">Contact us</button>
     </div>
   </div>
   <span class="hero-pill">Available now</span>
   <h1>Book a software installation</h1>
   <p>Pick a service, choose a convenient time, and we'll handle the rest. Global remote installation service.</p>
-  <button type="button" class="hero-offers" id="offers-open" aria-label="View active offers">
-    <span class="offers-spark" aria-hidden="true">✦</span>
-    Offers
+  <button type="button" class="hero-offers" id="cart-open" aria-label="View your cart">
+    <span class="offers-spark" aria-hidden="true" style="color: #a7f3d0;">🛒</span>
+    Your Cart <span class="cart-count" id="cart-count">0</span>
   </button>
   <div class="social-links hero-socials" id="hero-socials">
     <a class="wa" id="hero-wa" href="https://wa.me/917838127423" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp (+91 78381 27423)">
@@ -2186,6 +2214,16 @@
       <strong>No active offers right now.</strong>
       Check back later for new discount codes.
     </p>
+  </div>
+</div>
+
+<!-- Cart modal -->
+<div class="modal-overlay" id="cart-modal" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+  <div class="modal-panel">
+    <button type="button" class="modal-close" id="cart-close" aria-label="Close">&times;</button>
+    <h2 id="cart-title">Your Cart</h2>
+    <p class="section-sub" style="padding-left: 0;">Softwares you've added from the catalog.</p>
+    <div id="cart-body"></div>
   </div>
 </div>
 
@@ -2785,8 +2823,18 @@
     markCatalogAddedStates();
     renderTabHints();
     updateCtaEnabledState();
+    updateCartCount();
     revokeCouponIfIneligible();
     updateSummary();
+  }
+  function updateCartCount() {
+    const el = document.getElementById("cart-count");
+    if (!el) return;
+    const n = SERVICES.reduce((sum, svc) => {
+      const ss = state.services[svc.id];
+      return sum + (ss ? ss.softwareNames.length : 0);
+    }, 0);
+    el.textContent = String(n);
   }
   // Keep the two CTA buttons in sync with the cart: disabled + hint
   // visible when nothing is selected, enabled + hint hidden otherwise.
@@ -4316,6 +4364,69 @@
     if (e.key === "Escape" && offersModal.classList.contains("visible")) closeOffersModal();
   });
 
+  // ---- Cart modal ----
+  const cartModal = document.getElementById("cart-modal");
+  const cartOpenBtn = document.getElementById("cart-open");
+  const cartCloseBtn = document.getElementById("cart-close");
+  const cartBody = document.getElementById("cart-body");
+  function renderCartBody() {
+    if (!cartBody) return;
+    cartBody.innerHTML = "";
+    const groups = SERVICES
+      .map(svc => ({ svc, ss: state.services[svc.id] }))
+      .filter(g => g.ss && g.ss.selected && g.ss.softwareNames.length);
+    if (!groups.length) {
+      const empty = document.createElement("p");
+      empty.className = "catalog-empty";
+      empty.innerHTML = "<strong>Your cart is empty.</strong> Click + on any software tile to add it.";
+      cartBody.appendChild(empty);
+      return;
+    }
+    groups.forEach(g => {
+      const wrap = document.createElement("div");
+      wrap.className = "checkout-summary-group";
+      const h = document.createElement("div");
+      h.className = "checkout-summary-heading";
+      h.textContent = `${g.svc.name} · ${g.ss.softwareNames.length}`;
+      wrap.appendChild(h);
+      const ul = document.createElement("ul");
+      ul.className = "checkout-summary-list";
+      g.ss.softwareNames.forEach(name => {
+        const li = document.createElement("li");
+        li.textContent = name;
+        ul.appendChild(li);
+      });
+      wrap.appendChild(ul);
+      cartBody.appendChild(wrap);
+    });
+    const totalRow = document.createElement("div");
+    totalRow.className = "checkout-summary-total";
+    const totalLabel = document.createElement("span");
+    totalLabel.textContent = "Subtotal";
+    const totalValue = document.createElement("strong");
+    totalValue.textContent = formatPrice(currentPriceINR());
+    totalRow.appendChild(totalLabel);
+    totalRow.appendChild(totalValue);
+    cartBody.appendChild(totalRow);
+  }
+  function openCartModal() {
+    if (!cartModal) return;
+    renderCartBody();
+    cartModal.classList.add("visible");
+    document.body.style.overflow = "hidden";
+  }
+  function closeCartModal() {
+    if (!cartModal) return;
+    cartModal.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+  if (cartOpenBtn)  cartOpenBtn.addEventListener("click", openCartModal);
+  if (cartCloseBtn) cartCloseBtn.addEventListener("click", closeCartModal);
+  if (cartModal)    cartModal.addEventListener("click", e => { if (e.target === cartModal) closeCartModal(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && cartModal && cartModal.classList.contains("visible")) closeCartModal();
+  });
+
   // ---- Terms & Conditions modal ----
   const termsModal = document.getElementById("terms-modal");
   const termsOpenBtn = document.getElementById("terms-open");
@@ -4339,6 +4450,7 @@
   updatePaymentMethodVisibility();
   renderSelections();
   updateCtaEnabledState();
+  updateCartCount();
   updateSummary();
 </script>
 </body>
