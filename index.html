@@ -285,6 +285,23 @@
     color: var(--brand, #2563eb);
     border-bottom-color: var(--brand, #2563eb);
   }
+  .catalog-tab-hint {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #065f46;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 999px;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  @media (max-width: 520px) {
+    .catalog-tab-hint { font-size: 11px; padding: 3px 8px; white-space: normal; }
+  }
   .catalog-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -1781,7 +1798,9 @@
     </div>
     <div class="catalog-tabs" role="tablist" aria-label="Platform">
       <button type="button" class="catalog-tab is-active" role="tab" aria-selected="true" data-platform="windows" id="catalog-tab-windows">Windows</button>
+      <span class="catalog-tab-hint" data-platform="windows"></span>
       <button type="button" class="catalog-tab" role="tab" aria-selected="false" data-platform="macbook" id="catalog-tab-macbook">Macbook</button>
+      <span class="catalog-tab-hint" data-platform="macbook"></span>
       <div class="catalog-search">
         <span class="catalog-search-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -2238,6 +2257,22 @@
   function unlimitedMsg(svc) {
     return `Unlimited softwares at ${formatPrice(unlimitedTier(svc).price)}`;
   }
+  // Copy shown next to the Windows/Macbook tab buttons.
+  function unlimitedTabHint(svc) {
+    const penultimate = svc.tiers[svc.tiers.length - 2];
+    const threshold = (penultimate && Number.isFinite(penultimate.upTo))
+      ? penultimate.upTo + 1
+      : 4;
+    return `Add ${threshold} or more softwares at ${formatPrice(unlimitedTier(svc).price)}`;
+  }
+  function renderTabHints() {
+    document.querySelectorAll(".catalog-tab-hint").forEach(el => {
+      const platform = el.dataset.platform;
+      const svcId = platform === "windows" ? "win-soft" : "mac-soft";
+      const svc = getServiceById(svcId);
+      if (svc) el.textContent = unlimitedTabHint(svc);
+    });
+  }
 
   // Slot times are stored as IST (the business operates in IST).
   // They are converted to GMT for display when the customer picks USD.
@@ -2621,12 +2656,13 @@
 
   function rerenderPrices() {
     // Currency changed → re-render selection panel + reformat every tile
-    // sticker so both reflect the new currency.
+    // sticker + tab hints so everything reflects the new currency.
     renderSelections();
     document.querySelectorAll(".catalog-item .ci-price").forEach(el => {
       const inr = Number(el.dataset.priceInr);
       if (Number.isFinite(inr)) el.textContent = formatPrice(inr);
     });
+    renderTabHints();
     updateSummary();
   }
 
@@ -3601,6 +3637,7 @@
 
   // Render the initial Windows tab immediately — the catalog is now
   // inline on the home page, not behind a button.
+  renderTabHints();
   setActiveTab(currentPlatform);
 
   function openLightbox(src, caption) {
