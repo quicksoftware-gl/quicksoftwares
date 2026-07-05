@@ -2127,13 +2127,6 @@
           <label for="date">Date</label>
           <input type="date" id="date" />
         </div>
-        <div class="field">
-          <label for="mode">Installation mode</label>
-          <select id="mode">
-            <option value="remote">Remote (over screen-share)</option>
-            <option value="email-link">Link via email</option>
-          </select>
-        </div>
       </div>
       <div id="time-slot-section">
         <label>Time slot</label>
@@ -3330,11 +3323,20 @@
     }
     updateSummary();
   }
+  // The mode <select> was removed from Step 2 — the mode is now driven
+  // entirely by the CTA button the customer clicks. Keep the reference
+  // optional so any residual code that queries it still works.
   const modeSelectEl = document.getElementById("mode");
-  modeSelectEl.addEventListener("change", e => {
-    state.mode = e.target.value;
-    updateModeUI();
-  });
+  if (modeSelectEl) {
+    modeSelectEl.addEventListener("change", e => {
+      state.mode = e.target.value;
+      updateModeUI();
+      payBtn.textContent = payBtnLabel();
+    });
+  }
+  function payBtnLabel() {
+    return state.mode === "email-link" ? "Confirm Payment" : "Confirm Booking";
+  }
 
   // ---- Checkout view swap --------------------------------------------
   // Steps 2–4 live in an in-page view (#checkout-view) that swaps in
@@ -3351,6 +3353,7 @@
     updateModeUI();
     const needsDateTime = mode === "remote";
     if (stepDatetimeEl) stepDatetimeEl.classList.toggle("step-hidden", !needsDateTime);
+    if (payBtn) payBtn.textContent = payBtnLabel();
     openCheckoutView();
   }
   function openCheckoutView() {
@@ -3532,7 +3535,7 @@
     paypalButtonRendered = false;
     payBtn.style.display = "";
     payBtn.disabled = false;
-    payBtn.textContent = "Confirm Booking";
+    payBtn.textContent = payBtnLabel();
     newBookingBtn.style.display = "none";
     payLoading.classList.remove("visible");
   }
