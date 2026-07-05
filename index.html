@@ -2511,7 +2511,7 @@
         grouped[byKey.get(key)].count += 1;
       }
     });
-    grouped.forEach(g => list.appendChild(buildChip(platform, svc, g.name, g.count)));
+    grouped.forEach(g => list.appendChild(buildChip(platform, svc, g.name, g.count, ss)));
     group.appendChild(list);
 
     const hint = tierHintText(svc, ss);
@@ -2524,7 +2524,24 @@
     return group;
   }
 
-  function buildChip(platform, svc, name, count) {
+  // Effective per-software price given the current selection.
+  // Autodesk items are priced individually (autodeskPrice + latest surcharge
+  // when the version is Latest). Regular items share the service tier price
+  // for regCount items, so the per-item cost is tierPrice/regCount plus any
+  // per-item latest surcharge.
+  function perItemPriceINR(svc, name, ss) {
+    const isAd = svc.allowAutodesk && isAutodeskName(name);
+    const latestAdd = (isLatestVersion(svc, name) && svc.latestSurcharge) ? svc.latestSurcharge : 0;
+    if (isAd) return svc.autodeskPrice + latestAdd;
+    const regCount = ss.softwareNames.reduce(
+      (n, x) => n + ((svc.allowAutodesk && isAutodeskName(x)) ? 0 : 1),
+      0
+    );
+    const base = regCount > 0 ? tierPrice(svc, regCount) / regCount : 0;
+    return base + latestAdd;
+  }
+
+  function buildChip(platform, svc, name, count, ss) {
     const chip = document.createElement("span");
     chip.className = "chip";
     if (svc.allowAutodesk && isAutodeskName(name)) chip.classList.add("is-autodesk");
@@ -2533,13 +2550,13 @@
     label.className = "chip-label";
     let suffix = "";
     if (count > 1) suffix += ` × ${count}`;
-    if (svc.allowAutodesk && isAutodeskName(name)) suffix += ` · ${formatPrice(svc.autodeskPrice)} ea`;
-    else if (isLatestVersion(svc, name) && svc.latestSurcharge) suffix += ` · +${formatPrice(svc.latestSurcharge)} ea`;
+    const price = ss ? perItemPriceINR(svc, name, ss) : null;
+    if (price !== null) suffix += ` · ${formatPrice(price)}`;
     label.textContent = name + suffix;
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "chip-remove";
-    remove.setAttribute("aria-label", `Remove all ${name}`);
+    remove.setAttribute("aria-label", `Remove ${name}`);
     remove.textContent = "×";
     remove.addEventListener("click", () => removeFromCatalog(platform, name));
     chip.appendChild(label);
