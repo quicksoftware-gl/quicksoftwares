@@ -5,11 +5,12 @@ window.SOFTWARES = {
     {
       "name": "Autocad 2026",
       "row": 2,
-      "link": "www.youtube.com"
+      "link": "https://www.youtube.com/"
     },
     {
       "name": "Autocad 2024",
-      "row": 3
+      "row": 3,
+      "link": "https://www.microsoft.com/en-in"
     },
     {
       "name": "3ds Max 2026",
