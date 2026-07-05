@@ -3,566 +3,752 @@
 window.SOFTWARES = {
   "windows": [
     {
-      "name": "Autocad 2026"
+      "name": "Autocad 2026",
+      "row": 2
     },
     {
-      "name": "Autocad 2024"
+      "name": "Autocad 2024",
+      "row": 3
     },
     {
-      "name": "3ds Max 2026"
+      "name": "3ds Max 2026",
+      "row": 4
     },
     {
-      "name": "3ds Max 2024"
+      "name": "3ds Max 2024",
+      "row": 5
     },
     {
-      "name": "3ds Max 2022"
+      "name": "3ds Max 2022",
+      "row": 6
     },
     {
-      "name": "Revit 2026"
+      "name": "Revit 2026",
+      "row": 7
     },
     {
-      "name": "Revit 2024"
+      "name": "Revit 2024",
+      "row": 8
     },
     {
-      "name": "Revit 2022"
+      "name": "Revit 2022",
+      "row": 9
     },
     {
-      "name": "Autocad LT 2026"
+      "name": "Autocad LT 2026",
+      "row": 10
     },
     {
-      "name": "Autocad LT 2024"
+      "name": "Autocad LT 2024",
+      "row": 11
     },
     {
-      "name": "Autocad Architecture 2026"
+      "name": "Autocad Architecture 2026",
+      "row": 12
     },
     {
-      "name": "Autocad Architecture 2024"
+      "name": "Autocad Architecture 2024",
+      "row": 13
     },
     {
-      "name": "Adobe Photoshop 2026"
+      "name": "Adobe Photoshop 2026",
+      "row": 14
     },
     {
-      "name": "Adobe Photoshop 2025"
+      "name": "Adobe Photoshop 2025",
+      "row": 15
     },
     {
-      "name": "Adobe Photoshop 2024"
+      "name": "Adobe Photoshop 2024",
+      "row": 16
     },
     {
-      "name": "Adobe Illustrator 2026"
+      "name": "Adobe Illustrator 2026",
+      "row": 17
     },
     {
-      "name": "Adobe Illustrator 2025"
+      "name": "Adobe Illustrator 2025",
+      "row": 18
     },
     {
-      "name": "Adobe Illustrator 2024"
+      "name": "Adobe Illustrator 2024",
+      "row": 19
     },
     {
-      "name": "Adobe Premier Pro 2026"
+      "name": "Adobe Premier Pro 2026",
+      "row": 20
     },
     {
-      "name": "Adobe Premier Pro 2025"
+      "name": "Adobe Premier Pro 2025",
+      "row": 21
     },
     {
-      "name": "Adobe Premier Pro 2024"
+      "name": "Adobe Premier Pro 2024",
+      "row": 22
     },
     {
-      "name": "Adobe After Effect 2026"
+      "name": "Adobe After Effect 2026",
+      "row": 23
     },
     {
-      "name": "Adobe After Effect 2024"
+      "name": "Adobe After Effect 2024",
+      "row": 24
     },
     {
-      "name": "Adobe InDesign 2026"
+      "name": "Adobe InDesign 2026",
+      "row": 25
     },
     {
-      "name": "Adobe InDesign 2025"
+      "name": "Adobe InDesign 2025",
+      "row": 26
     },
     {
-      "name": "Adobe InDesign 2024"
+      "name": "Adobe InDesign 2024",
+      "row": 27
     },
     {
-      "name": "Adobe Media Encoder 2026"
+      "name": "Adobe Media Encoder 2026",
+      "row": 28
     },
     {
-      "name": "Adobe Media Encoder 2025"
+      "name": "Adobe Media Encoder 2025",
+      "row": 29
     },
     {
-      "name": "Adobe Media Encoder 2024"
+      "name": "Adobe Media Encoder 2024",
+      "row": 30
     },
     {
-      "name": "Adobe Lightroom 2026"
+      "name": "Adobe Lightroom 2026",
+      "row": 31
     },
     {
-      "name": "Adobe Lightroom 2025"
+      "name": "Adobe Lightroom 2025",
+      "row": 32
     },
     {
-      "name": "Adobe Lightroom 2024"
+      "name": "Adobe Lightroom 2024",
+      "row": 33
     },
     {
-      "name": "Adobe XD"
+      "name": "Adobe XD",
+      "row": 34
     },
     {
-      "name": "Adobe Acrobat Pro DC 2026"
+      "name": "Adobe Acrobat Pro DC 2026",
+      "row": 35
     },
     {
-      "name": "Adobe Acrobat Pro DC 2025"
+      "name": "Adobe Acrobat Pro DC 2025",
+      "row": 36
     },
     {
-      "name": "Adobe Acrobat Pro DC 2024"
+      "name": "Adobe Acrobat Pro DC 2024",
+      "row": 37
     },
     {
-      "name": "Adobe Audition 2026"
+      "name": "Adobe Audition 2026",
+      "row": 38
     },
     {
-      "name": "Adobe Audition 2025"
+      "name": "Adobe Audition 2025",
+      "row": 39
     },
     {
-      "name": "Adobe Audition 2024"
+      "name": "Adobe Audition 2024",
+      "row": 40
     },
     {
-      "name": "Adobe Animate 2026"
+      "name": "Adobe Animate 2026",
+      "row": 41
     },
     {
-      "name": "Adobe Animate 2025"
+      "name": "Adobe Animate 2025",
+      "row": 42
     },
     {
-      "name": "Adobe Animate 2024"
+      "name": "Adobe Animate 2024",
+      "row": 43
     },
     {
-      "name": "Adobe Bridge 2026"
+      "name": "Adobe Bridge 2026",
+      "row": 44
     },
     {
-      "name": "Adobe Bridge 2025"
+      "name": "Adobe Bridge 2025",
+      "row": 45
     },
     {
-      "name": "Adobe Bridge 2024"
+      "name": "Adobe Bridge 2024",
+      "row": 46
     },
     {
-      "name": "Adobe Dreamweaver"
+      "name": "Adobe Dreamweaver",
+      "row": 47
     },
     {
-      "name": "Adobe Dimension"
+      "name": "Adobe Dimension",
+      "row": 48
     },
     {
-      "name": "Adobe Premiere Rush"
+      "name": "Adobe Premiere Rush",
+      "row": 49
     },
     {
-      "name": "Adobe InCopy 2026"
+      "name": "Adobe InCopy 2026",
+      "row": 50
     },
     {
-      "name": "Adobe InCopy 2025"
+      "name": "Adobe InCopy 2025",
+      "row": 51
     },
     {
-      "name": "Adobe InCopy 2024"
+      "name": "Adobe InCopy 2024",
+      "row": 52
     },
     {
-      "name": "CorelDRAW Graphics Suite 2026"
+      "name": "CorelDRAW Graphics Suite 2026",
+      "row": 53
     },
     {
-      "name": "CorelDRAW Graphics Suite 2025"
+      "name": "CorelDRAW Graphics Suite 2025",
+      "row": 54
     },
     {
-      "name": "CorelDRAW Graphics Suite 2024"
+      "name": "CorelDRAW Graphics Suite 2024",
+      "row": 55
     },
     {
-      "name": "Wondershare Filmora"
+      "name": "Wondershare Filmora",
+      "row": 56
     },
     {
-      "name": "CapCut"
+      "name": "CapCut",
+      "row": 57
     },
     {
-      "name": "Nitro PDF Pro"
+      "name": "Nitro PDF Pro",
+      "row": 58
     },
     {
-      "name": "SketchUp Pro 2026"
+      "name": "SketchUp Pro 2026",
+      "row": 59
     },
     {
-      "name": "SketchUp Pro 2025"
+      "name": "SketchUp Pro 2025",
+      "row": 60
     },
     {
-      "name": "SketchUp Pro 2024"
+      "name": "SketchUp Pro 2024",
+      "row": 61
     },
     {
-      "name": "Blender 5"
+      "name": "Blender 5",
+      "row": 62
     },
     {
-      "name": "MS Office 365"
+      "name": "MS Office 365",
+      "row": 63
     },
     {
-      "name": "MS Office 2024 Pro"
+      "name": "MS Office 2024 Pro",
+      "row": 64
     },
     {
-      "name": "MS Office 2021 Pro"
+      "name": "MS Office 2021 Pro",
+      "row": 65
     },
     {
-      "name": "MS Office 2019 Pro"
+      "name": "MS Office 2019 Pro",
+      "row": 66
     },
     {
-      "name": "MS Office 2016 Pro"
+      "name": "MS Office 2016 Pro",
+      "row": 67
     },
     {
-      "name": "Debut Screen Recorder Pro"
+      "name": "Debut Screen Recorder Pro",
+      "row": 68
     },
     {
-      "name": "Mastercam 2026"
+      "name": "Mastercam 2026",
+      "row": 69
     },
     {
-      "name": "Mastercam 2023"
+      "name": "Mastercam 2023",
+      "row": 70
     },
     {
       "name": "Lumion Pro 2025",
+      "row": 71,
       "version": "Latest"
     },
     {
-      "name": "Lumion Pro 2024"
+      "name": "Lumion Pro 2024",
+      "row": 72
     },
     {
-      "name": "Lumion Pro 2023"
+      "name": "Lumion Pro 2023",
+      "row": 73
     },
     {
-      "name": "Lumion Pro 12.5"
+      "name": "Lumion Pro 12.5",
+      "row": 74
     },
     {
-      "name": "GRAPHISOFT ArchiCAD"
+      "name": "GRAPHISOFT ArchiCAD",
+      "row": 75
     },
     {
-      "name": "ZWCAD Professional 2026"
+      "name": "ZWCAD Professional 2026",
+      "row": 76
     },
     {
-      "name": "ZWCAD Professional 2025"
+      "name": "ZWCAD Professional 2025",
+      "row": 77
     },
     {
-      "name": "ZWCAD Professional 2024"
+      "name": "ZWCAD Professional 2024",
+      "row": 78
     },
     {
-      "name": "SolidWorks 2026"
+      "name": "SolidWorks 2026",
+      "row": 79
     },
     {
-      "name": "SolidWorks 2025"
+      "name": "SolidWorks 2025",
+      "row": 80
     },
     {
-      "name": "SolidWorks 2023"
+      "name": "SolidWorks 2023",
+      "row": 81
     },
     {
-      "name": "SolidWorks 2022"
+      "name": "SolidWorks 2022",
+      "row": 82
     },
     {
-      "name": "Siemens Solid Edge 2025"
+      "name": "Siemens Solid Edge 2025",
+      "row": 83
     },
     {
-      "name": "Siemens Solid Edge 2024"
+      "name": "Siemens Solid Edge 2024",
+      "row": 84
     },
     {
-      "name": "Siemens Solid Edge 2023"
+      "name": "Siemens Solid Edge 2023",
+      "row": 85
     },
     {
-      "name": "Gemvision MatrixGold"
+      "name": "Gemvision MatrixGold",
+      "row": 86
     },
     {
-      "name": "Rhinoceros"
+      "name": "Rhinoceros",
+      "row": 87
     },
     {
-      "name": "Chaos V-Ray for Sketchup"
+      "name": "Chaos V-Ray for Sketchup",
+      "row": 88
     },
     {
-      "name": "Chaos V-Ray for 3dsmax"
+      "name": "Chaos V-Ray for 3dsmax",
+      "row": 89
     },
     {
-      "name": "Chaos V-Ray Revit"
+      "name": "Chaos V-Ray Revit",
+      "row": 90
     },
     {
-      "name": "Chaos V-Ray Rhino"
+      "name": "Chaos V-Ray Rhino",
+      "row": 91
     },
     {
-      "name": "Chaos V-Ray Maya"
+      "name": "Chaos V-Ray Maya",
+      "row": 92
     },
     {
-      "name": "Chaos V-Ray Blender"
+      "name": "Chaos V-Ray Blender",
+      "row": 93
     },
     {
-      "name": "Chaos Enscape for Sketchup"
+      "name": "Chaos Enscape for Sketchup",
+      "row": 94
     },
     {
-      "name": "Chaos Enscape for Revit"
+      "name": "Chaos Enscape for Revit",
+      "row": 95
     },
     {
-      "name": "Chaos Enscape for Rhino"
+      "name": "Chaos Enscape for Rhino",
+      "row": 96
     },
     {
-      "name": "Chaos Corona for 3dsmax"
+      "name": "Chaos Corona for 3dsmax",
+      "row": 97
     },
     {
-      "name": "Parashara's Light Professional 7"
+      "name": "Parashara's Light Professional 7",
+      "row": 98
     },
     {
-      "name": "Parashara's Light Professional 9"
+      "name": "Parashara's Light Professional 9",
+      "row": 99
     },
     {
-      "name": "Kundli Chakra Professional"
+      "name": "Kundli Chakra Professional",
+      "row": 100
     },
     {
-      "name": "Navis Work 2026"
+      "name": "Navis Work 2026",
+      "row": 101
     },
     {
-      "name": "Navis Work 2024"
+      "name": "Navis Work 2024",
+      "row": 102
     },
     {
-      "name": "Icecream Screen Recorder"
+      "name": "Icecream Screen Recorder",
+      "row": 103
     },
     {
-      "name": "WinRAR Professional"
+      "name": "WinRAR Professional",
+      "row": 104
     },
     {
-      "name": "MiniTool Power Data Recovery 2026"
+      "name": "MiniTool Power Data Recovery 2026",
+      "row": 105
     },
     {
-      "name": "EaseUS Data Recovery Wizard Technician"
+      "name": "EaseUS Data Recovery Wizard Technician",
+      "row": 106
     },
     {
       "name": "Autocad 2027",
+      "row": 107,
       "version": "Latest"
     }
   ],
   "macbook": [
     {
-      "name": "Autocad 2026"
+      "name": "Autocad 2026",
+      "row": 2
     },
     {
-      "name": "Autocad 2024"
+      "name": "Autocad 2024",
+      "row": 3
     },
     {
-      "name": "3ds Max 2026"
+      "name": "3ds Max 2026",
+      "row": 4
     },
     {
-      "name": "3ds Max 2024"
+      "name": "3ds Max 2024",
+      "row": 5
     },
     {
-      "name": "3ds Max 2022"
+      "name": "3ds Max 2022",
+      "row": 6
     },
     {
-      "name": "Revit 2026"
+      "name": "Revit 2026",
+      "row": 7
     },
     {
-      "name": "Revit 2024"
+      "name": "Revit 2024",
+      "row": 8
     },
     {
-      "name": "Revit 2022"
+      "name": "Revit 2022",
+      "row": 9
     },
     {
-      "name": "Autocad LT 2026"
+      "name": "Autocad LT 2026",
+      "row": 10
     },
     {
-      "name": "Autocad LT 2024"
+      "name": "Autocad LT 2024",
+      "row": 11
     },
     {
-      "name": "Autocad Architecture 2026"
+      "name": "Autocad Architecture 2026",
+      "row": 12
     },
     {
-      "name": "Autocad Architecture 2024"
+      "name": "Autocad Architecture 2024",
+      "row": 13
     },
     {
-      "name": "Adobe Photoshop 2026"
+      "name": "Adobe Photoshop 2026",
+      "row": 14
     },
     {
-      "name": "Adobe Photoshop 2025"
+      "name": "Adobe Photoshop 2025",
+      "row": 15
     },
     {
-      "name": "Adobe Photoshop 2024"
+      "name": "Adobe Photoshop 2024",
+      "row": 16
     },
     {
-      "name": "Adobe Illustrator 2026"
+      "name": "Adobe Illustrator 2026",
+      "row": 17
     },
     {
-      "name": "Adobe Illustrator 2025"
+      "name": "Adobe Illustrator 2025",
+      "row": 18
     },
     {
-      "name": "Adobe Illustrator 2024"
+      "name": "Adobe Illustrator 2024",
+      "row": 19
     },
     {
-      "name": "Adobe Premier Pro 2026"
+      "name": "Adobe Premier Pro 2026",
+      "row": 20
     },
     {
-      "name": "Adobe Premier Pro 2025"
+      "name": "Adobe Premier Pro 2025",
+      "row": 21
     },
     {
-      "name": "Adobe Premier Pro 2024"
+      "name": "Adobe Premier Pro 2024",
+      "row": 22
     },
     {
-      "name": "Adobe After Effect 2026"
+      "name": "Adobe After Effect 2026",
+      "row": 23
     },
     {
-      "name": "Adobe After Effect 2024"
+      "name": "Adobe After Effect 2024",
+      "row": 24
     },
     {
-      "name": "Adobe InDesign 2026"
+      "name": "Adobe InDesign 2026",
+      "row": 25
     },
     {
-      "name": "Adobe InDesign 2025"
+      "name": "Adobe InDesign 2025",
+      "row": 26
     },
     {
-      "name": "Adobe InDesign 2024"
+      "name": "Adobe InDesign 2024",
+      "row": 27
     },
     {
-      "name": "Adobe Media Encoder 2026"
+      "name": "Adobe Media Encoder 2026",
+      "row": 28
     },
     {
-      "name": "Adobe Media Encoder 2025"
+      "name": "Adobe Media Encoder 2025",
+      "row": 29
     },
     {
-      "name": "Adobe Media Encoder 2024"
+      "name": "Adobe Media Encoder 2024",
+      "row": 30
     },
     {
-      "name": "Adobe Lightroom 2026"
+      "name": "Adobe Lightroom 2026",
+      "row": 31
     },
     {
-      "name": "Adobe Lightroom 2025"
+      "name": "Adobe Lightroom 2025",
+      "row": 32
     },
     {
-      "name": "Adobe Lightroom 2024"
+      "name": "Adobe Lightroom 2024",
+      "row": 33
     },
     {
-      "name": "Adobe XD"
+      "name": "Adobe XD",
+      "row": 34
     },
     {
-      "name": "Adobe Acrobat Pro DC 2026"
+      "name": "Adobe Acrobat Pro DC 2026",
+      "row": 35
     },
     {
-      "name": "Adobe Acrobat Pro DC 2025"
+      "name": "Adobe Acrobat Pro DC 2025",
+      "row": 36
     },
     {
-      "name": "Adobe Acrobat Pro DC 2024"
+      "name": "Adobe Acrobat Pro DC 2024",
+      "row": 37
     },
     {
-      "name": "Adobe Audition 2026"
+      "name": "Adobe Audition 2026",
+      "row": 38
     },
     {
-      "name": "Adobe Audition 2025"
+      "name": "Adobe Audition 2025",
+      "row": 39
     },
     {
-      "name": "Adobe Audition 2024"
+      "name": "Adobe Audition 2024",
+      "row": 40
     },
     {
-      "name": "Adobe Animate 2026"
+      "name": "Adobe Animate 2026",
+      "row": 41
     },
     {
-      "name": "Adobe Animate 2025"
+      "name": "Adobe Animate 2025",
+      "row": 42
     },
     {
-      "name": "Adobe Animate 2024"
+      "name": "Adobe Animate 2024",
+      "row": 43
     },
     {
-      "name": "Adobe Bridge 2026"
+      "name": "Adobe Bridge 2026",
+      "row": 44
     },
     {
-      "name": "Adobe Bridge 2025"
+      "name": "Adobe Bridge 2025",
+      "row": 45
     },
     {
-      "name": "Adobe Bridge 2024"
+      "name": "Adobe Bridge 2024",
+      "row": 46
     },
     {
-      "name": "Adobe Dreamweaver"
+      "name": "Adobe Dreamweaver",
+      "row": 47
     },
     {
-      "name": "Adobe Dimension"
+      "name": "Adobe Dimension",
+      "row": 48
     },
     {
-      "name": "Adobe Premiere Rush"
+      "name": "Adobe Premiere Rush",
+      "row": 49
     },
     {
-      "name": "Adobe InCopy 2026"
+      "name": "Adobe InCopy 2026",
+      "row": 50
     },
     {
-      "name": "Adobe InCopy 2025"
+      "name": "Adobe InCopy 2025",
+      "row": 51
     },
     {
-      "name": "Adobe InCopy 2024"
+      "name": "Adobe InCopy 2024",
+      "row": 52
     },
     {
-      "name": "CorelDRAW Graphics Suite 2026"
+      "name": "CorelDRAW Graphics Suite 2026",
+      "row": 53
     },
     {
-      "name": "CorelDRAW Graphics Suite 2025"
+      "name": "CorelDRAW Graphics Suite 2025",
+      "row": 54
     },
     {
-      "name": "CorelDRAW Graphics Suite 2024"
+      "name": "CorelDRAW Graphics Suite 2024",
+      "row": 55
     },
     {
-      "name": "Wondershare Filmora"
+      "name": "Wondershare Filmora",
+      "row": 56
     },
     {
-      "name": "CapCut"
+      "name": "CapCut",
+      "row": 57
     },
     {
-      "name": "Nitro PDF Pro"
+      "name": "Nitro PDF Pro",
+      "row": 58
     },
     {
-      "name": "SketchUp Pro 2026"
+      "name": "SketchUp Pro 2026",
+      "row": 59
     },
     {
-      "name": "SketchUp Pro 2025"
+      "name": "SketchUp Pro 2025",
+      "row": 60
     },
     {
-      "name": "SketchUp Pro 2024"
+      "name": "SketchUp Pro 2024",
+      "row": 61
     },
     {
-      "name": "Blender 5"
+      "name": "Blender 5",
+      "row": 62
     },
     {
-      "name": "MS Office 365"
+      "name": "MS Office 365",
+      "row": 63
     },
     {
-      "name": "MS Office 2024 Pro"
+      "name": "MS Office 2024 Pro",
+      "row": 64
     },
     {
-      "name": "MS Office 2021 Pro"
+      "name": "MS Office 2021 Pro",
+      "row": 65
     },
     {
-      "name": "MS Office 2019 Pro"
+      "name": "MS Office 2019 Pro",
+      "row": 66
     },
     {
-      "name": "MS Office 2016 Pro"
+      "name": "MS Office 2016 Pro",
+      "row": 67
     },
     {
-      "name": "Debut Screen Recorder Pro"
+      "name": "Debut Screen Recorder Pro",
+      "row": 68
     },
     {
-      "name": "GRAPHISOFT ArchiCAD"
+      "name": "GRAPHISOFT ArchiCAD",
+      "row": 69
     },
     {
-      "name": "Rhinoceros"
+      "name": "Rhinoceros",
+      "row": 70
     },
     {
-      "name": "Parallel Desktop"
+      "name": "Parallel Desktop",
+      "row": 71
     },
     {
-      "name": "Little Snitch"
+      "name": "Little Snitch",
+      "row": 72
     },
     {
-      "name": "CleanMyMac"
+      "name": "CleanMyMac",
+      "row": 73
     },
     {
-      "name": "Lumion Pro 2025 (Parallel Desktop only)"
+      "name": "Lumion Pro 2025 (Parallel Desktop only)",
+      "row": 74
     },
     {
-      "name": "Lumion Pro 2024 (Parallel Desktop only)"
+      "name": "Lumion Pro 2024 (Parallel Desktop only)",
+      "row": 75
     },
     {
-      "name": "Lumion Pro 2023 (Parallel Desktop only)"
+      "name": "Lumion Pro 2023 (Parallel Desktop only)",
+      "row": 76
     },
     {
-      "name": "Lumion Pro 12.5 (Parallel Desktop only)"
+      "name": "Lumion Pro 12.5 (Parallel Desktop only)",
+      "row": 77
     },
     {
-      "name": "Final Cut Pro"
+      "name": "Final Cut Pro",
+      "row": 78
     },
     {
-      "name": "Navis Work 2026"
+      "name": "Navis Work 2026",
+      "row": 79
     },
     {
-      "name": "Navis Work 2024"
+      "name": "Navis Work 2024",
+      "row": 80
     },
     {
       "name": "Autocad 2027",
+      "row": 81,
       "version": "Latest"
     }
   ]

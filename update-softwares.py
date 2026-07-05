@@ -14,12 +14,16 @@ Outputs softwares-manifest.js as:
 
     window.SOFTWARES = {
       "windows": [
-        { "name": "Autocad 2026", "version": "Latest" },
-        { "name": "Autocad 2024" },
+        { "name": "Autocad 2026", "row": 2, "version": "Latest" },
+        { "name": "Autocad 2024", "row": 3 },
         ...
       ],
       "macbook": [ ... ]
     };
+
+The `row` field is the 1-based Excel row number and is used by the
+Software Catalog UI in index.html to load the matching product image
+from Windows_Pic/<row>.{jpg,png,webp} or Macbook_Pic/<row>.{jpg,png,webp}.
 
 Run after editing the sheet:
     ./update-softwares.py
@@ -95,8 +99,10 @@ def cell_value(c, strings):
 
 
 def read_sheet_rows(z, zip_path, strings):
-    """Return [{name, price?}] for each data row.
-    Column A = software name (required). Column B = price (optional)."""
+    """Return [{name, row, version?}] for each data row.
+    Column A = software name (required). Column B = version (optional).
+    `row` is the 1-based Excel row number — used by the catalog UI to look
+    up the matching image in Windows_Pic/<row>.jpg or Macbook_Pic/<row>.jpg."""
     with z.open(zip_path) as f:
         tree = ET.parse(f)
     items = []
@@ -122,7 +128,11 @@ def read_sheet_rows(z, zip_path, strings):
         if key in seen:
             continue
         seen.add(key)
-        item = {"name": name}
+        try:
+            row_num = int(row.get("r") or 0)
+        except ValueError:
+            row_num = 0
+        item = {"name": name, "row": row_num}
         b_cell = cells.get("B")
         if b_cell is not None:
             version = cell_value(b_cell, strings).strip()
