@@ -816,18 +816,15 @@
     gap: 12px;
   }
   .step-num {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    flex: 0 0 10px;
     background: var(--accent-grad);
-    color: #fff;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+    border-radius: 50%;
+    font-size: 0;
+    color: transparent;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.35);
   }
   .section-sub { color: var(--muted); margin: 0 0 22px; font-size: 14.5px; padding-left: 44px; }
   @media (max-width: 520px) {
@@ -1775,7 +1772,7 @@
     main { padding: 0 14px; margin: -36px auto 48px; }
     .card { padding: 22px 18px; margin-bottom: 16px; border-radius: 14px; }
     h2 { font-size: 18px; gap: 10px; }
-    .step-num { width: 28px; height: 28px; flex-basis: 28px; font-size: 13px; border-radius: 8px; }
+    .step-num { width: 9px; height: 9px; flex-basis: 9px; }
     .section-sub { padding-left: 0; font-size: 13.5px; margin-bottom: 18px; }
 
     /* Section header stacks vertically; currency picker spans full width */
@@ -1835,7 +1832,7 @@
     .contact-trigger { padding: 7px 10px; font-size: 11.5px; }
     .hero-actions { gap: 5px; }
     .service .name { font-size: 13px; }
-    .step-num { width: 26px; height: 26px; flex-basis: 26px; font-size: 12px; }
+    .step-num { width: 8px; height: 8px; flex-basis: 8px; }
     .slot { padding: 9px 2px; font-size: 11.5px; }
   }
 </style>
@@ -1879,7 +1876,7 @@
   <section class="card" id="catalog-section" aria-labelledby="catalog-title">
     <div class="section-head">
       <div>
-        <h2 id="catalog-title"><span class="step-num">1</span> Pick your softwares</h2>
+        <h2 id="catalog-title"><span class="step-num" aria-hidden="true"></span> Pick your softwares</h2>
         <p class="section-sub">Browse the catalog below and click any tile to add it to your booking.</p>
       </div>
       <div class="currency-picker">
@@ -1918,7 +1915,7 @@
 
   <!-- Step 2: Date & time -->
   <section class="card step-hidden" id="step-datetime">
-    <h2><span class="step-num">2</span> Pick a date &amp; time</h2>
+    <h2><span class="step-num" aria-hidden="true"></span> Pick a date &amp; time</h2>
     <p class="section-sub">Choose a date, then select an available 1-hour slot.</p>
     <div class="row">
       <div class="field">
@@ -1944,7 +1941,7 @@
 
   <!-- Step 3: Customer details -->
   <section class="card step-hidden" id="step-details">
-    <h2><span class="step-num">3</span> Your details</h2>
+    <h2><span class="step-num" aria-hidden="true"></span> Your details</h2>
     <p class="section-sub">We'll use these to confirm your booking and reach you before the appointment.</p>
     <div class="row">
       <div class="field">
@@ -1977,7 +1974,7 @@
 
   <!-- Step 4: Pay -->
   <section class="card step-hidden" id="step-pay">
-    <h2><span class="step-num">4</span> Confirm &amp; pay</h2>
+    <h2><span class="step-num" aria-hidden="true"></span> Confirm &amp; pay</h2>
     <div class="error" id="error"></div>
     <div class="success" id="success">
       <h3>Payment successful — booking confirmed</h3>
