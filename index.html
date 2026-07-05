@@ -2257,20 +2257,39 @@
   function unlimitedMsg(svc) {
     return `Unlimited softwares at ${formatPrice(unlimitedTier(svc).price)}`;
   }
-  // Copy shown next to the Windows/Macbook tab buttons.
-  function unlimitedTabHint(svc) {
-    const penultimate = svc.tiers[svc.tiers.length - 2];
+  // Copy shown next to the Windows/Macbook tab buttons. The text
+  // upsells the customer to the next tier given how many softwares
+  // they've already added for this platform:
+  //   n = 1     → "Add 2 softwares at ₹2500"     (tier 2 target)
+  //   n = 2     → "Add 3 softwares at ₹3500"     (tier 3 target)
+  //   n = 0 or ≥ unlimited threshold → default max-tier upsell
+  function tabHintText(svc, n) {
+    const tiers = svc.tiers;
+    const last = tiers[tiers.length - 1];
+    const penultimate = tiers[tiers.length - 2];
     const threshold = (penultimate && Number.isFinite(penultimate.upTo))
       ? penultimate.upTo + 1
       : 4;
-    return `Add ${threshold} or more softwares at ${formatPrice(unlimitedTier(svc).price)}`;
+    if (n <= 0 || n >= threshold) {
+      return `Add ${threshold} or more softwares at ${formatPrice(last.price)}`;
+    }
+    // Find the next explicit (finite-upTo) tier whose upTo > n.
+    for (let i = 0; i < tiers.length - 1; i++) {
+      if (tiers[i].upTo > n) {
+        return `Add ${tiers[i].upTo} softwares at ${formatPrice(tiers[i].price)}`;
+      }
+    }
+    return `Add ${threshold} or more softwares at ${formatPrice(last.price)}`;
   }
   function renderTabHints() {
     document.querySelectorAll(".catalog-tab-hint").forEach(el => {
       const platform = el.dataset.platform;
       const svcId = platform === "windows" ? "win-soft" : "mac-soft";
       const svc = getServiceById(svcId);
-      if (svc) el.textContent = unlimitedTabHint(svc);
+      if (!svc) return;
+      const ss = state.services[svc.id];
+      const n = ss ? ss.softwareNames.length : 0;
+      el.textContent = tabHintText(svc, n);
     });
   }
 
@@ -2497,6 +2516,7 @@
   function onSelectionsChanged() {
     renderSelections();
     markCatalogAddedStates();
+    renderTabHints();
     revokeCouponIfIneligible();
     updateSummary();
   }
