@@ -346,6 +346,16 @@
     opacity: 1;
     transform: translateY(0);
   }
+  .catalog-item .ci-price {
+    text-align: center;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #0f172a;
+    background: #fff;
+    padding: 4px 8px 8px;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
   .catalog-item .ci-controls {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2614,8 +2624,13 @@
   }
 
   function rerenderPrices() {
-    // Currency changed → re-render selection panel so subtotals reflect it.
+    // Currency changed → re-render selection panel + reformat every tile
+    // sticker so both reflect the new currency.
     renderSelections();
+    document.querySelectorAll(".catalog-item .ci-price").forEach(el => {
+      const inr = Number(el.dataset.priceInr);
+      if (Number.isFinite(inr)) el.textContent = formatPrice(inr);
+    });
     updateSummary();
   }
 
@@ -3430,6 +3445,17 @@
       .filter(it => it && it.name && Number.isInteger(it.row) && it.row > 1);
   }
 
+  // Fixed sticker price shown on a catalog tile. Autodesk items use
+  // svc.autodeskPrice; regular items use the tier-1 base price. Latest-
+  // version surcharge is added when the manifest marks the software Latest.
+  function stickerPriceINR(svc, entry) {
+    const isAd = svc.allowAutodesk && isAutodeskName(entry.name);
+    const isLatest = typeof entry.version === "string" && entry.version.trim().toLowerCase() === "latest";
+    const latestAdd = (isLatest && svc.latestSurcharge) ? svc.latestSurcharge : 0;
+    const base = isAd ? svc.autodeskPrice : svc.tiers[0].price;
+    return base + latestAdd;
+  }
+
   function makePlaceholder() {
     const ph = document.createElement("div");
     ph.className = "ci-placeholder";
@@ -3468,6 +3494,7 @@
     catalogGrid.setAttribute("aria-labelledby", `catalog-tab-${platform}`);
     catalogGrid.innerHTML = "";
     const entries = catalogEntries(platform);
+    const svc = svcForPlatform(platform);
     if (!entries.length) {
       const empty = document.createElement("div");
       empty.style.cssText = "grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 30px 20px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 12px;";
@@ -3494,6 +3521,12 @@
       cap.className = "ci-caption";
       cap.textContent = entry.name;
       item.appendChild(cap);
+
+      const priceEl = document.createElement("div");
+      priceEl.className = "ci-price";
+      priceEl.dataset.priceInr = String(stickerPriceINR(svc, entry));
+      priceEl.textContent = formatPrice(stickerPriceINR(svc, entry));
+      item.appendChild(priceEl);
 
       const controls = document.createElement("div");
       controls.className = "ci-controls";
