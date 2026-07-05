@@ -3693,8 +3693,13 @@
       }
       perService.push({ svc, quantity: ss.quantity, softwareNames: names });
     }
-    if (!state.date) return { ok: false, error: "Please pick a date." };
-    if (state.mode !== "email-link" && !state.time) return { ok: false, error: "Please pick a time slot." };
+    // Download Now (email-link) skips the date + time slot — the setup
+    // link is emailed within 3 hours regardless of calendar. Book Remote
+    // Service still requires both.
+    if (state.mode !== "email-link") {
+      if (!state.date) return { ok: false, error: "Please pick a date." };
+      if (!state.time) return { ok: false, error: "Please pick a time slot." };
+    }
     if (!name) return { ok: false, error: "Please enter your name." };
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: "Please enter a valid email." };
     const phoneCountry = countryByCode(phoneCC);
