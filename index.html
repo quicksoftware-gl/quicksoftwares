@@ -342,13 +342,27 @@
     background: var(--brand, #2563eb);
     color: #fff;
   }
-  .cta-download:hover { background: #1d4ed8; box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28); }
+  .cta-download:hover:not(:disabled) { background: #1d4ed8; box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28); }
   .cta-remote {
     background: #ecfdf5;
     color: #065f46;
     border-color: #a7f3d0;
   }
-  .cta-remote:hover { background: #d1fae5; box-shadow: 0 12px 24px rgba(16, 185, 129, 0.22); border-color: #6ee7b7; }
+  .cta-remote:hover:not(:disabled) { background: #d1fae5; box-shadow: 0 12px 24px rgba(16, 185, 129, 0.22); border-color: #6ee7b7; }
+  .cta-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    box-shadow: none !important;
+    filter: saturate(0.6);
+  }
+  .cta-btn:disabled:hover { background: inherit; box-shadow: none; }
+  .catalog-cta-hint {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .catalog-cta-hint.is-hidden { display: none; }
   .step-hidden { display: none !important; }
   .view-hidden { display: none !important; }
   .checkout-back {
@@ -1927,14 +1941,17 @@
     <nav id="catalog-pagination" class="catalog-pagination" aria-label="Catalog pages"></nav>
     <div id="software-details" class="software-details"></div>
     <div class="catalog-cta">
-      <button type="button" class="cta-btn cta-download" id="cta-download">
+      <button type="button" class="cta-btn cta-download" id="cta-download" disabled>
         <span class="cta-title">Download Now</span>
         <span class="cta-sub">Get a setup link by email within 3 hours</span>
       </button>
-      <button type="button" class="cta-btn cta-remote" id="cta-remote">
+      <button type="button" class="cta-btn cta-remote" id="cta-remote" disabled>
         <span class="cta-title">Book Remote Service</span>
         <span class="cta-sub">Over screen share, at a time you pick</span>
       </button>
+    </div>
+    <div class="catalog-cta-hint" id="catalog-cta-hint">
+      Add at least one software from the catalog above to continue.
     </div>
   </section>
 
@@ -2675,8 +2692,20 @@
     renderSelections();
     markCatalogAddedStates();
     renderTabHints();
+    updateCtaEnabledState();
     revokeCouponIfIneligible();
     updateSummary();
+  }
+  // Keep the two CTA buttons in sync with the cart: disabled + hint
+  // visible when nothing is selected, enabled + hint hidden otherwise.
+  function updateCtaEnabledState() {
+    const ready = anyServiceSelected();
+    const dl = document.getElementById("cta-download");
+    const rm = document.getElementById("cta-remote");
+    const hint = document.getElementById("catalog-cta-hint");
+    if (dl) dl.disabled = !ready;
+    if (rm) rm.disabled = !ready;
+    if (hint) hint.classList.toggle("is-hidden", ready);
   }
 
   function renderSelections() {
@@ -4167,6 +4196,7 @@
   document.getElementById("year").textContent = new Date().getFullYear();
   updatePaymentMethodVisibility();
   renderSelections();
+  updateCtaEnabledState();
   updateSummary();
 </script>
 </body>
