@@ -346,6 +346,52 @@
     opacity: 1;
     transform: translateY(0);
   }
+  .catalog-item .ci-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 8px;
+    background: #f8fafc;
+    border-top: 1px solid var(--border);
+  }
+  .ci-btn {
+    appearance: none;
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--text-2);
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.12s, border-color 0.12s, color 0.12s, transform 0.08s;
+  }
+  .ci-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: var(--border-hover);
+  }
+  .ci-btn:active:not(:disabled) { transform: scale(0.97); }
+  .ci-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .ci-btn-inc:not(:disabled) {
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+    background: #eff6ff;
+  }
+  .ci-btn-inc:not(:disabled):hover { background: #dbeafe; }
+  .ci-btn-dec:not(:disabled) {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: #fef2f2;
+  }
+  .ci-btn-dec:not(:disabled):hover { background: #fee2e2; }
   .selection-panel {
     margin-top: 22px;
     padding-top: 20px;
@@ -2528,7 +2574,12 @@
     catalogGrid.querySelectorAll(".catalog-item").forEach(el => {
       const name = el.dataset.name;
       if (!name) return;
-      el.classList.toggle("is-added", hasSoftwareInState(platform, name));
+      const added = hasSoftwareInState(platform, name);
+      el.classList.toggle("is-added", added);
+      const inc = el.querySelector(".ci-btn-inc");
+      const dec = el.querySelector(".ci-btn-dec");
+      if (inc) inc.disabled = added;
+      if (dec) dec.disabled = !added;
     });
   }
 
@@ -3416,9 +3467,6 @@
       // from Softwares.xlsx (e.g. "Latest").
       const keywords = [entry.name, entry.version || ""].join(" ").toLowerCase();
       item.dataset.keywords = keywords;
-      item.setAttribute("role", "button");
-      item.setAttribute("tabindex", "0");
-      item.setAttribute("aria-label", `Add ${entry.name}`);
       const candidates = imageCandidatesFor(platform, entry.row);
       attachImageWithFallback(item, candidates, entry.name);
       const badge = document.createElement("span");
@@ -3429,11 +3477,27 @@
       cap.className = "ci-caption";
       cap.textContent = entry.name;
       item.appendChild(cap);
-      const activate = () => addFromCatalog(platform, entry.name);
-      item.addEventListener("click", activate);
-      item.addEventListener("keydown", e => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
-      });
+
+      const controls = document.createElement("div");
+      controls.className = "ci-controls";
+      const dec = document.createElement("button");
+      dec.type = "button";
+      dec.className = "ci-btn ci-btn-dec";
+      dec.dataset.action = "dec";
+      dec.setAttribute("aria-label", `Remove ${entry.name}`);
+      dec.textContent = "−";
+      dec.addEventListener("click", () => removeFromCatalog(platform, entry.name));
+      const inc = document.createElement("button");
+      inc.type = "button";
+      inc.className = "ci-btn ci-btn-inc";
+      inc.dataset.action = "inc";
+      inc.setAttribute("aria-label", `Add ${entry.name}`);
+      inc.textContent = "+";
+      inc.addEventListener("click", () => addFromCatalog(platform, entry.name));
+      controls.appendChild(dec);
+      controls.appendChild(inc);
+      item.appendChild(controls);
+
       catalogGrid.appendChild(item);
     });
     markCatalogAddedStates();
