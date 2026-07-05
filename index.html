@@ -347,6 +347,7 @@
     transform: translateY(0);
   }
   .catalog-item .ci-price {
+    display: none;
     text-align: center;
     font-size: 13.5px;
     font-weight: 700;
@@ -356,6 +357,7 @@
     letter-spacing: -0.01em;
     font-variant-numeric: tabular-nums;
   }
+  .catalog-item.is-added .ci-price { display: block; }
   .catalog-item .ci-controls {
     display: grid;
     grid-template-columns: 1fr 1fr;
