@@ -257,6 +257,51 @@
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
   }
   .catalog-item.is-hidden { display: none !important; }
+  .catalog-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+  }
+  .catalog-pagination:empty { display: none; }
+  .cp-btn {
+    appearance: none;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--text-2);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    font-variant-numeric: tabular-nums;
+  }
+  .cp-btn:hover:not(:disabled):not(.is-active) {
+    background: #f1f5f9;
+    border-color: var(--border-hover);
+  }
+  .cp-btn.is-active {
+    background: var(--brand, #2563eb);
+    border-color: var(--brand, #2563eb);
+    color: #fff;
+    cursor: default;
+  }
+  .cp-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .cp-ellipsis {
+    padding: 0 4px;
+    color: var(--muted);
+    font-weight: 700;
+    user-select: none;
+  }
   .catalog-empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -1809,6 +1854,7 @@
       </div>
     </div>
     <div id="catalog-grid" class="catalog-grid" role="tabpanel" aria-labelledby="catalog-tab-windows"></div>
+    <nav id="catalog-pagination" class="catalog-pagination" aria-label="Catalog pages"></nav>
     <div id="software-details" class="software-details"></div>
   </section>
 
@@ -3644,25 +3690,45 @@
     btn.addEventListener("click", () => setActiveTab(btn.dataset.platform));
   });
 
-  // ---- Catalog keyword search ----
-  // Hide cards whose dataset.keywords (name + optional version) doesn't
-  // include every whitespace-separated token in the query. Shown in the
-  // tab bar so it's always reachable, and cleared on tab switch.
+  // ---- Catalog keyword search + pagination ----
+  // Hide cards that don't match the search query and, of the matches,
+  // show only the current page's slice. Page state is per platform so
+  // switching tabs keeps position. Any search input resets to page 1.
+  const CATALOG_PAGE_SIZE = 8;
+  const catalogPage = { windows: 1, macbook: 1 };
+  const catalogPaginationEl = document.getElementById("catalog-pagination");
+
   function applyCatalogSearch() {
     if (!catalogGrid) return;
+    const platform = catalogGrid.dataset.platform || currentPlatform;
     const q = (catalogSearchInput && catalogSearchInput.value || "").trim().toLowerCase();
     const tokens = q ? q.split(/\s+/).filter(Boolean) : [];
-    let visible = 0;
-    catalogGrid.querySelectorAll(".catalog-item").forEach(el => {
+
+    // First pass: identify matches in DOM order.
+    const cards = Array.from(catalogGrid.querySelectorAll(".catalog-item"));
+    const matches = [];
+    cards.forEach(el => {
       const kw = el.dataset.keywords || "";
       const match = tokens.every(t => kw.includes(t));
-      el.classList.toggle("is-hidden", !match);
-      if (match) visible++;
+      if (match) matches.push(el);
     });
-    // Empty state ("No matches for X") — only when there are cards but none visible.
+
+    // Clamp page to valid range.
+    const totalPages = Math.max(1, Math.ceil(matches.length / CATALOG_PAGE_SIZE));
+    let page = catalogPage[platform] || 1;
+    if (page > totalPages) page = totalPages;
+    if (page < 1) page = 1;
+    catalogPage[platform] = page;
+    const start = (page - 1) * CATALOG_PAGE_SIZE;
+    const end = start + CATALOG_PAGE_SIZE;
+    const inPage = new Set(matches.slice(start, end));
+
+    // Second pass: hide non-matches and out-of-page matches.
+    cards.forEach(el => el.classList.toggle("is-hidden", !inPage.has(el)));
+
+    // Empty state — only when there are cards but none match.
     let empty = catalogGrid.querySelector(".catalog-empty-state");
-    const hasAnyCards = catalogGrid.querySelector(".catalog-item");
-    if (hasAnyCards && visible === 0) {
+    if (cards.length && matches.length === 0) {
       if (!empty) {
         empty = document.createElement("div");
         empty.className = "catalog-empty-state";
@@ -3675,10 +3741,71 @@
     } else if (empty) {
       empty.style.display = "none";
     }
+
+    renderCatalogPagination(page, totalPages);
+  }
+
+  function renderCatalogPagination(currentPage, totalPages) {
+    if (!catalogPaginationEl) return;
+    catalogPaginationEl.innerHTML = "";
+    if (totalPages <= 1) return;
+
+    const platform = catalogGrid.dataset.platform || currentPlatform;
+    const gotoPage = (p) => {
+      const clamped = Math.max(1, Math.min(totalPages, p));
+      if (clamped === catalogPage[platform]) return;
+      catalogPage[platform] = clamped;
+      applyCatalogSearch();
+      catalogGrid.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const mkBtn = (label, page, opts = {}) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "cp-btn";
+      if (opts.active) b.classList.add("is-active");
+      if (opts.disabled) b.disabled = true;
+      b.textContent = label;
+      if (opts.ariaLabel) b.setAttribute("aria-label", opts.ariaLabel);
+      if (opts.active) b.setAttribute("aria-current", "page");
+      b.addEventListener("click", () => { if (!opts.disabled) gotoPage(page); });
+      return b;
+    };
+    const mkEllipsis = () => {
+      const s = document.createElement("span");
+      s.className = "cp-ellipsis";
+      s.textContent = "…";
+      return s;
+    };
+
+    catalogPaginationEl.appendChild(mkBtn("‹ Prev", currentPage - 1, {
+      disabled: currentPage === 1,
+      ariaLabel: "Previous page",
+    }));
+
+    // Build page-number list with ellipsis: 1 … (cur-1) cur (cur+1) … N
+    const pages = new Set([1, totalPages, currentPage, currentPage - 1, currentPage + 1]);
+    const sorted = Array.from(pages).filter(p => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+    let prev = 0;
+    sorted.forEach(p => {
+      if (prev && p > prev + 1) catalogPaginationEl.appendChild(mkEllipsis());
+      catalogPaginationEl.appendChild(mkBtn(String(p), p, { active: p === currentPage }));
+      prev = p;
+    });
+
+    catalogPaginationEl.appendChild(mkBtn("Next ›", currentPage + 1, {
+      disabled: currentPage === totalPages,
+      ariaLabel: "Next page",
+    }));
   }
 
   if (catalogSearchInput) {
-    catalogSearchInput.addEventListener("input", applyCatalogSearch);
+    catalogSearchInput.addEventListener("input", () => {
+      // Any typed query resets to page 1 so results start from the top.
+      const platform = catalogGrid.dataset.platform || currentPlatform;
+      catalogPage[platform] = 1;
+      applyCatalogSearch();
+    });
   }
 
   // Render the initial Windows tab immediately — the catalog is now
