@@ -299,6 +299,7 @@
     white-space: nowrap;
     line-height: 1.2;
   }
+  .catalog-tab-hint.is-hidden { display: none !important; }
   @media (max-width: 520px) {
     .catalog-tab-hint { font-size: 11px; padding: 3px 8px; white-space: normal; }
   }
@@ -2289,7 +2290,14 @@
       if (!svc) return;
       const ss = state.services[svc.id];
       const n = ss ? ss.softwareNames.length : 0;
-      el.textContent = tabHintText(svc, n);
+      const penultimate = svc.tiers[svc.tiers.length - 2];
+      const threshold = (penultimate && Number.isFinite(penultimate.upTo))
+        ? penultimate.upTo + 1
+        : 4;
+      const isActive = platform === currentPlatform;
+      const hide = !isActive || n >= threshold;
+      el.classList.toggle("is-hidden", hide);
+      if (!hide) el.textContent = tabHintText(svc, n);
     });
   }
 
@@ -3611,6 +3619,7 @@
     });
     renderPlatform(platform);
     markCatalogAddedStates();
+    renderTabHints();
     applyCatalogSearch();
   }
 
