@@ -2534,20 +2534,15 @@
     return group;
   }
 
-  // Effective per-software price given the current selection.
-  // Autodesk items are priced individually (autodeskPrice + latest surcharge
-  // when the version is Latest). Regular items share the service tier price
-  // for regCount items, so the per-item cost is tierPrice/regCount plus any
-  // per-item latest surcharge.
-  function perItemPriceINR(svc, name, ss) {
+  // Sticker price per software — the same fixed number shown on the
+  // catalog tile. Autodesk items use svc.autodeskPrice; regular items use
+  // the tier-1 base price. Latest surcharge is added when the manifest
+  // marks the software Latest. Does NOT change with cart size — that's
+  // by design, so the chip matches the tile.
+  function stickerPriceINRForName(svc, name) {
     const isAd = svc.allowAutodesk && isAutodeskName(name);
     const latestAdd = (isLatestVersion(svc, name) && svc.latestSurcharge) ? svc.latestSurcharge : 0;
-    if (isAd) return svc.autodeskPrice + latestAdd;
-    const regCount = ss.softwareNames.reduce(
-      (n, x) => n + ((svc.allowAutodesk && isAutodeskName(x)) ? 0 : 1),
-      0
-    );
-    const base = regCount > 0 ? tierPrice(svc, regCount) / regCount : 0;
+    const base = isAd ? svc.autodeskPrice : svc.tiers[0].price;
     return base + latestAdd;
   }
 
@@ -2560,8 +2555,7 @@
     label.className = "chip-label";
     let suffix = "";
     if (count > 1) suffix += ` × ${count}`;
-    const price = ss ? perItemPriceINR(svc, name, ss) : null;
-    if (price !== null) suffix += ` · ${formatPrice(price)}`;
+    suffix += ` · ${formatPrice(stickerPriceINRForName(svc, name))}`;
     label.textContent = name + suffix;
     const remove = document.createElement("button");
     remove.type = "button";
@@ -3445,15 +3439,10 @@
       .filter(it => it && it.name && Number.isInteger(it.row) && it.row > 1);
   }
 
-  // Fixed sticker price shown on a catalog tile. Autodesk items use
-  // svc.autodeskPrice; regular items use the tier-1 base price. Latest-
-  // version surcharge is added when the manifest marks the software Latest.
+  // Fixed sticker price shown on a catalog tile. Delegates to the
+  // name-based helper so tile and chip stay in sync.
   function stickerPriceINR(svc, entry) {
-    const isAd = svc.allowAutodesk && isAutodeskName(entry.name);
-    const isLatest = typeof entry.version === "string" && entry.version.trim().toLowerCase() === "latest";
-    const latestAdd = (isLatest && svc.latestSurcharge) ? svc.latestSurcharge : 0;
-    const base = isAd ? svc.autodeskPrice : svc.tiers[0].price;
-    return base + latestAdd;
+    return stickerPriceINRForName(svc, entry.name);
   }
 
   function makePlaceholder() {
