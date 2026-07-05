@@ -5,16 +5,18 @@ Regenerate softwares-manifest.js from Softwares.xlsx.
 Reads the in-repo Excel file Softwares.xlsx (override via SOFTWARES_XLSX
 env var). The workbook has two sheets — "Windows" and "Macbook". Row 1
 is the header. Column A holds the software name, column B holds an
-optional Version label (text). Softwares whose Version equals "Latest"
-(case-insensitive) trigger a platform-specific surcharge in the UI
-(+₹500 for Windows, +₹1500 for Macbook) and show a "Price Changed due
-to the Latest Version" note.
+optional Version label (text), and column C holds an optional Link (a
+URL where the customer downloads the software after a Download-Now
+payment). Softwares whose Version equals "Latest" (case-insensitive)
+trigger a platform-specific surcharge in the UI (+₹500 for Windows,
++₹1500 for Macbook) and show a "Price Changed due to the Latest Version"
+note.
 
 Outputs softwares-manifest.js as:
 
     window.SOFTWARES = {
       "windows": [
-        { "name": "Autocad 2026", "row": 2, "version": "Latest" },
+        { "name": "Autocad 2026", "row": 2, "version": "Latest", "link": "https://…" },
         { "name": "Autocad 2024", "row": 3 },
         ...
       ],
@@ -24,6 +26,8 @@ Outputs softwares-manifest.js as:
 The `row` field is the 1-based Excel row number and is used by the
 Software Catalog UI in index.html to load the matching product image
 from Windows_Pic/<row>.{jpg,png,webp} or Macbook_Pic/<row>.{jpg,png,webp}.
+The `link` field, when set, is used by the post-payment Download flow
+to give the customer a direct download URL for that software.
 
 Run after editing the sheet:
     ./update-softwares.py
@@ -99,8 +103,9 @@ def cell_value(c, strings):
 
 
 def read_sheet_rows(z, zip_path, strings):
-    """Return [{name, row, version?}] for each data row.
+    """Return [{name, row, version?, link?}] for each data row.
     Column A = software name (required). Column B = version (optional).
+    Column C = link (optional, a URL served post-payment for Download flow).
     `row` is the 1-based Excel row number — used by the catalog UI to look
     up the matching image in Windows_Pic/<row>.jpg or Macbook_Pic/<row>.jpg."""
     with z.open(zip_path) as f:
@@ -113,7 +118,7 @@ def read_sheet_rows(z, zip_path, strings):
         for c in row.findall("main:c", NS):
             ref = c.get("r", "")
             col = "".join(ch for ch in ref if ch.isalpha())
-            if col in ("A", "B"):
+            if col in ("A", "B", "C"):
                 cells[col] = c
         a_cell = cells.get("A")
         if a_cell is None:
@@ -138,6 +143,11 @@ def read_sheet_rows(z, zip_path, strings):
             version = cell_value(b_cell, strings).strip()
             if version:
                 item["version"] = version
+        c_cell = cells.get("C")
+        if c_cell is not None:
+            link = cell_value(c_cell, strings).strip()
+            if link:
+                item["link"] = link
         items.append(item)
     return items
 

@@ -501,6 +501,59 @@
     flex-shrink: 0;
   }
   .cart-item-remove:hover { background: #fee2e2; color: #991b1b; }
+  .download-links {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(16, 185, 129, 0.4);
+  }
+  .download-links-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #065f46;
+    margin-bottom: 10px;
+  }
+  .download-links-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .download-link-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--text-1);
+  }
+  .download-link-btn {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: #10b981;
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.12s;
+  }
+  .download-link-btn:hover { background: #059669; }
+  .download-link-missing {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-style: italic;
+  }
   .checkout-summary-total {
     margin-top: 14px;
     padding-top: 12px;
@@ -2179,6 +2232,10 @@
         <div>Reference: <span class="ref" id="success-ref"></span></div>
         <div>Payment ID: <span class="ref" id="success-pid"></span></div>
         <div style="margin-top: 8px; font-size: 13px;">A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.</div>
+        <div id="download-links" class="download-links" style="display: none;">
+          <div class="download-links-title">Your downloads</div>
+          <div id="download-links-list" class="download-links-list"></div>
+        </div>
       </div>
       <div class="coupon-section">
         <label for="coupon-input">Discount coupon</label>
@@ -3547,11 +3604,63 @@
     newBookingBtn.style.display = "";
     paypalContainer.innerHTML = "";
     payLoading.classList.remove("visible");
+    renderDownloadLinks();
     successEl.scrollIntoView({ behavior: "smooth", block: "center" });
     // Record coupon usage so the same email can't reuse it.
     if (currentBooking && currentBooking.couponCode && currentBooking.email) {
       markCouponUsed(currentBooking.email, currentBooking.couponCode);
     }
+  }
+  // Look up a software's download link from the manifest.
+  function downloadLinkFor(platform, name) {
+    const list = (window.SOFTWARES && window.SOFTWARES[platform]) || [];
+    const target = (name || "").trim().toLowerCase();
+    const hit = list.find(it => (it.name || "").trim().toLowerCase() === target);
+    return hit && typeof hit.link === "string" && hit.link.trim() ? hit.link.trim() : "";
+  }
+  // Post-payment: render a Download button per selected software when the
+  // customer picked Download Now (email-link mode). For Book Remote Service
+  // bookings we hide the whole block.
+  function renderDownloadLinks() {
+    const wrap = document.getElementById("download-links");
+    const list = document.getElementById("download-links-list");
+    if (!wrap || !list) return;
+    if (state.mode !== "email-link") {
+      wrap.style.display = "none";
+      list.innerHTML = "";
+      return;
+    }
+    list.innerHTML = "";
+    SERVICES.forEach(svc => {
+      const ss = state.services[svc.id];
+      if (!ss || !ss.selected) return;
+      const platform = svc.id === "win-soft" ? "windows" : "macbook";
+      ss.softwareNames.forEach(name => {
+        const row = document.createElement("div");
+        row.className = "download-link-row";
+        const label = document.createElement("span");
+        label.className = "download-link-name";
+        label.textContent = name;
+        row.appendChild(label);
+        const url = downloadLinkFor(platform, name);
+        if (url) {
+          const a = document.createElement("a");
+          a.className = "download-link-btn";
+          a.href = url;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.textContent = "Download";
+          row.appendChild(a);
+        } else {
+          const note = document.createElement("span");
+          note.className = "download-link-missing";
+          note.textContent = "Link coming via email";
+          row.appendChild(note);
+        }
+        list.appendChild(row);
+      });
+    });
+    wrap.style.display = list.children.length ? "" : "none";
   }
 
   // ---- Validation ------------------------------------------------------
