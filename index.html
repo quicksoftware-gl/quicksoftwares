@@ -258,6 +258,7 @@
   }
   .catalog-item {
     cursor: pointer;
+    position: relative;
     border-radius: 12px;
     overflow: hidden;
     background: #f8fafc;
@@ -268,6 +269,107 @@
     transform: translateY(-3px);
     box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
     border-color: var(--border-hover);
+  }
+  .catalog-item.is-added {
+    cursor: default;
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.22);
+  }
+  .catalog-item.is-added:hover { transform: none; }
+  .catalog-item .ci-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #10b981;
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.28);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .catalog-item.is-added .ci-badge {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .selection-panel {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border);
+  }
+  .selection-empty {
+    color: var(--muted);
+    font-size: 13.5px;
+    text-align: center;
+    padding: 14px 10px;
+  }
+  .selection-group + .selection-group { margin-top: 18px; }
+  .selection-group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .selection-group-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-2);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .selection-group-sub {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 6px 6px 12px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1e40af;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    border: 1px solid #dbeafe;
+  }
+  .chip.is-autodesk { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+  .chip.is-latest   { background: #fce7f3; color: #9d174d; border-color: #fbcfe8; }
+  .chip-remove {
+    appearance: none;
+    background: rgba(15, 23, 42, 0.08);
+    color: inherit;
+    border: 0;
+    border-radius: 999px;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+  .chip-remove:hover { background: rgba(15, 23, 42, 0.16); }
+  .selection-hint {
+    margin-top: 6px;
+    font-size: 12.5px;
+    color: var(--muted);
   }
   .catalog-item img {
     display: block;
@@ -1556,12 +1658,12 @@
 </header>
 
 <main>
-  <!-- Step 1: Service -->
-  <section class="card">
+  <!-- Step 1: Software catalog picker -->
+  <section class="card" id="catalog-section" aria-labelledby="catalog-title">
     <div class="section-head">
       <div>
-        <h2><span class="step-num">1</span> Choose a service</h2>
-        <p class="section-sub">Select one or both of the services below.</p>
+        <h2 id="catalog-title"><span class="step-num">1</span> Pick your softwares</h2>
+        <p class="section-sub">Browse the catalog below and click any tile to add it to your booking.</p>
       </div>
       <div class="currency-picker">
         <label for="currency">Show prices in</label>
@@ -1571,8 +1673,11 @@
         </select>
       </div>
     </div>
-    <div class="services" id="services"></div>
-
+    <div class="catalog-tabs" role="tablist" aria-label="Platform">
+      <button type="button" class="catalog-tab is-active" role="tab" aria-selected="true" data-platform="windows" id="catalog-tab-windows">Windows</button>
+      <button type="button" class="catalog-tab" role="tab" aria-selected="false" data-platform="macbook" id="catalog-tab-macbook">Macbook</button>
+    </div>
+    <div id="catalog-grid" class="catalog-grid" role="tabpanel" aria-labelledby="catalog-tab-windows"></div>
     <div id="software-details" class="software-details"></div>
   </section>
 
@@ -1686,21 +1791,6 @@
     <p class="notice">
       Razorpay handles INR only; PayPal handles USD only. Switching currency selects the matching payment method automatically.
     </p>
-  </section>
-
-  <!-- Software Catalog (inline) -->
-  <section class="card" id="catalog-section" aria-labelledby="catalog-title">
-    <div class="section-head">
-      <div>
-        <h2 id="catalog-title">Software Catalog</h2>
-        <p class="section-sub">All software we install. Click any item for a closer look.</p>
-      </div>
-    </div>
-    <div class="catalog-tabs" role="tablist" aria-label="Platform">
-      <button type="button" class="catalog-tab is-active" role="tab" aria-selected="true" data-platform="windows" id="catalog-tab-windows">Windows</button>
-      <button type="button" class="catalog-tab" role="tab" aria-selected="false" data-platform="macbook" id="catalog-tab-macbook">Macbook</button>
-    </div>
-    <div id="catalog-grid" class="catalog-grid" role="tabpanel" aria-labelledby="catalog-tab-windows"></div>
   </section>
 
 </main>
@@ -2081,7 +2171,7 @@
 
   const state = {
     services: SERVICES.reduce((acc, svc) => {
-      acc[svc.id] = { selected: false, quantity: 1, softwareNames: [""] };
+      acc[svc.id] = { selected: false, quantity: 0, softwareNames: [] };
       return acc;
     }, {}),
     date: "",
@@ -2221,29 +2311,160 @@
     }, 0);
   }
 
-  // ---- Render services -------------------------------------------------
-  const servicesEl = document.getElementById("services");
+  // ---- Selections panel (catalog-driven) ------------------------------
   const softwareDetailsEl = document.getElementById("software-details");
 
-  SERVICES.forEach(s => {
-    const el = document.createElement("div");
-    el.className = "service";
-    el.dataset.id = s.id;
-    el.innerHTML = `
-      <div class="name">${s.name}</div>
-      <div class="desc">${s.desc}</div>
-      <div class="price" data-price>From ${formatPrice(startingPrice(s))}</div>
-    `;
-    el.addEventListener("click", () => {
-      const ss = state.services[s.id];
-      ss.selected = !ss.selected;
-      el.classList.toggle("selected", ss.selected);
-      renderSoftwareDetails();
-      revokeCouponIfIneligible();
-      updateSummary();
+  const PLATFORM_TO_SVC_ID = { windows: "win-soft", macbook: "mac-soft" };
+  function svcForPlatform(platform) { return getServiceById(PLATFORM_TO_SVC_ID[platform]); }
+
+  function hasSoftwareInState(platform, name) {
+    const svc = svcForPlatform(platform);
+    if (!svc) return false;
+    const ss = state.services[svc.id];
+    const target = name.trim().toLowerCase();
+    return ss.softwareNames.some(n => (n || "").trim().toLowerCase() === target);
+  }
+
+  function addFromCatalog(platform, name) {
+    const svc = svcForPlatform(platform);
+    if (!svc || !name) return;
+    if (hasSoftwareInState(platform, name)) return;
+    const ss = state.services[svc.id];
+    ss.softwareNames.push(name);
+    ss.quantity = ss.softwareNames.length;
+    ss.selected = true;
+    onSelectionsChanged();
+  }
+
+  function removeFromCatalog(platform, name) {
+    const svc = svcForPlatform(platform);
+    if (!svc || !name) return;
+    const ss = state.services[svc.id];
+    const target = name.trim().toLowerCase();
+    ss.softwareNames = ss.softwareNames.filter(n => (n || "").trim().toLowerCase() !== target);
+    ss.quantity = ss.softwareNames.length;
+    ss.selected = ss.quantity > 0;
+    onSelectionsChanged();
+  }
+
+  function onSelectionsChanged() {
+    renderSelections();
+    // Re-mark catalog cards for the currently-visible tab.
+    markCatalogAddedStates();
+    revokeCouponIfIneligible();
+    updateSummary();
+  }
+
+  function renderSelections() {
+    softwareDetailsEl.innerHTML = "";
+    const anySelected = anyServiceSelected();
+    if (!anySelected) {
+      const empty = document.createElement("div");
+      empty.className = "selection-panel";
+      const hint = document.createElement("div");
+      hint.className = "selection-empty";
+      hint.innerHTML = "<strong>Nothing selected yet.</strong> Click any tile above to add a software to your booking.";
+      empty.appendChild(hint);
+      softwareDetailsEl.appendChild(empty);
+      softwareDetailsEl.classList.add("visible");
+      return;
+    }
+    softwareDetailsEl.classList.add("visible");
+    const panel = document.createElement("div");
+    panel.className = "selection-panel";
+    SERVICES.forEach(svc => {
+      const ss = state.services[svc.id];
+      if (!ss.selected || !ss.quantity) return;
+      panel.appendChild(buildSelectionGroup(svc, ss));
     });
-    servicesEl.appendChild(el);
-  });
+    softwareDetailsEl.appendChild(panel);
+  }
+
+  function buildSelectionGroup(svc, ss) {
+    const group = document.createElement("div");
+    group.className = "selection-group";
+    group.dataset.svc = svc.id;
+    const platform = svc.id === "win-soft" ? "windows" : "macbook";
+
+    const head = document.createElement("div");
+    head.className = "selection-group-head";
+    const title = document.createElement("div");
+    title.className = "selection-group-title";
+    title.textContent = `${svc.name} · ${ss.quantity} selected`;
+    const sub = document.createElement("div");
+    sub.className = "selection-group-sub";
+    sub.textContent = `Subtotal: ${formatPrice(priceFor(svc, ss.softwareNames))}`;
+    head.appendChild(title);
+    head.appendChild(sub);
+    group.appendChild(head);
+
+    const list = document.createElement("div");
+    list.className = "chip-list";
+    ss.softwareNames.forEach(name => list.appendChild(buildChip(platform, svc, name)));
+    group.appendChild(list);
+
+    const hint = tierHintText(svc, ss);
+    if (hint) {
+      const h = document.createElement("div");
+      h.className = "selection-hint";
+      h.textContent = hint;
+      group.appendChild(h);
+    }
+    return group;
+  }
+
+  function buildChip(platform, svc, name) {
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    if (svc.allowAutodesk && isAutodeskName(name)) chip.classList.add("is-autodesk");
+    if (isLatestVersion(svc, name)) chip.classList.add("is-latest");
+    const label = document.createElement("span");
+    label.className = "chip-label";
+    let suffix = "";
+    if (svc.allowAutodesk && isAutodeskName(name)) suffix = ` · ${formatPrice(svc.autodeskPrice)}`;
+    else if (isLatestVersion(svc, name) && svc.latestSurcharge) suffix = ` · +${formatPrice(svc.latestSurcharge)}`;
+    label.textContent = name + suffix;
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "chip-remove";
+    remove.setAttribute("aria-label", `Remove ${name}`);
+    remove.textContent = "×";
+    remove.addEventListener("click", () => removeFromCatalog(platform, name));
+    chip.appendChild(label);
+    chip.appendChild(remove);
+    return chip;
+  }
+
+  function tierHintText(svc, ss) {
+    const names = ss.softwareNames;
+    let adCount = 0, regularCount = 0, latestCount = 0;
+    for (const n of names) {
+      if (svc.allowAutodesk && isAutodeskName(n)) adCount++;
+      else regularCount++;
+      if (isLatestVersion(svc, n)) latestCount++;
+    }
+    const parts = [];
+    if (svc.allowAutodesk && adCount > 0) {
+      parts.push(`${adCount} Autodesk × ${formatPrice(svc.autodeskPrice)} = ${formatPrice(adCount * svc.autodeskPrice)}`);
+    }
+    if (regularCount > 0) {
+      parts.push(`${regularCount} other software${regularCount > 1 ? "s" : ""}: ${formatPrice(tierPrice(svc, regularCount))}`);
+    }
+    if (latestCount > 0 && svc.latestSurcharge) {
+      parts.push(`${latestCount} latest-version: +${formatPrice(latestCount * svc.latestSurcharge)}`);
+    }
+    return parts.join(" · ");
+  }
+
+  function markCatalogAddedStates() {
+    const platform = catalogGrid && catalogGrid.dataset.platform;
+    if (!platform) return;
+    catalogGrid.querySelectorAll(".catalog-item").forEach(el => {
+      const name = el.dataset.name;
+      if (!name) return;
+      el.classList.toggle("is-added", hasSoftwareInState(platform, name));
+    });
+  }
 
   // If the user toggled services such that the active coupon no longer matches
   // any of them, remove it and surface a friendly message.
@@ -2259,68 +2480,9 @@
   }
 
   function rerenderPrices() {
-    document.querySelectorAll(".service").forEach(el => {
-      const svc = getServiceById(el.dataset.id);
-      if (svc) el.querySelector("[data-price]").textContent = "From " + formatPrice(startingPrice(svc));
-    });
-    // Re-render each open panel so internal text reflects the new currency.
-    renderSoftwareDetails();
+    // Currency changed → re-render selection panel so subtotals reflect it.
+    renderSelections();
     updateSummary();
-  }
-
-  // ---- Software details: one panel per selected service ----------------
-  function renderSoftwareDetails() {
-    softwareDetailsEl.innerHTML = "";
-    const sel = selectedServices();
-    if (!sel.length) { softwareDetailsEl.classList.remove("visible"); return; }
-    softwareDetailsEl.classList.add("visible");
-    const hr = document.createElement("hr");
-    hr.className = "divider";
-    softwareDetailsEl.appendChild(hr);
-    sel.forEach(svc => softwareDetailsEl.appendChild(buildServicePanel(svc)));
-  }
-
-  function buildServicePanel(svc) {
-    const ss = state.services[svc.id];
-    const panel = document.createElement("div");
-    panel.className = "service-panel";
-    panel.dataset.svc = svc.id;
-    panel.innerHTML = `
-      <h3 class="svc-h">${svc.name}</h3>
-      <div class="field">
-        <label>Number of softwares required *</label>
-        <div class="qty-control">
-          <button type="button" class="qty-btn" data-action="dec" aria-label="Decrease">−</button>
-          <input type="number" class="qty-input" min="1" max="99" step="1" inputmode="numeric" value="${ss.quantity}" />
-          <button type="button" class="qty-btn" data-action="inc" aria-label="Increase">+</button>
-        </div>
-      </div>
-      <div class="tier-hint"></div>
-      <div class="software-names"></div>
-    `;
-    wireServicePanel(panel, svc);
-    return panel;
-  }
-
-  function wireServicePanel(panel, svc) {
-    const ss = state.services[svc.id];
-    const qtyInput = panel.querySelector(".qty-input");
-    function applyQty(n) {
-      n = Math.max(1, Math.min(99, n));
-      ss.quantity = n;
-      qtyInput.value = String(n);
-      renderNamesForPanel(panel, svc);
-      updateTierHintForPanel(panel, svc);
-      updateSummary();
-    }
-    panel.querySelector('[data-action="dec"]').addEventListener("click", () => applyQty(ss.quantity - 1));
-    panel.querySelector('[data-action="inc"]').addEventListener("click", () => applyQty(ss.quantity + 1));
-    qtyInput.addEventListener("input", e => {
-      const v = parseInt(e.target.value || "1", 10);
-      if (Number.isFinite(v)) applyQty(v);
-    });
-    renderNamesForPanel(panel, svc);
-    updateTierHintForPanel(panel, svc);
   }
 
   // Suggestion list source per service. Names come from softwares-manifest.js
@@ -2388,226 +2550,6 @@
     if (set.size === 0) return true;
     return set.has(v);
   }
-  // Custom autocomplete dropdown — used on both desktop and mobile.
-  const SUGGEST_LIMIT = 20;
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  }
-  function highlightMatch(name, query) {
-    const safe = escapeHtml(name);
-    if (!query) return safe;
-    const q = query.trim().toLowerCase();
-    if (!q) return safe;
-    const lower = name.toLowerCase();
-    const idx = lower.indexOf(q);
-    if (idx < 0) return safe;
-    const before = escapeHtml(name.slice(0, idx));
-    const hit    = escapeHtml(name.slice(idx, idx + q.length));
-    const after  = escapeHtml(name.slice(idx + q.length));
-    return `${before}<mark>${hit}</mark>${after}`;
-  }
-  function filteredSuggestions(svc, query) {
-    const all = softwareSuggestions(svc);
-    const q = (query || "").trim().toLowerCase();
-    if (!q) return all.slice(0, SUGGEST_LIMIT);
-    return all.filter(it => it.name.toLowerCase().includes(q)).slice(0, SUGGEST_LIMIT);
-  }
-  function populateSuggestList(ul, svc, query) {
-    const matches = filteredSuggestions(svc, query);
-    if (!matches.length) {
-      ul.innerHTML = `<li class="sw-empty">Can't find the software you're looking for? Contact us to inquire about the availability of software not currently listed on our website.</li>`;
-      return;
-    }
-    ul.innerHTML = matches
-      .map(it => `<li role="option" data-value="${escapeHtml(it.name)}">${highlightMatch(it.name, query)}</li>`)
-      .join("");
-  }
-
-  function renderNamesForPanel(panel, svc) {
-    const ss = state.services[svc.id];
-    const container = panel.querySelector(".software-names");
-    container.innerHTML = "";
-    while (ss.softwareNames.length < ss.quantity) ss.softwareNames.push("");
-    ss.softwareNames.length = ss.quantity;
-    for (let i = 0; i < ss.quantity; i++) {
-      const wrap = document.createElement("div");
-      wrap.className = "field sw-field";
-      wrap.innerHTML = `
-        <label>Software ${i + 1} name *</label>
-        <input type="text" data-idx="${i}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="e.g. AutoCAD 2024, Adobe Photoshop, MS Office" required />
-        <ul class="sw-suggest" role="listbox" hidden></ul>
-        <div class="sw-tag"></div>
-        <div class="sw-price-note"></div>
-        <div class="sw-warn">Can't find the software you're looking for? Contact us to inquire about the availability of software not currently listed on our website. <a data-open-contact="1">Contact us</a></div>
-      `;
-      container.appendChild(wrap);
-      const inp = wrap.querySelector("input");
-      const ul  = wrap.querySelector(".sw-suggest");
-      inp.value = ss.softwareNames[i] || "";
-
-      function openSuggest() {
-        populateSuggestList(ul, svc, inp.value);
-        ul.hidden = false;
-      }
-      function closeSuggest() { ul.hidden = true; }
-      function pickSuggest(value) {
-        inp.value = value;
-        const idx = Number(inp.dataset.idx);
-        ss.softwareNames[idx] = value;
-        updateAutodeskTagInWrap(wrap, svc, value);
-        updateSoftwarePriceNoteInWrap(wrap, svc, value);
-        updateSoftwareWarnInWrap(wrap, svc, value);
-        updateTierHintForPanel(panel, svc);
-        updateSummary();
-        closeSuggest();
-      }
-
-      inp.addEventListener("input", e => {
-        const idx = Number(e.target.dataset.idx);
-        ss.softwareNames[idx] = e.target.value;
-        updateAutodeskTagInWrap(wrap, svc, e.target.value);
-        updateSoftwarePriceNoteInWrap(wrap, svc, e.target.value);
-        updateSoftwareWarnInWrap(wrap, svc, e.target.value);
-        updateTierHintForPanel(panel, svc);
-        updateSummary();
-        openSuggest();
-      });
-      inp.addEventListener("focus", openSuggest);
-      // mousedown on a suggestion fires before blur on the input — pick from there.
-      ul.addEventListener("mousedown", e => {
-        const li = e.target.closest("li[data-value]");
-        if (!li) return;
-        e.preventDefault();
-        pickSuggest(li.dataset.value);
-      });
-      // Touch support: pointerdown covers both mouse and touch in modern browsers,
-      // but we keep mousedown above for very old browsers. touchstart adds an
-      // extra-safe path on iOS where pointer events sometimes lag.
-      ul.addEventListener("touchstart", e => {
-        const li = e.target.closest("li[data-value]");
-        if (!li) return;
-        e.preventDefault();
-        pickSuggest(li.dataset.value);
-      }, { passive: false });
-      inp.addEventListener("blur", () => {
-        // Defer so a tap/click on a suggestion can land first.
-        setTimeout(closeSuggest, 150);
-      });
-
-      // Clicking the "Contact us" link inside the warning opens the contact modal.
-      wrap.querySelector(".sw-warn a[data-open-contact]").addEventListener("click", () => {
-        const btn = document.getElementById("contact-open");
-        if (btn) btn.click();
-      });
-      updateAutodeskTagInWrap(wrap, svc, ss.softwareNames[i] || "");
-      updateSoftwarePriceNoteInWrap(wrap, svc, ss.softwareNames[i] || "");
-      updateSoftwareWarnInWrap(wrap, svc, ss.softwareNames[i] || "");
-    }
-  }
-
-  function updateAutodeskTagInWrap(wrap, svc, name) {
-    const tag = wrap.querySelector(".sw-tag");
-    if (svc.allowAutodesk && isAutodeskName(name)) {
-      tag.textContent = `Autodesk software detected · ${formatPrice(svc.autodeskPrice)}`;
-      tag.classList.add("visible");
-    } else {
-      tag.textContent = "";
-      tag.classList.remove("visible");
-    }
-  }
-
-  function updateSoftwarePriceNoteInWrap(wrap, svc, name) {
-    const note = wrap.querySelector(".sw-price-note");
-    if (!note) return;
-    if (isLatestVersion(svc, name) && svc.latestSurcharge) {
-      note.textContent = `Price Changed due to the Latest Version · +${formatPrice(svc.latestSurcharge)}`;
-      note.classList.add("visible");
-    } else {
-      note.textContent = "";
-      note.classList.remove("visible");
-    }
-  }
-
-  function updateSoftwareWarnInWrap(wrap, svc, name) {
-    const warn = wrap.querySelector(".sw-warn");
-    const input = wrap.querySelector("input");
-    if (!warn || !input) return;
-    const value = (name || "").trim();
-    // Empty input: not invalid here (required-field handles that). Hide the warning.
-    if (!value || isAllowedSoftwareName(svc, value)) {
-      warn.classList.remove("visible");
-      input.classList.remove("sw-invalid");
-    } else {
-      warn.classList.add("visible");
-      input.classList.add("sw-invalid");
-    }
-  }
-
-  function updateTierHintForPanel(panel, svc) {
-    const ss = state.services[svc.id];
-    const el = panel.querySelector(".tier-hint");
-    el.className = "tier-hint";
-    const lines = [];
-    const names = ss.softwareNames.slice(0, ss.quantity);
-    let adCount = 0;
-    let regularCount = 0;
-    let latestCount = 0;
-    for (const name of names) {
-      if (svc.allowAutodesk && isAutodeskName(name)) adCount++;
-      else regularCount++;
-      if (isLatestVersion(svc, name)) latestCount++;
-    }
-    const svcPrice = priceFor(svc, names);
-    if (svc.allowAutodesk) {
-      if (adCount > 0) {
-        el.classList.add("autodesk");
-        lines.push(`${adCount} Autodesk software${adCount > 1 ? "s" : ""} × ${formatPrice(svc.autodeskPrice)} = ${formatPrice(adCount * svc.autodeskPrice)}.`);
-      }
-      if (regularCount > 0) {
-        lines.push(`${regularCount} other software${regularCount > 1 ? "s" : ""}: ${formatPrice(tierPrice(svc, regularCount))}.`);
-      }
-      if (latestCount > 0 && svc.latestSurcharge) {
-        lines.push(`${latestCount} latest-version software${latestCount > 1 ? "s" : ""}: +${formatPrice(latestCount * svc.latestSurcharge)}.`);
-      }
-      lines.push(`Subtotal: ${formatPrice(svcPrice)}.`);
-      lines.push(`${unlimitedMsg(svc)} (regular softwares only).`);
-      lines.push(`Autodesk products (AutoCAD, 3ds Max, Revit) are priced individually at ${formatPrice(svc.autodeskPrice)} each.`);
-    } else {
-      const explicitMax = svc.tiers[svc.tiers.length - 2]?.upTo ?? 0;
-      const inUnlimited = regularCount > explicitMax;
-      if (inUnlimited) {
-        el.classList.add("unlimited");
-        lines.push(`${unlimitedMsg(svc)} — applied (you've selected ${regularCount}).`);
-      } else {
-        lines.push(`Current price: ${formatPrice(svcPrice)} for ${ss.quantity} software${ss.quantity === 1 ? "" : "s"}.`);
-        lines.push(`${unlimitedMsg(svc)} if you need more.`);
-      }
-      if (latestCount > 0 && svc.latestSurcharge) {
-        lines.push(`${latestCount} latest-version software${latestCount > 1 ? "s" : ""}: +${formatPrice(latestCount * svc.latestSurcharge)} surcharge included.`);
-      }
-    }
-    el.textContent = lines.join(" ");
-  }
-
-  function updateTierHint() {
-    softwareDetailsEl.querySelectorAll(".service-panel").forEach(panel => {
-      const svc = getServiceById(panel.dataset.svc);
-      if (svc) updateTierHintForPanel(panel, svc);
-    });
-  }
-
-  function updateAutodeskTags() {
-    softwareDetailsEl.querySelectorAll(".service-panel").forEach(panel => {
-      const svc = getServiceById(panel.dataset.svc);
-      if (!svc) return;
-      const ss = state.services[svc.id];
-      panel.querySelectorAll(".software-names .field").forEach((wrap, i) => {
-        updateAutodeskTagInWrap(wrap, svc, ss.softwareNames[i] || "");
-        updateSoftwarePriceNoteInWrap(wrap, svc, ss.softwareNames[i] || "");
-      });
-    });
-  }
-
   // ---- Coupon -----------------------------------------------------------
   const couponInput = document.getElementById("coupon-input");
   const couponBtn = document.getElementById("coupon-apply");
@@ -3402,18 +3344,28 @@
     entries.forEach(entry => {
       const item = document.createElement("div");
       item.className = "catalog-item";
+      item.dataset.name = entry.name;
+      item.setAttribute("role", "button");
+      item.setAttribute("tabindex", "0");
+      item.setAttribute("aria-label", `Add ${entry.name}`);
       const candidates = imageCandidatesFor(platform, entry.row);
-      const handle = attachImageWithFallback(item, candidates, entry.name);
+      attachImageWithFallback(item, candidates, entry.name);
+      const badge = document.createElement("span");
+      badge.className = "ci-badge";
+      badge.textContent = "Added";
+      item.appendChild(badge);
       const cap = document.createElement("div");
       cap.className = "ci-caption";
       cap.textContent = entry.name;
       item.appendChild(cap);
-      item.addEventListener("click", () => {
-        const src = handle.srcRef();
-        if (src) openLightbox(src, entry.name);
+      const activate = () => addFromCatalog(platform, entry.name);
+      item.addEventListener("click", activate);
+      item.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
       });
       catalogGrid.appendChild(item);
     });
+    markCatalogAddedStates();
     renderedPlatforms.add(platform);
   }
 
@@ -3425,6 +3377,7 @@
       btn.setAttribute("aria-selected", on ? "true" : "false");
     });
     renderPlatform(platform);
+    markCatalogAddedStates();
   }
 
   catalogTabs.forEach(btn => {
@@ -3667,7 +3620,7 @@
 
   document.getElementById("year").textContent = new Date().getFullYear();
   updatePaymentMethodVisibility();
-  renderSoftwareDetails();
+  renderSelections();
   updateSummary();
 </script>
 </body>
