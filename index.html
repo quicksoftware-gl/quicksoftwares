@@ -298,6 +298,50 @@
     opacity: 1;
     transform: translateY(0);
   }
+  .catalog-item .ci-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 8px;
+    background: #f8fafc;
+    border-top: 1px solid var(--border);
+  }
+  .ci-count-btn {
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--text-2);
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    transition: background 0.12s, border-color 0.12s, transform 0.08s;
+  }
+  .ci-count-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: var(--border-hover);
+  }
+  .ci-count-btn:active:not(:disabled) { transform: scale(0.95); }
+  .ci-count-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .ci-count-value {
+    min-width: 22px;
+    text-align: center;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
   .selection-panel {
     margin-top: 22px;
     padding-top: 20px;
@@ -2317,18 +2361,20 @@
   const PLATFORM_TO_SVC_ID = { windows: "win-soft", macbook: "mac-soft" };
   function svcForPlatform(platform) { return getServiceById(PLATFORM_TO_SVC_ID[platform]); }
 
-  function hasSoftwareInState(platform, name) {
+  function countInState(platform, name) {
     const svc = svcForPlatform(platform);
-    if (!svc) return false;
+    if (!svc) return 0;
     const ss = state.services[svc.id];
     const target = name.trim().toLowerCase();
-    return ss.softwareNames.some(n => (n || "").trim().toLowerCase() === target);
+    return ss.softwareNames.reduce(
+      (n, x) => n + ((x || "").trim().toLowerCase() === target ? 1 : 0),
+      0
+    );
   }
 
-  function addFromCatalog(platform, name) {
+  function incFromCatalog(platform, name) {
     const svc = svcForPlatform(platform);
     if (!svc || !name) return;
-    if (hasSoftwareInState(platform, name)) return;
     const ss = state.services[svc.id];
     ss.softwareNames.push(name);
     ss.quantity = ss.softwareNames.length;
@@ -2336,7 +2382,23 @@
     onSelectionsChanged();
   }
 
-  function removeFromCatalog(platform, name) {
+  function decFromCatalog(platform, name) {
+    const svc = svcForPlatform(platform);
+    if (!svc || !name) return;
+    const ss = state.services[svc.id];
+    const target = name.trim().toLowerCase();
+    for (let i = ss.softwareNames.length - 1; i >= 0; i--) {
+      if ((ss.softwareNames[i] || "").trim().toLowerCase() === target) {
+        ss.softwareNames.splice(i, 1);
+        break;
+      }
+    }
+    ss.quantity = ss.softwareNames.length;
+    ss.selected = ss.quantity > 0;
+    onSelectionsChanged();
+  }
+
+  function removeAllFromCatalog(platform, name) {
     const svc = svcForPlatform(platform);
     if (!svc || !name) return;
     const ss = state.services[svc.id];
@@ -2349,8 +2411,7 @@
 
   function onSelectionsChanged() {
     renderSelections();
-    // Re-mark catalog cards for the currently-visible tab.
-    markCatalogAddedStates();
+    updateCatalogCounts();
     revokeCouponIfIneligible();
     updateSummary();
   }
@@ -2400,7 +2461,19 @@
 
     const list = document.createElement("div");
     list.className = "chip-list";
-    ss.softwareNames.forEach(name => list.appendChild(buildChip(platform, svc, name)));
+    // Group by unique name (case-insensitive) so each software shows once with its count.
+    const grouped = [];
+    const byKey = new Map();
+    ss.softwareNames.forEach(name => {
+      const key = (name || "").trim().toLowerCase();
+      if (!byKey.has(key)) {
+        byKey.set(key, grouped.length);
+        grouped.push({ name, count: 1 });
+      } else {
+        grouped[byKey.get(key)].count += 1;
+      }
+    });
+    grouped.forEach(g => list.appendChild(buildChip(platform, svc, g.name, g.count)));
     group.appendChild(list);
 
     const hint = tierHintText(svc, ss);
@@ -2413,7 +2486,7 @@
     return group;
   }
 
-  function buildChip(platform, svc, name) {
+  function buildChip(platform, svc, name, count) {
     const chip = document.createElement("span");
     chip.className = "chip";
     if (svc.allowAutodesk && isAutodeskName(name)) chip.classList.add("is-autodesk");
@@ -2421,15 +2494,16 @@
     const label = document.createElement("span");
     label.className = "chip-label";
     let suffix = "";
-    if (svc.allowAutodesk && isAutodeskName(name)) suffix = ` · ${formatPrice(svc.autodeskPrice)}`;
-    else if (isLatestVersion(svc, name) && svc.latestSurcharge) suffix = ` · +${formatPrice(svc.latestSurcharge)}`;
+    if (count > 1) suffix += ` × ${count}`;
+    if (svc.allowAutodesk && isAutodeskName(name)) suffix += ` · ${formatPrice(svc.autodeskPrice)} ea`;
+    else if (isLatestVersion(svc, name) && svc.latestSurcharge) suffix += ` · +${formatPrice(svc.latestSurcharge)} ea`;
     label.textContent = name + suffix;
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "chip-remove";
-    remove.setAttribute("aria-label", `Remove ${name}`);
+    remove.setAttribute("aria-label", `Remove all ${name}`);
     remove.textContent = "×";
-    remove.addEventListener("click", () => removeFromCatalog(platform, name));
+    remove.addEventListener("click", () => removeAllFromCatalog(platform, name));
     chip.appendChild(label);
     chip.appendChild(remove);
     return chip;
@@ -2456,13 +2530,18 @@
     return parts.join(" · ");
   }
 
-  function markCatalogAddedStates() {
+  function updateCatalogCounts() {
     const platform = catalogGrid && catalogGrid.dataset.platform;
     if (!platform) return;
     catalogGrid.querySelectorAll(".catalog-item").forEach(el => {
       const name = el.dataset.name;
       if (!name) return;
-      el.classList.toggle("is-added", hasSoftwareInState(platform, name));
+      const n = countInState(platform, name);
+      el.classList.toggle("is-added", n > 0);
+      const valueEl = el.querySelector(".ci-count-value");
+      if (valueEl) valueEl.textContent = String(n);
+      const decBtn = el.querySelector(".ci-count-btn[data-action=\"dec\"]");
+      if (decBtn) decBtn.disabled = n === 0;
     });
   }
 
@@ -3345,9 +3424,6 @@
       const item = document.createElement("div");
       item.className = "catalog-item";
       item.dataset.name = entry.name;
-      item.setAttribute("role", "button");
-      item.setAttribute("tabindex", "0");
-      item.setAttribute("aria-label", `Add ${entry.name}`);
       const candidates = imageCandidatesFor(platform, entry.row);
       attachImageWithFallback(item, candidates, entry.name);
       const badge = document.createElement("span");
@@ -3358,14 +3434,36 @@
       cap.className = "ci-caption";
       cap.textContent = entry.name;
       item.appendChild(cap);
-      const activate = () => addFromCatalog(platform, entry.name);
-      item.addEventListener("click", activate);
-      item.addEventListener("keydown", e => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
-      });
+
+      const count = document.createElement("div");
+      count.className = "ci-count";
+      const dec = document.createElement("button");
+      dec.type = "button";
+      dec.className = "ci-count-btn";
+      dec.dataset.action = "dec";
+      dec.setAttribute("aria-label", `Remove one ${entry.name}`);
+      dec.textContent = "−";
+      dec.disabled = true;
+      dec.addEventListener("click", () => decFromCatalog(platform, entry.name));
+      const value = document.createElement("span");
+      value.className = "ci-count-value";
+      value.textContent = "0";
+      value.setAttribute("aria-live", "polite");
+      const inc = document.createElement("button");
+      inc.type = "button";
+      inc.className = "ci-count-btn";
+      inc.dataset.action = "inc";
+      inc.setAttribute("aria-label", `Add ${entry.name}`);
+      inc.textContent = "+";
+      inc.addEventListener("click", () => incFromCatalog(platform, entry.name));
+      count.appendChild(dec);
+      count.appendChild(value);
+      count.appendChild(inc);
+      item.appendChild(count);
+
       catalogGrid.appendChild(item);
     });
-    markCatalogAddedStates();
+    updateCatalogCounts();
     renderedPlatforms.add(platform);
   }
 
@@ -3377,7 +3475,7 @@
       btn.setAttribute("aria-selected", on ? "true" : "false");
     });
     renderPlatform(platform);
-    markCatalogAddedStates();
+    updateCatalogCounts();
   }
 
   catalogTabs.forEach(btn => {
