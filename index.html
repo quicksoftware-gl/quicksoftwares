@@ -302,6 +302,53 @@
     font-weight: 700;
     user-select: none;
   }
+  .catalog-cta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 22px;
+  }
+  @media (max-width: 640px) {
+    .catalog-cta { grid-template-columns: 1fr; }
+  }
+  .cta-btn {
+    appearance: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 18px 16px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font: inherit;
+    text-align: center;
+    line-height: 1.3;
+    transition: transform 0.12s, box-shadow 0.15s, background 0.15s, border-color 0.15s;
+  }
+  .cta-btn:active { transform: scale(0.98); }
+  .cta-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .cta-sub {
+    font-size: 12.5px;
+    font-weight: 500;
+    opacity: 0.85;
+  }
+  .cta-download {
+    background: var(--brand, #2563eb);
+    color: #fff;
+  }
+  .cta-download:hover { background: #1d4ed8; box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28); }
+  .cta-remote {
+    background: #ecfdf5;
+    color: #065f46;
+    border-color: #a7f3d0;
+  }
+  .cta-remote:hover { background: #d1fae5; box-shadow: 0 12px 24px rgba(16, 185, 129, 0.22); border-color: #6ee7b7; }
   .catalog-empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -1856,6 +1903,16 @@
     <div id="catalog-grid" class="catalog-grid" role="tabpanel" aria-labelledby="catalog-tab-windows"></div>
     <nav id="catalog-pagination" class="catalog-pagination" aria-label="Catalog pages"></nav>
     <div id="software-details" class="software-details"></div>
+    <div class="catalog-cta">
+      <button type="button" class="cta-btn cta-download" id="cta-download">
+        <span class="cta-title">Download Now</span>
+        <span class="cta-sub">Get a setup link by email within 3 hours</span>
+      </button>
+      <button type="button" class="cta-btn cta-remote" id="cta-remote">
+        <span class="cta-title">Book Remote Service</span>
+        <span class="cta-sub">Over screen share, at a time you pick</span>
+      </button>
+    </div>
   </section>
 
   <!-- Step 2: Date & time -->
@@ -3037,10 +3094,27 @@
     }
     updateSummary();
   }
-  document.getElementById("mode").addEventListener("change", e => {
+  const modeSelectEl = document.getElementById("mode");
+  modeSelectEl.addEventListener("change", e => {
     state.mode = e.target.value;
     updateModeUI();
   });
+
+  // ---- CTA buttons below the catalog ----------------------------------
+  // Both scroll the customer to Step 2 (Date & Time). They also pre-select
+  // the installation mode: "Download Now" → email-link (setup link within
+  // 3 hours); "Book Remote Service" → remote (screen share at a slot).
+  function setModeFromCta(mode) {
+    state.mode = mode;
+    if (modeSelectEl) modeSelectEl.value = mode;
+    updateModeUI();
+    const target = document.querySelector('h2 .step-num') && document.querySelectorAll('.card')[1];
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  const ctaDownloadBtn = document.getElementById("cta-download");
+  const ctaRemoteBtn = document.getElementById("cta-remote");
+  if (ctaDownloadBtn) ctaDownloadBtn.addEventListener("click", () => setModeFromCta("email-link"));
+  if (ctaRemoteBtn)   ctaRemoteBtn.addEventListener("click", () => setModeFromCta("remote"));
 
   // ---- Payment method picker ------------------------------------------
   function renderPaymentMethods() {
