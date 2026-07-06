@@ -3529,18 +3529,19 @@
     }
     document.getElementById("sum-service").textContent = serviceText;
 
-    let whenText;
+    const sumWhenEl = document.getElementById("sum-when");
     if (state.mode === "email-link") {
-      // Download Now: date/time step is hidden entirely, so don't nag
-      // the customer to pick one. Advertise the 3-hour SLA instead.
-      whenText = "Setup link within 3 hours (link via email)";
+      // Download Now is a straight pay-and-download — no date, no time,
+      // no scheduling copy in the summary.
+      sumWhenEl.textContent = "";
+      sumWhenEl.style.display = "none";
     } else {
+      sumWhenEl.style.display = "";
       const displayTime = state.time ? formatSlotLabel(state.time, state.currency) : "";
-      whenText = state.date && state.time
+      sumWhenEl.textContent = state.date && state.time
         ? `${state.date} at ${displayTime} (${state.mode})`
         : "Pick a date and time";
     }
-    document.getElementById("sum-when").textContent = whenText;
 
     const sumDiscountEl = document.getElementById("sum-discount");
     const sumTotalEl = document.getElementById("sum-total");
