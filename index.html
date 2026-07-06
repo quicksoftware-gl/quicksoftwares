@@ -3753,7 +3753,7 @@
       date: state.date,
       timeIst: state.mode === "email-link" ? "" : state.time,
       timeDisplay: state.mode === "email-link"
-        ? "Setup link within 3 hours (via email)"
+        ? ""
         : formatSlotLabel(state.time, state.currency),
       timezone: CURRENCY_META[state.currency].timezone,
       mode: state.mode,
@@ -3797,7 +3797,7 @@
       payment_method: booking.paymentMethod,
       payment_id: paymentId || "(unknown)",
       date: booking.date,
-      time_ist: booking.timeIst ? booking.timeIst + " IST" : "(N/A — setup link within 3 hours)",
+      time_ist: booking.timeIst ? booking.timeIst + " IST" : "(N/A)",
       time_customer_view: booking.timeDisplay,
       mode: booking.mode,
       customer_name: booking.name,
