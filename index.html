@@ -2677,10 +2677,17 @@
     if (!el) return;
     const svcId = currentPlatform === "windows" ? "win-soft" : "mac-soft";
     const svc = getServiceById(svcId);
-    // Autodesk-price pill: only on Macbook (where allowAutodesk is true),
-    // always visible on that tab regardless of cart count.
+    // Autodesk-price pill: only on Macbook, and only once the customer
+    // has actually added an Autodesk software (AutoCAD / 3ds Max / Revit /
+    // Maya). Hides otherwise so it isn't shouting about a price the
+    // customer isn't yet paying.
     if (adEl) {
+      let showAd = false;
       if (svc && svc.allowAutodesk && currentPlatform === "macbook") {
+        const ss = state.services[svc.id];
+        showAd = !!(ss && ss.softwareNames.some(isAutodeskName));
+      }
+      if (showAd) {
         adEl.textContent = `Autodesk softwares at ${formatPrice(svc.autodeskPrice)} each`;
         adEl.classList.remove("is-hidden");
       } else {
