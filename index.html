@@ -3531,9 +3531,9 @@
 
     let whenText;
     if (state.mode === "email-link") {
-      whenText = state.date
-        ? `${state.date} — setup link within 3 hours (link via email)`
-        : "Pick a date";
+      // Download Now: date/time step is hidden entirely, so don't nag
+      // the customer to pick one. Advertise the 3-hour SLA instead.
+      whenText = "Setup link within 3 hours (link via email)";
     } else {
       const displayTime = state.time ? formatSlotLabel(state.time, state.currency) : "";
       whenText = state.date && state.time
