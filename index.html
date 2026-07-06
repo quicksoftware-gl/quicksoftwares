@@ -3796,16 +3796,21 @@
       base_price_inr: "₹" + Math.round(booking.priceINR),
       payment_method: booking.paymentMethod,
       payment_id: paymentId || "(unknown)",
-      date: booking.date,
-      time_ist: booking.timeIst ? booking.timeIst + " IST" : "(N/A)",
-      time_customer_view: booking.timeDisplay,
-      mode: booking.mode,
       customer_name: booking.name,
       customer_email: booking.email,
       customer_phone: booking.phone,
       device_os: booking.device || "(not provided)",
       notes: booking.notes || "(none)",
     };
+    // Scheduling fields only apply to Book Remote Service (screen-share)
+    // bookings. Download Now (email-link) is pay-and-download — omit
+    // Date, Time, and Mode from the notification email.
+    if (booking.mode !== "email-link") {
+      payload.date = booking.date;
+      payload.time_ist = booking.timeIst ? booking.timeIst + " IST" : "(N/A)";
+      payload.time_customer_view = booking.timeDisplay;
+      payload.mode = booking.mode;
+    }
     const res = await fetch("https://api.web3forms.com/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
