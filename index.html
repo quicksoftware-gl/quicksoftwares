@@ -9,12 +9,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://checkout.razorpay.com" crossorigin />
 <link rel="preconnect" href="https://www.paypal.com" crossorigin />
+<link rel="dns-prefetch" href="https://api.frankfurter.dev" />
 <!-- Non-blocking font load: render first, swap font when ready. -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" /></noscript>
-<script src="catalog-manifest.js"></script>
 <script src="coupons-manifest.js"></script>
 <script src="softwares-manifest.js"></script>
+<script src="pics-manifest.js"></script>
 <style>
   :root {
     --bg: #0f172a;
@@ -4042,15 +4043,18 @@
   // Catalog is built from Softwares.xlsx via softwares-manifest.js
   // (window.SOFTWARES). Each entry carries the 1-based Excel row number,
   // and the matching product image lives at Windows_Pic/<row>.<ext> or
-  // Macbook_Pic/<row>.<ext>. We try .jpg → .png → .webp in that order,
-  // and fall back to a placeholder if none exist.
+  // Macbook_Pic/<row>.<ext>. pics-manifest.js (window.PICS) tells us
+  // which rows have an image and which extension it uses — this avoids
+  // the .jpg/.png/.webp 404 chain that used to hit every tile with no
+  // image (~24 wasted requests per catalog page).
   const CATALOG_PLATFORM_DIR = { windows: "Windows_Pic", macbook: "Macbook_Pic" };
-  const CATALOG_IMG_EXTS = ["jpg", "png", "webp"];
 
   function imageCandidatesFor(platform, row) {
     const dir = CATALOG_PLATFORM_DIR[platform];
     if (!dir || !row) return [];
-    return CATALOG_IMG_EXTS.map(ext => `${dir}/${row}.${ext}`);
+    const map = (window.PICS && window.PICS[platform]) || {};
+    const ext = map[String(row)];
+    return ext ? [`${dir}/${row}.${ext}`] : [];
   }
 
   const catalogGrid = document.getElementById("catalog-grid");

@@ -14,3 +14,7 @@ The filename must match the **Excel row number** of the software.
 
 Supported extensions: `.jpg`, `.png`, `.webp` (tried in that order).
 Missing images fall back to a "No image" placeholder in the UI.
+
+## After adding/removing images
+
+Run `./update-pics.py` from the repo root so the frontend knows the file is available. Otherwise the tile falls back to the "No image" placeholder.
