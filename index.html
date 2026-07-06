@@ -620,6 +620,11 @@
     line-height: 1.2;
   }
   .catalog-tab-hint.is-hidden { display: none !important; }
+  .catalog-tab-hint-autodesk {
+    color: #92400e;
+    background: #fef3c7;
+    border-color: #fde68a;
+  }
   @media (max-width: 520px) {
     .catalog-tab-hint { font-size: 11px; padding: 3px 8px; white-space: normal; }
   }
@@ -2139,6 +2144,7 @@
       <button type="button" class="catalog-tab is-active" role="tab" aria-selected="true" data-platform="windows" id="catalog-tab-windows">Windows</button>
       <button type="button" class="catalog-tab" role="tab" aria-selected="false" data-platform="macbook" id="catalog-tab-macbook">Macbook</button>
       <span class="catalog-tab-hint is-hidden" id="catalog-tab-hint" aria-live="polite"></span>
+      <span class="catalog-tab-hint catalog-tab-hint-autodesk is-hidden" id="catalog-tab-hint-autodesk" aria-live="polite"></span>
       <div class="catalog-search">
         <span class="catalog-search-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -2667,9 +2673,20 @@
   }
   function renderTabHints() {
     const el = document.getElementById("catalog-tab-hint");
+    const adEl = document.getElementById("catalog-tab-hint-autodesk");
     if (!el) return;
     const svcId = currentPlatform === "windows" ? "win-soft" : "mac-soft";
     const svc = getServiceById(svcId);
+    // Autodesk-price pill: only on Macbook (where allowAutodesk is true),
+    // always visible on that tab regardless of cart count.
+    if (adEl) {
+      if (svc && svc.allowAutodesk && currentPlatform === "macbook") {
+        adEl.textContent = `Autodesk softwares at ${formatPrice(svc.autodeskPrice)} each`;
+        adEl.classList.remove("is-hidden");
+      } else {
+        adEl.classList.add("is-hidden");
+      }
+    }
     if (!svc) { el.classList.add("is-hidden"); return; }
     const ss = state.services[svc.id];
     const n = ss ? ss.softwareNames.length : 0;
