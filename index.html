@@ -2592,7 +2592,7 @@
       ],
       allowAutodesk: true,
       autodeskPrice: 7500,
-      latestSurcharge: 1500,
+      latestSurcharge: 1000,
     },
   ];
 
@@ -3163,11 +3163,16 @@
   }
   // The price charged for one unit of a software: the Price cell when set,
   // otherwise svc.tiers[0].price as a safety net so unpriced rows are never
-  // free while the sheet is being filled in.
+  // free while the sheet is being filled in. A software whose Version column
+  // says "Latest" adds svc.latestSurcharge on top (+₹500 Windows, +₹1000
+  // Macbook).
   function softwarePriceINR(svc, name) {
     const p = priceMapForService(svc).get((name || "").trim().toLowerCase());
-    if (typeof p === "number" && isFinite(p)) return p;
-    return (svc.tiers && svc.tiers[0]) ? svc.tiers[0].price : 0;
+    const base = (typeof p === "number" && isFinite(p))
+      ? p
+      : ((svc.tiers && svc.tiers[0]) ? svc.tiers[0].price : 0);
+    const surcharge = (isLatestVersion(svc, name) && svc.latestSurcharge) ? svc.latestSurcharge : 0;
+    return base + surcharge;
   }
   // Message lookup per service, memoized. Returns the trimmed note from the
   // manifest (column E of Softwares.xlsx) or null.
