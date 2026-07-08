@@ -3,17 +3,19 @@
 Regenerate pics-manifest.js by scanning Windows_Pic/ and Macbook_Pic/
 for image files named after Excel row numbers (e.g. 2.jpg, 15.png).
 
-Output shape:
+Output shape (value is the actual on-disk filename):
 
     window.PICS = {
-      "windows": { "2": "jpg", "3": "png", ... },
-      "macbook": { "2": "jpg", ... }
+      "windows": { "2": "02.jpg", "3": "3.png", ... },
+      "macbook": { "2": "2.jpg", ... }
     };
 
 The frontend consults window.PICS[platform][row] to decide whether to
-render an <img> for a tile (and which extension to use). Rows not in
-the manifest render the "No image" placeholder immediately, avoiding a
-storm of 404s from the fallback-extension chain.
+render an <img> for a tile, and uses the stored filename verbatim as
+the image src. Storing the real filename tolerates zero-padded names
+(02.jpg) and any supported extension. Rows not in the manifest render
+the "No image" placeholder immediately, avoiding a storm of 404s from
+the fallback-extension chain.
 
 Run after adding or removing images:
     ./update-pics.py
@@ -32,6 +34,10 @@ OUT = "pics-manifest.js"
 
 
 def scan(folder):
+    # Maps the normalized Excel row -> the actual on-disk filename, so the
+    # frontend can request the file exactly as it is named. Storing the real
+    # filename (not just the extension) tolerates zero-padded names like
+    # "02.jpg" as well as plain "2.jpg".
     out = {}
     if not os.path.isdir(folder):
         return out
@@ -39,16 +45,20 @@ def scan(folder):
         m = re.match(r"^(\d+)\.([A-Za-z0-9]+)$", fname)
         if not m:
             continue
-        row, ext = m.group(1), m.group(2).lower()
-        if ext == "jpeg":
-            ext = "jpg"
-        if ext not in EXTS_PRIORITY:
+        # Normalize the row number so zero-padded names (02.jpg) match the
+        # unpadded Excel row key (2) that the frontend looks up.
+        row, ext = str(int(m.group(1))), m.group(2).lower()
+        norm_ext = "jpg" if ext == "jpeg" else ext
+        if norm_ext not in EXTS_PRIORITY:
             continue
-        # If the row already has an entry, prefer the higher-priority extension.
+        # If the row already has an image, prefer the higher-priority extension.
         prev = out.get(row)
-        if prev and EXTS_PRIORITY.index(prev) < EXTS_PRIORITY.index(ext):
-            continue
-        out[row] = ext
+        if prev:
+            prev_ext = prev.rsplit(".", 1)[-1].lower()
+            prev_ext = "jpg" if prev_ext == "jpeg" else prev_ext
+            if EXTS_PRIORITY.index(prev_ext) <= EXTS_PRIORITY.index(norm_ext):
+                continue
+        out[row] = fname
     return out
 
 

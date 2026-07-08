@@ -4079,8 +4079,8 @@
     const dir = CATALOG_PLATFORM_DIR[platform];
     if (!dir || !row) return [];
     const map = (window.PICS && window.PICS[platform]) || {};
-    const ext = map[String(row)];
-    return ext ? [`${dir}/${row}.${ext}`] : [];
+    const fname = map[String(row)];
+    return fname ? [`${dir}/${fname}`] : [];
   }
 
   const catalogGrid = document.getElementById("catalog-grid");
