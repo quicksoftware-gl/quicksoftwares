@@ -2675,6 +2675,60 @@
     }
     return `Add ${threshold} or more softwares at ${formatPrice(last.price)}`;
   }
+
+  // ---- Tiered "blank-message" discount --------------------------------
+  // Softwares whose Message column is blank in Softwares.xlsx earn a
+  // per-platform quantity discount. Softwares that carry a Message
+  // (e.g. Autodesk) are excluded and keep their own sheet price.
+  //   off[n]  = flat ₹ removed from the total once n such softwares are in
+  //             the cart for that platform (n = 1 gives no discount yet, it
+  //             only advertises the next tier).
+  //   capQty  = at this many or more, the blank-message portion is charged a
+  //             single flat capPrice instead of the per-software sum.
+  const TIER_DISCOUNT = {
+    "win-soft": { off: { 2: 500,  3: 1000, 4: 1500 }, capQty: 5, capPrice: 6000 },
+    "mac-soft": { off: { 2: 1000, 3: 2500, 4: 4000 }, capQty: 5, capPrice: 7500 },
+  };
+  // Names (within quantity) of the platform's cart items whose Message is blank.
+  function blankMessageNames(svc) {
+    const ss = state.services[svc.id];
+    if (!ss) return [];
+    return ss.softwareNames.slice(0, ss.quantity)
+      .filter(n => hasPrice(svc, n) && !messageFor(svc, n));
+  }
+  // ₹ discount earned by the blank-message softwares of one service.
+  function tierDiscountForService(svc) {
+    const cfg = TIER_DISCOUNT[svc.id];
+    if (!cfg) return 0;
+    const names = blankMessageNames(svc);
+    const n = names.length;
+    if (n <= 1) return 0;
+    if (n >= cfg.capQty) {
+      const blankSub = names.reduce((s, nm) => s + softwarePriceINR(svc, nm), 0);
+      return Math.max(0, blankSub - cfg.capPrice);
+    }
+    return cfg.off[n] || 0;
+  }
+  // Total blank-message discount across the selected platforms (₹, pre-currency).
+  function tierDiscountTotalINR() {
+    return SERVICES.reduce((sum, svc) => {
+      const ss = state.services[svc.id];
+      if (!ss || !ss.selected) return sum;
+      return sum + tierDiscountForService(svc);
+    }, 0);
+  }
+  // Upsell copy shown next to the tabs given n blank-message softwares in the
+  // cart for this platform. "" hides the pill (n = 0 or already at the cap).
+  function tierOfferText(svc, n) {
+    const cfg = TIER_DISCOUNT[svc.id];
+    if (!cfg || n < 1 || n >= cfg.capQty) return "";
+    if (n === cfg.capQty - 1) {
+      return `${cfg.capQty} or more Softwares at Rs. ${cfg.capPrice}`;
+    }
+    const next = n + 1;
+    return `Rs. ${cfg.off[next]} Off on ${next} Softwares`;
+  }
+
   function renderTabHints() {
     const el = document.getElementById("catalog-tab-hint");
     const adEl = document.getElementById("catalog-tab-hint-autodesk");
@@ -2702,9 +2756,16 @@
         adEl.classList.add("is-hidden");
       }
     }
-    // The old tier upsell pill no longer applies under flat per-software
-    // pricing, so keep it hidden.
-    el.classList.add("is-hidden");
+    // Tier-discount pill: shown just right of the tabs, left of the Excel
+    // Message pill. Advertises the next blank-message quantity tier.
+    let tierMsg = "";
+    if (svc) tierMsg = tierOfferText(svc, blankMessageNames(svc).length);
+    if (tierMsg) {
+      el.textContent = tierMsg;
+      el.classList.remove("is-hidden");
+    } else {
+      el.classList.add("is-hidden");
+    }
   }
 
   // Slot times are stored as IST (the business operates in IST).
@@ -2792,10 +2853,12 @@
     }).format(roundForCurrency(amountIn(currency, priceINR), currency));
   }
   function currentPriceINR() {
-    return selectedServices().reduce((sum, svc) => {
+    const gross = selectedServices().reduce((sum, svc) => {
       const ss = state.services[svc.id];
       return sum + priceFor(svc, ss.softwareNames.slice(0, ss.quantity));
     }, 0);
+    // Apply the tiered blank-message discount to the payable total.
+    return Math.max(0, gross - tierDiscountTotalINR());
   }
   // Subtotal for one specific service (0 if not selected).
   function subtotalForServiceId(svcId) {
