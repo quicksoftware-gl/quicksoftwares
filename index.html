@@ -2685,10 +2685,28 @@
   //   capQty  = at this many or more, the customer is charged for only the
   //             topN most-expensive softwares, minus a flat capOff (the
   //             cheaper softwares beyond topN are free).
-  const TIER_DISCOUNT = {
+  // Built-in defaults, overridden per-platform by the "Tiers" sheet of
+  // Discount.xlsx (window.TIERS from coupons-manifest.js). Kept as a fallback
+  // so the site still works if that sheet/manifest is missing.
+  const TIER_DISCOUNT_DEFAULT = {
     "win-soft": { off: { 2: 500,  3: 1000, 4: 1500 }, capQty: 5, topN: 5, capOff: 1500, capMsg: "5 or more Softwares at Rs. 6000" },
     "mac-soft": { off: { 2: 1000, 3: 2500, 4: 4000 }, capQty: 5, topN: 5, capOff: 5000, capMsg: "5 or more Softwares at Rs. 7500" },
   };
+  const TIER_DISCOUNT = (() => {
+    const out = {};
+    for (const id of ["win-soft", "mac-soft"]) {
+      const d = TIER_DISCOUNT_DEFAULT[id];
+      const x = (window.TIERS && window.TIERS[id]) || null;
+      out[id] = x ? {
+        off:    (x.off && Object.keys(x.off).length) ? x.off : d.off,
+        capQty: Number(x.capQty) || d.capQty,
+        topN:   Number(x.topN)   || d.topN,
+        capOff: (typeof x.capOff === "number") ? x.capOff : d.capOff,
+        capMsg: (typeof x.capMsg === "string" && x.capMsg.trim()) ? x.capMsg : d.capMsg,
+      } : d;
+    }
+    return out;
+  })();
   // Priced cart items (within quantity) for this platform. All softwares
   // qualify for the tier discount now.
   function discountableNames(svc) {
