@@ -2676,40 +2676,44 @@
     return `Add ${threshold} or more softwares at ${formatPrice(last.price)}`;
   }
 
-  // ---- Tiered "blank-message" discount --------------------------------
-  // Softwares whose Message column is blank in Softwares.xlsx earn a
-  // per-platform quantity discount. Softwares that carry a Message
-  // (e.g. Autodesk) are excluded and keep their own sheet price.
-  //   off[n]  = flat ₹ removed from the total once n such softwares are in
-  //             the cart for that platform (n = 1 gives no discount yet, it
-  //             only advertises the next tier).
-  //   capQty  = at this many or more, the blank-message portion is charged a
-  //             single flat capPrice instead of the per-software sum.
+  // ---- Tiered quantity discount ---------------------------------------
+  // Every priced software in the cart counts toward a per-platform quantity
+  // discount (the Message column no longer excludes any software).
+  //   off[n]  = flat ₹ removed from the total once n softwares are in the
+  //             cart for that platform (n = 1 gives no discount yet, it only
+  //             advertises the next tier).
+  //   capQty  = at this many or more, the customer is charged for only the
+  //             topN most-expensive softwares, minus a flat capOff (the
+  //             cheaper softwares beyond topN are free).
   const TIER_DISCOUNT = {
-    "win-soft": { off: { 2: 500,  3: 1000, 4: 1500 }, capQty: 5, capPrice: 6000 },
-    "mac-soft": { off: { 2: 1000, 3: 2500, 4: 4000 }, capQty: 5, capPrice: 7500 },
+    "win-soft": { off: { 2: 500,  3: 1000, 4: 1500 }, capQty: 5, topN: 5, capOff: 1500 },
+    "mac-soft": { off: { 2: 1000, 3: 2500, 4: 4000 }, capQty: 5, topN: 5, capOff: 5000 },
   };
-  // Names (within quantity) of the platform's cart items whose Message is blank.
-  function blankMessageNames(svc) {
+  // Priced cart items (within quantity) for this platform. All softwares
+  // qualify for the tier discount now.
+  function discountableNames(svc) {
     const ss = state.services[svc.id];
     if (!ss) return [];
-    return ss.softwareNames.slice(0, ss.quantity)
-      .filter(n => hasPrice(svc, n) && !messageFor(svc, n));
+    return ss.softwareNames.slice(0, ss.quantity).filter(n => hasPrice(svc, n));
   }
-  // ₹ discount earned by the blank-message softwares of one service.
+  // ₹ discount earned by this service's softwares.
   function tierDiscountForService(svc) {
     const cfg = TIER_DISCOUNT[svc.id];
     if (!cfg) return 0;
-    const names = blankMessageNames(svc);
+    const names = discountableNames(svc);
     const n = names.length;
     if (n <= 1) return 0;
     if (n >= cfg.capQty) {
-      const blankSub = names.reduce((s, nm) => s + softwarePriceINR(svc, nm), 0);
-      return Math.max(0, blankSub - cfg.capPrice);
+      // Charge only the topN most-expensive softwares, then take capOff off.
+      // payable = topSum − capOff, so discount = (gross − topSum) + capOff.
+      const prices = names.map(nm => softwarePriceINR(svc, nm)).sort((a, b) => b - a);
+      const gross  = prices.reduce((s, p) => s + p, 0);
+      const topSum = prices.slice(0, cfg.topN).reduce((s, p) => s + p, 0);
+      return Math.max(0, (gross - topSum) + cfg.capOff);
     }
     return cfg.off[n] || 0;
   }
-  // Total blank-message discount across the selected platforms (₹, pre-currency).
+  // Total tier discount across the selected platforms (₹, pre-currency).
   function tierDiscountTotalINR() {
     return SERVICES.reduce((sum, svc) => {
       const ss = state.services[svc.id];
@@ -2717,13 +2721,13 @@
       return sum + tierDiscountForService(svc);
     }, 0);
   }
-  // Upsell copy shown next to the tabs given n blank-message softwares in the
-  // cart for this platform. "" hides the pill (n = 0 or already at the cap).
+  // Upsell copy shown next to the tabs given n softwares in the cart for this
+  // platform. "" hides the pill (n = 0 or already at the cap).
   function tierOfferText(svc, n) {
     const cfg = TIER_DISCOUNT[svc.id];
     if (!cfg || n < 1 || n >= cfg.capQty) return "";
     if (n === cfg.capQty - 1) {
-      return `${cfg.capQty} or more Softwares at Rs. ${cfg.capPrice}`;
+      return `Rs. ${cfg.capOff} Off on ${cfg.capQty} Softwares`;
     }
     const next = n + 1;
     return `Rs. ${cfg.off[next]} Off on ${next} Softwares`;
@@ -2759,7 +2763,7 @@
     // Tier-discount pill: shown just right of the tabs, left of the Excel
     // Message pill. Advertises the next blank-message quantity tier.
     let tierMsg = "";
-    if (svc) tierMsg = tierOfferText(svc, blankMessageNames(svc).length);
+    if (svc) tierMsg = tierOfferText(svc, discountableNames(svc).length);
     if (tierMsg) {
       el.textContent = tierMsg;
       el.classList.remove("is-hidden");
