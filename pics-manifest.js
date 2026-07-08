@@ -4,7 +4,6 @@
 window.PICS = {
   "macbook": {},
   "windows": {
-    "5": "5.png",
     "7": "7.png"
   }
 };
