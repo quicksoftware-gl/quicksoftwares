@@ -1,21 +1,24 @@
 name: Update manifests
 
 # Regenerates catalog-manifest.js (from catalog/), coupons-manifest.js
-# (from Discount.xlsx), and softwares-manifest.js (from Softwares.xlsx)
-# every 10 minutes (subject to GitHub's scheduling delays — see notes),
-# on every push that touches relevant files, and on manual dispatch from
-# the Actions tab.
+# (from Discount.xlsx), softwares-manifest.js (from Softwares.xlsx), and
+# pics-manifest.js (from Windows_Pic/ and Macbook_Pic/) every 10 minutes
+# (subject to GitHub's scheduling delays — see notes), on every push that
+# touches relevant files, and on manual dispatch from the Actions tab.
 on:
   schedule:
     - cron: '*/10 * * * *'
   push:
     paths:
       - 'catalog/**'
+      - 'Windows_Pic/**'
+      - 'Macbook_Pic/**'
       - 'Discount.xlsx'
       - 'Softwares.xlsx'
       - 'update-catalog.sh'
       - 'update-coupons.py'
       - 'update-softwares.py'
+      - 'update-pics.py'
       - '.github/workflows/update-catalog.yml'
   workflow_dispatch:
 
@@ -48,14 +51,19 @@ jobs:
           chmod +x ./update-softwares.py
           ./update-softwares.py
 
+      - name: Regenerate pics-manifest.js
+        run: |
+          chmod +x ./update-pics.py
+          ./update-pics.py
+
       - name: Commit manifests if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet catalog-manifest.js coupons-manifest.js softwares-manifest.js; then
+          if git diff --quiet catalog-manifest.js coupons-manifest.js softwares-manifest.js pics-manifest.js; then
             echo "No manifest changes — nothing to commit."
             exit 0
           fi
-          git add catalog-manifest.js coupons-manifest.js softwares-manifest.js
+          git add catalog-manifest.js coupons-manifest.js softwares-manifest.js pics-manifest.js
           git commit -m "chore: refresh manifests"
           git push
