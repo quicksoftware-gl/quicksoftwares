@@ -2615,33 +2615,13 @@
     return svc.tiers[svc.tiers.length - 1].price;
   }
 
-  // Compute the total price by walking the entered software names.
-  // Autodesk-named softwares cost svc.autodeskPrice each on services
-  // with allowAutodesk. Remaining (regular) softwares share the
-  // service-tier price for their count. Each software whose version in
-  // Softwares.xlsx is "Latest" adds svc.latestSurcharge on top.
+  // Flat per-software pricing: each software costs exactly the value in
+  // the Price column of Softwares.xlsx (see softwarePriceINR); the order
+  // total is the sum over the added softwares. Softwares with no Price in
+  // the sheet fall back to svc.tiers[0].price so they never charge ₹0.
   function priceFor(svc, names) {
-    let autodeskCount = 0;
-    let regularCount = 0;
-    let latestCount = 0;
-    for (const name of names) {
-      if (svc.allowAutodesk && isAutodeskName(name)) {
-        autodeskCount++;
-      } else {
-        regularCount++;
-      }
-      if (isLatestVersion(svc, name)) latestCount++;
-    }
     let total = 0;
-    if (svc.allowAutodesk && autodeskCount > 0) {
-      total += autodeskCount * svc.autodeskPrice;
-    }
-    if (regularCount > 0) {
-      total += tierPrice(svc, regularCount);
-    }
-    if (latestCount > 0 && svc.latestSurcharge) {
-      total += latestCount * svc.latestSurcharge;
-    }
+    for (const name of names) total += softwarePriceINR(svc, name);
     return total;
   }
   function startingPrice(svc) { return svc.tiers[0].price; }
@@ -2679,37 +2659,30 @@
     if (!el) return;
     const svcId = currentPlatform === "windows" ? "win-soft" : "mac-soft";
     const svc = getServiceById(svcId);
-    // Autodesk-price pill: only on Macbook, and only once the customer
-    // has actually added an Autodesk software (AutoCAD / 3ds Max / Revit /
-    // Maya). Hides otherwise so it isn't shouting about a price the
-    // customer isn't yet paying.
+    // Message pill: shows the Message-column note (e.g. "Autodesk softwares
+    // at ₹7,500 each") of the first added software on this platform that
+    // carries one. Hidden when no added software has a message.
     if (adEl) {
-      let showAd = false;
-      if (svc && svc.allowAutodesk && currentPlatform === "macbook") {
+      let msg = "";
+      if (svc) {
         const ss = state.services[svc.id];
-        showAd = !!(ss && ss.softwareNames.some(isAutodeskName));
+        if (ss) {
+          for (const nm of ss.softwareNames) {
+            const m = messageFor(svc, nm);
+            if (m) { msg = m; break; }
+          }
+        }
       }
-      if (showAd) {
-        adEl.textContent = `Autodesk softwares at ${formatPrice(svc.autodeskPrice)} each`;
+      if (msg) {
+        adEl.textContent = msg;
         adEl.classList.remove("is-hidden");
       } else {
         adEl.classList.add("is-hidden");
       }
     }
-    if (!svc) { el.classList.add("is-hidden"); return; }
-    const ss = state.services[svc.id];
-    const n = ss ? ss.softwareNames.length : 0;
-    const penultimate = svc.tiers[svc.tiers.length - 2];
-    const threshold = (penultimate && Number.isFinite(penultimate.upTo))
-      ? penultimate.upTo + 1
-      : 4;
-    // Hide when nothing added, and once the unlimited tier is reached.
-    if (n <= 0 || n >= threshold) {
-      el.classList.add("is-hidden");
-      return;
-    }
-    el.classList.remove("is-hidden");
-    el.textContent = tabHintText(svc, n);
+    // The old tier upsell pill no longer applies under flat per-software
+    // pricing, so keep it hidden.
+    el.classList.add("is-hidden");
   }
 
   // Slot times are stored as IST (the business operates in IST).
@@ -3032,16 +3005,11 @@
     return group;
   }
 
-  // Sticker price per software — the same fixed number shown on the
-  // catalog tile. Autodesk items use svc.autodeskPrice; regular items use
-  // the tier-1 base price. Latest surcharge is added when the manifest
-  // marks the software Latest. Does NOT change with cart size — that's
-  // by design, so the chip matches the tile.
+  // Sticker price per software — the flat Price-column value shown on the
+  // catalog tile and chip. Does NOT change with cart size, by design, so
+  // the chip always matches the tile.
   function stickerPriceINRForName(svc, name) {
-    const isAd = svc.allowAutodesk && isAutodeskName(name);
-    const latestAdd = (isLatestVersion(svc, name) && svc.latestSurcharge) ? svc.latestSurcharge : 0;
-    const base = isAd ? svc.autodeskPrice : svc.tiers[0].price;
-    return base + latestAdd;
+    return softwarePriceINR(svc, name);
   }
 
   function buildChip(platform, svc, name, count, ss) {
@@ -3066,23 +3034,18 @@
     return chip;
   }
 
+  // Per-software price breakdown for the selection panel, e.g.
+  // "Autocad 2026: ₹7,500 · Photoshop 2025: ₹2,000". Each software shows
+  // its own flat Price-column value; the panel already prints the subtotal
+  // separately.
   function tierHintText(svc, ss) {
-    const names = ss.softwareNames;
-    let adCount = 0, regularCount = 0, latestCount = 0;
-    for (const n of names) {
-      if (svc.allowAutodesk && isAutodeskName(n)) adCount++;
-      else regularCount++;
-      if (isLatestVersion(svc, n)) latestCount++;
-    }
+    const seen = new Set();
     const parts = [];
-    if (svc.allowAutodesk && adCount > 0) {
-      parts.push(`${adCount} Autodesk × ${formatPrice(svc.autodeskPrice)} = ${formatPrice(adCount * svc.autodeskPrice)}`);
-    }
-    if (regularCount > 0) {
-      parts.push(`${regularCount} other software${regularCount > 1 ? "s" : ""}: ${formatPrice(tierPrice(svc, regularCount))}`);
-    }
-    if (latestCount > 0 && svc.latestSurcharge) {
-      parts.push(`${latestCount} latest-version: +${formatPrice(latestCount * svc.latestSurcharge)}`);
+    for (const n of ss.softwareNames) {
+      const key = (n || "").trim().toLowerCase();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      parts.push(`${n}: ${formatPrice(softwarePriceINR(svc, n))}`);
     }
     return parts.join(" · ");
   }
@@ -3181,6 +3144,51 @@
   function isLatestVersion(svc, name) {
     const ver = versionFor(svc, name);
     return typeof ver === "string" && ver.toLowerCase() === "latest";
+  }
+  // Price lookup per service, memoized. Returns the numeric price from the
+  // manifest (column D of Softwares.xlsx) or null when the row has none.
+  const _priceMaps = {};
+  function priceMapForService(svc) {
+    const sig = softwareSuggestions(svc).length;
+    const cached = _priceMaps[svc.id];
+    if (cached && cached.sig === sig) return cached.map;
+    const map = new Map();
+    for (const it of softwareSuggestions(svc)) {
+      if (typeof it.price === "number" && isFinite(it.price)) {
+        map.set(it.name.trim().toLowerCase(), it.price);
+      }
+    }
+    _priceMaps[svc.id] = { sig, map };
+    return map;
+  }
+  // The price charged for one unit of a software: the Price cell when set,
+  // otherwise svc.tiers[0].price as a safety net so unpriced rows are never
+  // free while the sheet is being filled in.
+  function softwarePriceINR(svc, name) {
+    const p = priceMapForService(svc).get((name || "").trim().toLowerCase());
+    if (typeof p === "number" && isFinite(p)) return p;
+    return (svc.tiers && svc.tiers[0]) ? svc.tiers[0].price : 0;
+  }
+  // Message lookup per service, memoized. Returns the trimmed note from the
+  // manifest (column E of Softwares.xlsx) or null.
+  const _messageMaps = {};
+  function messageMapForService(svc) {
+    const sig = softwareSuggestions(svc).length;
+    const cached = _messageMaps[svc.id];
+    if (cached && cached.sig === sig) return cached.map;
+    const map = new Map();
+    for (const it of softwareSuggestions(svc)) {
+      if (typeof it.message === "string" && it.message.trim()) {
+        map.set(it.name.trim().toLowerCase(), it.message.trim());
+      }
+    }
+    _messageMaps[svc.id] = { sig, map };
+    return map;
+  }
+  function messageFor(svc, name) {
+    const v = (name || "").trim().toLowerCase();
+    if (!v) return null;
+    return messageMapForService(svc).get(v) || null;
   }
   // Empty values are handled by the missing-name check, so we don't flag them
   // here. If the manifest hasn't loaded (set is empty), we skip the strict
@@ -3752,6 +3760,7 @@
         name: p.svc.name,
         quantity: p.quantity,
         softwareNames: p.softwareNames,
+        softwarePrices: p.softwareNames.map(n => softwarePriceINR(p.svc, n)),
         autodeskFlags: adFlags,
         autodeskCount: adFlags.filter(Boolean).length,
         priceINR: priceFor(p.svc, p.softwareNames),
@@ -3800,8 +3809,11 @@
     }
     const totalQty = booking.services.reduce((s, x) => s + x.quantity, 0);
     const softwareList = booking.services.flatMap(s =>
-      s.softwareNames.map((n, i) =>
-        `${s.name} #${i + 1}: ${n}${s.autodeskFlags[i] ? " [Autodesk ₹7,500]" : ""}`)
+      s.softwareNames.map((n, i) => {
+        const price = s.softwarePrices ? s.softwarePrices[i] : null;
+        const priceLabel = (typeof price === "number") ? ` [${formatPrice(price)}]` : "";
+        return `${s.name} #${i + 1}: ${n}${priceLabel}`;
+      })
     ).join(" | ");
     const payload = {
       access_key: WEB3FORMS_ACCESS_KEY,

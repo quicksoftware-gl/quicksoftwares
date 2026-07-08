@@ -6,6 +6,9 @@
 .vscode/
 .idea/
 
+# MS Office lock/owner files
+~$*
+
 # Env
 .env
 .env.local

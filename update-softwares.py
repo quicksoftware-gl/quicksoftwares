@@ -4,19 +4,25 @@ Regenerate softwares-manifest.js from Softwares.xlsx.
 
 Reads the in-repo Excel file Softwares.xlsx (override via SOFTWARES_XLSX
 env var). The workbook has two sheets — "Windows" and "Macbook". Row 1
-is the header. Column A holds the software name, column B holds an
-optional Version label (text), and column C holds an optional Link (a
-URL where the customer downloads the software after a Download-Now
-payment). Softwares whose Version equals "Latest" (case-insensitive)
-trigger a platform-specific surcharge in the UI (+₹500 for Windows,
-+₹1500 for Macbook) and show a "Price Changed due to the Latest Version"
-note.
+is the header. The columns are:
+
+    A  Software  (required) — the product name
+    B  Version   (optional) — a version label (text)
+    C  Link      (optional) — a URL served post-payment for the Download flow
+    D  Price     (optional) — the flat INR price charged for this software
+    E  Message   (optional) — a note shown in the catalog hint pill when the
+                              customer adds this software (e.g. "Autodesk
+                              softwares at ₹7,500 each")
+
+The Price column is the single source of truth for what a software costs:
+the UI charges exactly this amount per added software and sums them.
 
 Outputs softwares-manifest.js as:
 
     window.SOFTWARES = {
       "windows": [
-        { "name": "Autocad 2026", "row": 2, "version": "Latest", "link": "https://…" },
+        { "name": "Autocad 2026", "row": 2, "version": "Latest", "link": "https://…",
+          "price": 7500, "message": "Autodesk softwares at ₹7,500 each" },
         { "name": "Autocad 2024", "row": 3 },
         ...
       ],
@@ -102,12 +108,28 @@ def cell_value(c, strings):
     return raw or ""
 
 
+def parse_price(raw):
+    """Parse a Price cell into a number, tolerating ₹, commas and spaces.
+    Returns None when empty or unparseable."""
+    if raw is None:
+        return None
+    s = str(raw).strip()
+    if not s:
+        return None
+    s = s.replace("₹", "").replace(",", "").replace(" ", "")
+    try:
+        val = float(s)
+    except ValueError:
+        return None
+    # Keep whole rupees as ints so the manifest reads cleanly.
+    return int(val) if val == int(val) else val
+
+
 def read_sheet_rows(z, zip_path, strings):
-    """Return [{name, row, version?, link?}] for each data row.
-    Column A = software name (required). Column B = version (optional).
-    Column C = link (optional, a URL served post-payment for Download flow).
-    `row` is the 1-based Excel row number — used by the catalog UI to look
-    up the matching image in Windows_Pic/<row>.jpg or Macbook_Pic/<row>.jpg."""
+    """Return [{name, row, version?, link?, price?, message?}] per data row.
+    Column A = software name (required). B = version, C = link, D = price,
+    E = message (all optional). `row` is the 1-based Excel row number — used
+    by the catalog UI to look up Windows_Pic/<row>.jpg or Macbook_Pic/<row>.jpg."""
     with z.open(zip_path) as f:
         tree = ET.parse(f)
     items = []
@@ -118,7 +140,7 @@ def read_sheet_rows(z, zip_path, strings):
         for c in row.findall("main:c", NS):
             ref = c.get("r", "")
             col = "".join(ch for ch in ref if ch.isalpha())
-            if col in ("A", "B", "C"):
+            if col in ("A", "B", "C", "D", "E"):
                 cells[col] = c
         a_cell = cells.get("A")
         if a_cell is None:
@@ -148,6 +170,16 @@ def read_sheet_rows(z, zip_path, strings):
             link = cell_value(c_cell, strings).strip()
             if link:
                 item["link"] = link
+        d_cell = cells.get("D")
+        if d_cell is not None:
+            price = parse_price(cell_value(d_cell, strings))
+            if price is not None:
+                item["price"] = price
+        e_cell = cells.get("E")
+        if e_cell is not None:
+            message = cell_value(e_cell, strings).strip()
+            if message:
+                item["message"] = message
         items.append(item)
     return items
 

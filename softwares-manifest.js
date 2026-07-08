@@ -5,52 +5,76 @@ window.SOFTWARES = {
     {
       "name": "Autocad 2026",
       "row": 2,
-      "link": "https://www.youtube.com/"
+      "link": "https://www.youtube.com/",
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad 2024",
       "row": 3,
-      "link": "https://www.microsoft.com/en-in"
+      "link": "https://www.microsoft.com/en-in",
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "3ds Max 2026",
-      "row": 4
+      "row": 4,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "3ds Max 2024",
-      "row": 5
+      "row": 5,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "3ds Max 2022",
-      "row": 6
+      "row": 6,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Revit 2026",
-      "row": 7
+      "row": 7,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Revit 2024",
-      "row": 8
+      "row": 8,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Revit 2022",
-      "row": 9
+      "row": 9,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad LT 2026",
-      "row": 10
+      "row": 10,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad LT 2024",
-      "row": 11
+      "row": 11,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad Architecture 2026",
-      "row": 12
+      "row": 12,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad Architecture 2024",
-      "row": 13
+      "row": 13,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Adobe Photoshop 2026",
@@ -355,11 +379,15 @@ window.SOFTWARES = {
     },
     {
       "name": "Chaos V-Ray for 3dsmax",
-      "row": 89
+      "row": 89,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Chaos V-Ray Revit",
-      "row": 90
+      "row": 90,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Chaos V-Ray Rhino",
@@ -379,7 +407,9 @@ window.SOFTWARES = {
     },
     {
       "name": "Chaos Enscape for Revit",
-      "row": 95
+      "row": 95,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Chaos Enscape for Rhino",
@@ -387,7 +417,9 @@ window.SOFTWARES = {
     },
     {
       "name": "Chaos Corona for 3dsmax",
-      "row": 97
+      "row": 97,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Parashara's Light Professional 7",
@@ -428,57 +460,83 @@ window.SOFTWARES = {
     {
       "name": "Autocad 2027",
       "row": 107,
-      "version": "Latest"
+      "version": "Latest",
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     }
   ],
   "macbook": [
     {
       "name": "Autocad 2026",
-      "row": 2
+      "row": 2,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad 2024",
-      "row": 3
+      "row": 3,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "3ds Max 2026",
-      "row": 4
+      "row": 4,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "3ds Max 2024",
-      "row": 5
+      "row": 5,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "3ds Max 2022",
-      "row": 6
+      "row": 6,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Revit 2026",
-      "row": 7
+      "row": 7,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Revit 2024",
-      "row": 8
+      "row": 8,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Revit 2022",
-      "row": 9
+      "row": 9,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad LT 2026",
-      "row": 10
+      "row": 10,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad LT 2024",
-      "row": 11
+      "row": 11,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad Architecture 2026",
-      "row": 12
+      "row": 12,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad Architecture 2024",
-      "row": 13
+      "row": 13,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Adobe Photoshop 2026",
@@ -751,7 +809,9 @@ window.SOFTWARES = {
     {
       "name": "Autocad 2027",
       "row": 81,
-      "version": "Latest"
+      "version": "Latest",
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     }
   ]
 };
