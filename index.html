@@ -701,6 +701,28 @@
     font-variant-numeric: tabular-nums;
   }
   .catalog-item.is-added .ci-price { display: block; }
+  /* Softwares with no price are shown as unavailable and can't be added. */
+  .catalog-item.is-unavailable .ci-price { display: block; color: #dc2626; }
+  .catalog-item.is-unavailable { opacity: 0.72; }
+  /* Transient "Not Available" style popup, above the catalog modal. */
+  .qs-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 32px;
+    transform: translateX(-50%) translateY(20px);
+    background: #dc2626;
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    z-index: 100000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .qs-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
   .catalog-item .ci-controls {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2886,6 +2908,9 @@
   function addFromCatalog(platform, name) {
     const svc = svcForPlatform(platform);
     if (!svc || !name) return;
+    // Blank Price in Softwares.xlsx → not for sale. Refuse to add and tell
+    // the customer.
+    if (!hasPrice(svc, name)) { showToast("Not Available"); return; }
     if (hasSoftwareInState(platform, name)) return;
     const ss = state.services[svc.id];
     ss.softwareNames.push(name);
@@ -3173,6 +3198,12 @@
       : ((svc.tiers && svc.tiers[0]) ? svc.tiers[0].price : 0);
     const surcharge = (isLatestVersion(svc, name) && svc.latestSurcharge) ? svc.latestSurcharge : 0;
     return base + surcharge;
+  }
+  // A software is "available" only when its Price cell is set. A blank Price
+  // means it cannot be added to the cart (shows "Not Available" instead).
+  function hasPrice(svc, name) {
+    const p = priceMapForService(svc).get((name || "").trim().toLowerCase());
+    return typeof p === "number" && isFinite(p);
   }
   // Message lookup per service, memoized. Returns the trimmed note from the
   // manifest (column E of Softwares.xlsx) or null.
@@ -3626,6 +3657,24 @@
     errorEl.textContent = msg;
     errorEl.classList.add("visible");
     errorEl.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  // Lightweight transient popup, used e.g. when a customer tries to add a
+  // software that has no price ("Not Available"). Sits above the catalog
+  // modal and auto-dismisses.
+  let _toastTimer = null;
+  function showToast(msg) {
+    let t = document.getElementById("qs-toast");
+    if (!t) {
+      t = document.createElement("div");
+      t.id = "qs-toast";
+      t.className = "qs-toast";
+      t.setAttribute("role", "alert");
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add("visible");
+    if (_toastTimer) clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.classList.remove("visible"), 2200);
   }
   function clearError() { errorEl.classList.remove("visible"); errorEl.textContent = ""; }
   function resetPaymentUI() {
@@ -4192,8 +4241,14 @@
 
       const priceEl = document.createElement("div");
       priceEl.className = "ci-price";
-      priceEl.dataset.priceInr = String(stickerPriceINR(svc, entry));
-      priceEl.textContent = formatPrice(stickerPriceINR(svc, entry));
+      if (hasPrice(svc, entry.name)) {
+        priceEl.dataset.priceInr = String(stickerPriceINR(svc, entry));
+        priceEl.textContent = formatPrice(stickerPriceINR(svc, entry));
+      } else {
+        // No price in Softwares.xlsx → mark the tile unavailable.
+        item.classList.add("is-unavailable");
+        priceEl.textContent = "Not Available";
+      }
       item.appendChild(priceEl);
 
       const controls = document.createElement("div");
