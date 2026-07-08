@@ -6,463 +6,539 @@ window.SOFTWARES = {
       "name": "Autocad 2026",
       "row": 2,
       "link": "https://www.youtube.com/",
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Autocad 2024",
       "row": 3,
       "link": "https://www.microsoft.com/en-in",
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "3ds Max 2026",
       "row": 4,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "3ds Max 2024",
       "row": 5,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "3ds Max 2022",
       "row": 6,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Revit 2026",
       "row": 7,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Revit 2024",
       "row": 8,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Revit 2022",
       "row": 9,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Autocad LT 2026",
       "row": 10,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Autocad LT 2024",
       "row": 11,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Autocad Architecture 2026",
       "row": 12,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Autocad Architecture 2024",
       "row": 13,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Adobe Photoshop 2026",
-      "row": 14
+      "row": 14,
+      "price": 1500
     },
     {
       "name": "Adobe Photoshop 2025",
-      "row": 15
+      "row": 15,
+      "price": 1500
     },
     {
       "name": "Adobe Photoshop 2024",
-      "row": 16
+      "row": 16,
+      "price": 1500
     },
     {
       "name": "Adobe Illustrator 2026",
-      "row": 17
+      "row": 17,
+      "price": 1500
     },
     {
       "name": "Adobe Illustrator 2025",
-      "row": 18
+      "row": 18,
+      "price": 1500
     },
     {
       "name": "Adobe Illustrator 2024",
-      "row": 19
+      "row": 19,
+      "price": 1500
     },
     {
       "name": "Adobe Premier Pro 2026",
-      "row": 20
+      "row": 20,
+      "price": 1500
     },
     {
       "name": "Adobe Premier Pro 2025",
-      "row": 21
+      "row": 21,
+      "price": 1500
     },
     {
       "name": "Adobe Premier Pro 2024",
-      "row": 22
+      "row": 22,
+      "price": 1500
     },
     {
       "name": "Adobe After Effect 2026",
-      "row": 23
+      "row": 23,
+      "price": 1500
     },
     {
       "name": "Adobe After Effect 2024",
-      "row": 24
+      "row": 24,
+      "price": 1500
     },
     {
       "name": "Adobe InDesign 2026",
-      "row": 25
+      "row": 25,
+      "price": 1500
     },
     {
       "name": "Adobe InDesign 2025",
-      "row": 26
+      "row": 26,
+      "price": 1500
     },
     {
       "name": "Adobe InDesign 2024",
-      "row": 27
+      "row": 27,
+      "price": 1500
     },
     {
       "name": "Adobe Media Encoder 2026",
-      "row": 28
+      "row": 28,
+      "price": 1500
     },
     {
       "name": "Adobe Media Encoder 2025",
-      "row": 29
+      "row": 29,
+      "price": 1500
     },
     {
       "name": "Adobe Media Encoder 2024",
-      "row": 30
+      "row": 30,
+      "price": 1500
     },
     {
       "name": "Adobe Lightroom 2026",
-      "row": 31
+      "row": 31,
+      "price": 1500
     },
     {
       "name": "Adobe Lightroom 2025",
-      "row": 32
+      "row": 32,
+      "price": 1500
     },
     {
       "name": "Adobe Lightroom 2024",
-      "row": 33
+      "row": 33,
+      "price": 1500
     },
     {
       "name": "Adobe XD",
-      "row": 34
+      "row": 34,
+      "price": 1500
     },
     {
       "name": "Adobe Acrobat Pro DC 2026",
-      "row": 35
+      "row": 35,
+      "price": 1500
     },
     {
       "name": "Adobe Acrobat Pro DC 2025",
-      "row": 36
+      "row": 36,
+      "price": 1500
     },
     {
       "name": "Adobe Acrobat Pro DC 2024",
-      "row": 37
+      "row": 37,
+      "price": 1500
     },
     {
       "name": "Adobe Audition 2026",
-      "row": 38
+      "row": 38,
+      "price": 1500
     },
     {
       "name": "Adobe Audition 2025",
-      "row": 39
+      "row": 39,
+      "price": 1500
     },
     {
       "name": "Adobe Audition 2024",
-      "row": 40
+      "row": 40,
+      "price": 1500
     },
     {
       "name": "Adobe Animate 2026",
-      "row": 41
+      "row": 41,
+      "price": 1500
     },
     {
       "name": "Adobe Animate 2025",
-      "row": 42
+      "row": 42,
+      "price": 1500
     },
     {
       "name": "Adobe Animate 2024",
-      "row": 43
+      "row": 43,
+      "price": 1500
     },
     {
       "name": "Adobe Bridge 2026",
-      "row": 44
+      "row": 44,
+      "price": 1500
     },
     {
       "name": "Adobe Bridge 2025",
-      "row": 45
+      "row": 45,
+      "price": 1500
     },
     {
       "name": "Adobe Bridge 2024",
-      "row": 46
+      "row": 46,
+      "price": 1500
     },
     {
       "name": "Adobe Dreamweaver",
-      "row": 47
+      "row": 47,
+      "price": 1500
     },
     {
       "name": "Adobe Dimension",
-      "row": 48
+      "row": 48,
+      "price": 1500
     },
     {
       "name": "Adobe Premiere Rush",
-      "row": 49
+      "row": 49,
+      "price": 1500
     },
     {
       "name": "Adobe InCopy 2026",
-      "row": 50
+      "row": 50,
+      "price": 1500
     },
     {
       "name": "Adobe InCopy 2025",
-      "row": 51
+      "row": 51,
+      "price": 1500
     },
     {
       "name": "Adobe InCopy 2024",
-      "row": 52
+      "row": 52,
+      "price": 1500
     },
     {
       "name": "CorelDRAW Graphics Suite 2026",
-      "row": 53
+      "row": 53,
+      "price": 1500
     },
     {
       "name": "CorelDRAW Graphics Suite 2025",
-      "row": 54
+      "row": 54,
+      "price": 1500
     },
     {
       "name": "CorelDRAW Graphics Suite 2024",
-      "row": 55
+      "row": 55,
+      "price": 1500
     },
     {
       "name": "Wondershare Filmora",
-      "row": 56
+      "row": 56,
+      "price": 1500
     },
     {
       "name": "CapCut",
-      "row": 57
+      "row": 57,
+      "price": 1500
     },
     {
       "name": "Nitro PDF Pro",
-      "row": 58
+      "row": 58,
+      "price": 1500
     },
     {
       "name": "SketchUp Pro 2026",
-      "row": 59
+      "row": 59,
+      "price": 1500
     },
     {
       "name": "SketchUp Pro 2025",
-      "row": 60
+      "row": 60,
+      "price": 1500
     },
     {
       "name": "SketchUp Pro 2024",
-      "row": 61
+      "row": 61,
+      "price": 1500
     },
     {
       "name": "Blender 5",
-      "row": 62
+      "row": 62,
+      "price": 1500
     },
     {
       "name": "MS Office 365",
-      "row": 63
+      "row": 63,
+      "price": 1500
     },
     {
       "name": "MS Office 2024 Pro",
-      "row": 64
+      "row": 64,
+      "price": 1500
     },
     {
       "name": "MS Office 2021 Pro",
-      "row": 65
+      "row": 65,
+      "price": 1500
     },
     {
       "name": "MS Office 2019 Pro",
-      "row": 66
+      "row": 66,
+      "price": 1500
     },
     {
       "name": "MS Office 2016 Pro",
-      "row": 67
+      "row": 67,
+      "price": 1500
     },
     {
       "name": "Debut Screen Recorder Pro",
-      "row": 68
+      "row": 68,
+      "price": 1500
     },
     {
       "name": "Mastercam 2026",
-      "row": 69
+      "row": 69,
+      "price": 1500
     },
     {
       "name": "Mastercam 2023",
-      "row": 70
+      "row": 70,
+      "price": 1500
     },
     {
       "name": "Lumion Pro 2025",
       "row": 71,
-      "version": "Latest"
+      "version": "Latest",
+      "price": 1500
     },
     {
       "name": "Lumion Pro 2024",
-      "row": 72
+      "row": 72,
+      "price": 1500
     },
     {
       "name": "Lumion Pro 2023",
-      "row": 73
+      "row": 73,
+      "price": 1500
     },
     {
       "name": "Lumion Pro 12.5",
-      "row": 74
+      "row": 74,
+      "price": 1500
     },
     {
       "name": "GRAPHISOFT ArchiCAD",
-      "row": 75
+      "row": 75,
+      "price": 1500
     },
     {
       "name": "ZWCAD Professional 2026",
-      "row": 76
+      "row": 76,
+      "price": 1500
     },
     {
       "name": "ZWCAD Professional 2025",
-      "row": 77
+      "row": 77,
+      "price": 1500
     },
     {
       "name": "ZWCAD Professional 2024",
-      "row": 78
+      "row": 78,
+      "price": 1500
     },
     {
       "name": "SolidWorks 2026",
-      "row": 79
+      "row": 79,
+      "price": 1500
     },
     {
       "name": "SolidWorks 2025",
-      "row": 80
+      "row": 80,
+      "price": 1500
     },
     {
       "name": "SolidWorks 2023",
-      "row": 81
+      "row": 81,
+      "price": 1500
     },
     {
       "name": "SolidWorks 2022",
-      "row": 82
+      "row": 82,
+      "price": 1500
     },
     {
       "name": "Siemens Solid Edge 2025",
-      "row": 83
+      "row": 83,
+      "price": 1500
     },
     {
       "name": "Siemens Solid Edge 2024",
-      "row": 84
+      "row": 84,
+      "price": 1500
     },
     {
       "name": "Siemens Solid Edge 2023",
-      "row": 85
+      "row": 85,
+      "price": 1500
     },
     {
       "name": "Gemvision MatrixGold",
-      "row": 86
+      "row": 86,
+      "price": 1500
     },
     {
       "name": "Rhinoceros",
-      "row": 87
+      "row": 87,
+      "price": 1500
     },
     {
       "name": "Chaos V-Ray for Sketchup",
-      "row": 88
+      "row": 88,
+      "price": 1500
     },
     {
       "name": "Chaos V-Ray for 3dsmax",
       "row": 89,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Chaos V-Ray Revit",
       "row": 90,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Chaos V-Ray Rhino",
-      "row": 91
+      "row": 91,
+      "price": 1500
     },
     {
       "name": "Chaos V-Ray Maya",
-      "row": 92
+      "row": 92,
+      "price": 1500
     },
     {
       "name": "Chaos V-Ray Blender",
-      "row": 93
+      "row": 93,
+      "price": 1500
     },
     {
       "name": "Chaos Enscape for Sketchup",
-      "row": 94
+      "row": 94,
+      "price": 1500
     },
     {
       "name": "Chaos Enscape for Revit",
       "row": 95,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Chaos Enscape for Rhino",
-      "row": 96
+      "row": 96,
+      "price": 1500
     },
     {
       "name": "Chaos Corona for 3dsmax",
       "row": 97,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
     },
     {
       "name": "Parashara's Light Professional 7",
-      "row": 98
+      "row": 98,
+      "price": 1500
     },
     {
       "name": "Parashara's Light Professional 9",
-      "row": 99
+      "row": 99,
+      "price": 1500
     },
     {
       "name": "Kundli Chakra Professional",
-      "row": 100
+      "row": 100,
+      "price": 1500
     },
     {
       "name": "Navis Work 2026",
-      "row": 101
+      "row": 101,
+      "price": 1500
     },
     {
       "name": "Navis Work 2024",
-      "row": 102
+      "row": 102,
+      "price": 1500
     },
     {
       "name": "Icecream Screen Recorder",
-      "row": 103
+      "row": 103,
+      "price": 1500
     },
     {
       "name": "WinRAR Professional",
-      "row": 104
+      "row": 104,
+      "price": 1500
     },
     {
       "name": "MiniTool Power Data Recovery 2026",
-      "row": 105
+      "row": 105,
+      "price": 1500
     },
     {
       "name": "EaseUS Data Recovery Wizard Technician",
-      "row": 106
+      "row": 106,
+      "price": 1500
     },
     {
       "name": "Autocad 2027",
       "row": 107,
       "version": "Latest",
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
+      "price": 1500
+    },
+    {
+      "name": "Smart PLS 4",
+      "row": 108
     }
   ],
   "macbook": [
@@ -540,271 +616,340 @@ window.SOFTWARES = {
     },
     {
       "name": "Adobe Photoshop 2026",
-      "row": 14
+      "row": 14,
+      "price": 2500
     },
     {
       "name": "Adobe Photoshop 2025",
-      "row": 15
+      "row": 15,
+      "price": 2500
     },
     {
       "name": "Adobe Photoshop 2024",
-      "row": 16
+      "row": 16,
+      "price": 2500
     },
     {
       "name": "Adobe Illustrator 2026",
-      "row": 17
+      "row": 17,
+      "price": 2500
     },
     {
       "name": "Adobe Illustrator 2025",
-      "row": 18
+      "row": 18,
+      "price": 2500
     },
     {
       "name": "Adobe Illustrator 2024",
-      "row": 19
+      "row": 19,
+      "price": 2500
     },
     {
       "name": "Adobe Premier Pro 2026",
-      "row": 20
+      "row": 20,
+      "price": 2500
     },
     {
       "name": "Adobe Premier Pro 2025",
-      "row": 21
+      "row": 21,
+      "price": 2500
     },
     {
       "name": "Adobe Premier Pro 2024",
-      "row": 22
+      "row": 22,
+      "price": 2500
     },
     {
       "name": "Adobe After Effect 2026",
-      "row": 23
+      "row": 23,
+      "price": 2500
     },
     {
       "name": "Adobe After Effect 2024",
-      "row": 24
+      "row": 24,
+      "price": 2500
     },
     {
       "name": "Adobe InDesign 2026",
-      "row": 25
+      "row": 25,
+      "price": 2500
     },
     {
       "name": "Adobe InDesign 2025",
-      "row": 26
+      "row": 26,
+      "price": 2500
     },
     {
       "name": "Adobe InDesign 2024",
-      "row": 27
+      "row": 27,
+      "price": 2500
     },
     {
       "name": "Adobe Media Encoder 2026",
-      "row": 28
+      "row": 28,
+      "price": 2500
     },
     {
       "name": "Adobe Media Encoder 2025",
-      "row": 29
+      "row": 29,
+      "price": 2500
     },
     {
       "name": "Adobe Media Encoder 2024",
-      "row": 30
+      "row": 30,
+      "price": 2500
     },
     {
       "name": "Adobe Lightroom 2026",
-      "row": 31
+      "row": 31,
+      "price": 2500
     },
     {
       "name": "Adobe Lightroom 2025",
-      "row": 32
+      "row": 32,
+      "price": 2500
     },
     {
       "name": "Adobe Lightroom 2024",
-      "row": 33
+      "row": 33,
+      "price": 2500
     },
     {
       "name": "Adobe XD",
-      "row": 34
+      "row": 34,
+      "price": 2500
     },
     {
       "name": "Adobe Acrobat Pro DC 2026",
-      "row": 35
+      "row": 35,
+      "price": 2500
     },
     {
       "name": "Adobe Acrobat Pro DC 2025",
-      "row": 36
+      "row": 36,
+      "price": 2500
     },
     {
       "name": "Adobe Acrobat Pro DC 2024",
-      "row": 37
+      "row": 37,
+      "price": 2500
     },
     {
       "name": "Adobe Audition 2026",
-      "row": 38
+      "row": 38,
+      "price": 2500
     },
     {
       "name": "Adobe Audition 2025",
-      "row": 39
+      "row": 39,
+      "price": 2500
     },
     {
       "name": "Adobe Audition 2024",
-      "row": 40
+      "row": 40,
+      "price": 2500
     },
     {
       "name": "Adobe Animate 2026",
-      "row": 41
+      "row": 41,
+      "price": 2500
     },
     {
       "name": "Adobe Animate 2025",
-      "row": 42
+      "row": 42,
+      "price": 2500
     },
     {
       "name": "Adobe Animate 2024",
-      "row": 43
+      "row": 43,
+      "price": 2500
     },
     {
       "name": "Adobe Bridge 2026",
-      "row": 44
+      "row": 44,
+      "price": 2500
     },
     {
       "name": "Adobe Bridge 2025",
-      "row": 45
+      "row": 45,
+      "price": 2500
     },
     {
       "name": "Adobe Bridge 2024",
-      "row": 46
+      "row": 46,
+      "price": 2500
     },
     {
       "name": "Adobe Dreamweaver",
-      "row": 47
+      "row": 47,
+      "price": 2500
     },
     {
       "name": "Adobe Dimension",
-      "row": 48
+      "row": 48,
+      "price": 2500
     },
     {
       "name": "Adobe Premiere Rush",
-      "row": 49
+      "row": 49,
+      "price": 2500
     },
     {
       "name": "Adobe InCopy 2026",
-      "row": 50
+      "row": 50,
+      "price": 2500
     },
     {
       "name": "Adobe InCopy 2025",
-      "row": 51
+      "row": 51,
+      "price": 2500
     },
     {
       "name": "Adobe InCopy 2024",
-      "row": 52
+      "row": 52,
+      "price": 2500
     },
     {
       "name": "CorelDRAW Graphics Suite 2026",
-      "row": 53
+      "row": 53,
+      "price": 2500
     },
     {
       "name": "CorelDRAW Graphics Suite 2025",
-      "row": 54
+      "row": 54,
+      "price": 2500
     },
     {
       "name": "CorelDRAW Graphics Suite 2024",
-      "row": 55
+      "row": 55,
+      "price": 2500
     },
     {
       "name": "Wondershare Filmora",
-      "row": 56
+      "row": 56,
+      "price": 2500
     },
     {
       "name": "CapCut",
-      "row": 57
+      "row": 57,
+      "price": 2500
     },
     {
       "name": "Nitro PDF Pro",
-      "row": 58
+      "row": 58,
+      "price": 2500
     },
     {
       "name": "SketchUp Pro 2026",
-      "row": 59
+      "row": 59,
+      "price": 2500
     },
     {
       "name": "SketchUp Pro 2025",
-      "row": 60
+      "row": 60,
+      "price": 2500
     },
     {
       "name": "SketchUp Pro 2024",
-      "row": 61
+      "row": 61,
+      "price": 2500
     },
     {
       "name": "Blender 5",
-      "row": 62
+      "row": 62,
+      "price": 2500
     },
     {
       "name": "MS Office 365",
-      "row": 63
+      "row": 63,
+      "price": 2500
     },
     {
       "name": "MS Office 2024 Pro",
-      "row": 64
+      "row": 64,
+      "price": 2500
     },
     {
       "name": "MS Office 2021 Pro",
-      "row": 65
+      "row": 65,
+      "price": 2500
     },
     {
       "name": "MS Office 2019 Pro",
-      "row": 66
+      "row": 66,
+      "price": 2500
     },
     {
       "name": "MS Office 2016 Pro",
-      "row": 67
+      "row": 67,
+      "price": 2500
     },
     {
       "name": "Debut Screen Recorder Pro",
-      "row": 68
+      "row": 68,
+      "price": 2500
     },
     {
       "name": "GRAPHISOFT ArchiCAD",
-      "row": 69
+      "row": 69,
+      "price": 2500
     },
     {
       "name": "Rhinoceros",
-      "row": 70
+      "row": 70,
+      "price": 2500
     },
     {
       "name": "Parallel Desktop",
-      "row": 71
+      "row": 71,
+      "price": 2500
     },
     {
       "name": "Little Snitch",
-      "row": 72
+      "row": 72,
+      "price": 2500
     },
     {
       "name": "CleanMyMac",
-      "row": 73
+      "row": 73,
+      "price": 2500
     },
     {
       "name": "Lumion Pro 2025 (Parallel Desktop only)",
-      "row": 74
+      "row": 74,
+      "price": 2500
     },
     {
       "name": "Lumion Pro 2024 (Parallel Desktop only)",
-      "row": 75
+      "row": 75,
+      "price": 2500
     },
     {
       "name": "Lumion Pro 2023 (Parallel Desktop only)",
-      "row": 76
+      "row": 76,
+      "price": 2500
     },
     {
       "name": "Lumion Pro 12.5 (Parallel Desktop only)",
-      "row": 77
+      "row": 77,
+      "price": 2500
     },
     {
       "name": "Final Cut Pro",
-      "row": 78
+      "row": 78,
+      "price": 2500
     },
     {
       "name": "Navis Work 2026",
-      "row": 79
+      "row": 79,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Navis Work 2024",
-      "row": 80
+      "row": 80,
+      "price": 7500,
+      "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autocad 2027",
