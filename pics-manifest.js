@@ -3,7 +3,5 @@
 // adding or removing images.
 window.PICS = {
   "macbook": {},
-  "windows": {
-    "2": "02.jpg"
-  }
+  "windows": {}
 };
