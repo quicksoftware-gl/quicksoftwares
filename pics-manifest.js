@@ -3,5 +3,16 @@
 // adding or removing images.
 window.PICS = {
   "macbook": {},
-  "windows": {}
+  "windows": {
+    "10": "10.webp",
+    "107": "107.webp",
+    "2": "2.webp",
+    "3": "3.jpg",
+    "4": "4.jpg",
+    "5": "5.png",
+    "6": "6.jpg",
+    "7": "7.jpg",
+    "8": "8.jpg",
+    "9": "9.webp"
+  }
 };
