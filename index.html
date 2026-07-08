@@ -3065,7 +3065,10 @@
     title.textContent = `${svc.name} · ${ss.quantity} selected`;
     const sub = document.createElement("div");
     sub.className = "selection-group-sub";
-    sub.textContent = `Subtotal: ${formatPrice(priceFor(svc, ss.softwareNames))}`;
+    // Reflect the per-platform tier discount in the catalog subtotal.
+    const grossSub = priceFor(svc, ss.softwareNames.slice(0, ss.quantity));
+    const netSub = Math.max(0, grossSub - tierDiscountForService(svc));
+    sub.textContent = `Subtotal: ${formatPrice(netSub)}`;
     head.appendChild(title);
     head.appendChild(sub);
     group.appendChild(head);
