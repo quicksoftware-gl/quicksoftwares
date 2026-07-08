@@ -2686,8 +2686,8 @@
   //             topN most-expensive softwares, minus a flat capOff (the
   //             cheaper softwares beyond topN are free).
   const TIER_DISCOUNT = {
-    "win-soft": { off: { 2: 500,  3: 1000, 4: 1500 }, capQty: 5, topN: 5, capOff: 1500 },
-    "mac-soft": { off: { 2: 1000, 3: 2500, 4: 4000 }, capQty: 5, topN: 5, capOff: 5000 },
+    "win-soft": { off: { 2: 500,  3: 1000, 4: 1500 }, capQty: 5, topN: 5, capOff: 1500, capMsg: "5 or more Softwares at Rs. 6000" },
+    "mac-soft": { off: { 2: 1000, 3: 2500, 4: 4000 }, capQty: 5, topN: 5, capOff: 5000, capMsg: "5 or more Softwares at Rs. 7500" },
   };
   // Priced cart items (within quantity) for this platform. All softwares
   // qualify for the tier discount now.
@@ -2725,7 +2725,8 @@
   // platform. "" hides the pill (n = 0 or already at the cap).
   function tierOfferText(svc, n) {
     const cfg = TIER_DISCOUNT[svc.id];
-    if (!cfg || n < 1 || n >= cfg.capQty) return "";
+    if (!cfg || n < 1) return "";
+    if (n >= cfg.capQty) return cfg.capMsg;
     if (n === cfg.capQty - 1) {
       return `Rs. ${cfg.capOff} Off on ${cfg.capQty} Softwares`;
     }
