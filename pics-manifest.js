@@ -4,11 +4,6 @@
 window.PICS = {
   "macbook": {},
   "windows": {
-    "21": "21.png",
-    "22": "22.jpg",
-    "3": "3.jpg",
-    "4": "4.jpg",
-    "5": "5.png",
     "6": "6.jpg",
     "7": "7.jpg",
     "8": "8.jpg",
