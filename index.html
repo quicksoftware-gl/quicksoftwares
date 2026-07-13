@@ -2688,9 +2688,12 @@
   // Built-in defaults, overridden per-platform by the "Tiers" sheet of
   // Discount.xlsx (window.TIERS from coupons-manifest.js). Kept as a fallback
   // so the site still works if that sheet/manifest is missing.
+  // capPrice is the ₹ "at" price advertised for the cap tier ("5 or more
+  // Softwares at ₹6000"); it is stored as a number so the message can be
+  // reformatted into the active currency at the live FX rate.
   const TIER_DISCOUNT_DEFAULT = {
-    "win-soft": { off: { 2: 500,  3: 1000, 4: 1500 }, capQty: 5, topN: 5, capOff: 1500, capMsg: "5 or more Softwares at Rs. 6000" },
-    "mac-soft": { off: { 2: 1000, 3: 2500, 4: 4000 }, capQty: 5, topN: 5, capOff: 5000, capMsg: "5 or more Softwares at Rs. 7500" },
+    "win-soft": { off: { 2: 500,  3: 1000, 4: 1500 }, capQty: 5, topN: 5, capOff: 1500, capPrice: 6000 },
+    "mac-soft": { off: { 2: 1000, 3: 2500, 4: 4000 }, capQty: 5, topN: 5, capOff: 5000, capPrice: 7500 },
   };
   const TIER_DISCOUNT = (() => {
     const out = {};
@@ -2698,11 +2701,11 @@
       const d = TIER_DISCOUNT_DEFAULT[id];
       const x = (window.TIERS && window.TIERS[id]) || null;
       out[id] = x ? {
-        off:    (x.off && Object.keys(x.off).length) ? x.off : d.off,
-        capQty: Number(x.capQty) || d.capQty,
-        topN:   Number(x.topN)   || d.topN,
-        capOff: (typeof x.capOff === "number") ? x.capOff : d.capOff,
-        capMsg: (typeof x.capMsg === "string" && x.capMsg.trim()) ? x.capMsg : d.capMsg,
+        off:      (x.off && Object.keys(x.off).length) ? x.off : d.off,
+        capQty:   Number(x.capQty) || d.capQty,
+        topN:     Number(x.topN)   || d.topN,
+        capOff:   (typeof x.capOff === "number")   ? x.capOff   : d.capOff,
+        capPrice: (typeof x.capPrice === "number") ? x.capPrice : d.capPrice,
       } : d;
     }
     return out;
@@ -2744,12 +2747,15 @@
   function tierOfferText(svc, n) {
     const cfg = TIER_DISCOUNT[svc.id];
     if (!cfg || n < 1) return "";
-    if (n >= cfg.capQty) return cfg.capMsg;
+    // formatPrice renders in the active currency at the live FX rate.
+    if (n >= cfg.capQty) {
+      return `${cfg.capQty} or more Softwares at ${formatPrice(cfg.capPrice)}`;
+    }
     if (n === cfg.capQty - 1) {
-      return `Rs. ${cfg.capOff} Off on ${cfg.capQty} Softwares`;
+      return `${formatPrice(cfg.capOff)} Off on ${cfg.capQty} Softwares`;
     }
     const next = n + 1;
-    return `Rs. ${cfg.off[next]} Off on ${next} Softwares`;
+    return `${formatPrice(cfg.off[next])} Off on ${next} Softwares`;
   }
 
   function renderTabHints() {

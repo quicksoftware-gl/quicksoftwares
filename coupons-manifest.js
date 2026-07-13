@@ -54,7 +54,7 @@ window.TIERS = {
     "capQty": 5,
     "topN": 5,
     "capOff": 1500,
-    "capMsg": "5 or more Softwares at Rs. 6000"
+    "capPrice": 6000
   },
   "mac-soft": {
     "off": {
@@ -65,6 +65,6 @@ window.TIERS = {
     "capQty": 5,
     "topN": 5,
     "capOff": 5000,
-    "capMsg": "5 or more Softwares at Rs. 7500"
+    "capPrice": 7500
   }
 };

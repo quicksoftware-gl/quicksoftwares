@@ -24,14 +24,16 @@ Discount.xlsx has TWO sheets:
 
 2. "Tiers" — the quantity discount shown next to the Windows/Macbook tabs.
    One row per platform, eight columns:
-       Platform  Off_Qty2  Off_Qty3  Off_Qty4  Cap_Qty  Charge_Top_N  Cap_Off  Cap_Message
-       windows   500       1000      1500      5        5             1500     5 or more Softwares at Rs. 6000
-       macbook   1000      2500      4000      5        5             5000     5 or more Softwares at Rs. 7500
+       Platform  Off_Qty2  Off_Qty3  Off_Qty4  Cap_Qty  Charge_Top_N  Cap_Off  Cap_Price
+       windows   500       1000      1500      5        5             1500     6000
+       macbook   1000      2500      4000      5        5             5000     7500
    Off_Qty2/3/4 = flat ₹ off once that many softwares are in the cart.
    At Cap_Qty or more softwares the customer pays for only the Charge_Top_N
-   most-expensive softwares minus Cap_Off, and Cap_Message is shown.
-   If this sheet is missing, the frontend falls back to its built-in
-   defaults, so older Discount.xlsx files keep working.
+   most-expensive softwares minus Cap_Off; the tab pill then reads
+   "<Cap_Qty> or more Softwares at <Cap_Price>". All amounts are stored in
+   ₹ as numbers so the frontend can convert them to the active currency at
+   the live FX rate. If this sheet is missing, the frontend falls back to
+   its built-in defaults, so older Discount.xlsx files keep working.
 
 Both sheets are located by name, so the physical sheetN.xml ordering does
 not matter. Output shape:
@@ -208,7 +210,7 @@ def parse_coupons(rows):
 
 
 def parse_tiers(rows):
-    """Parse the Tiers sheet into { svc_id: {off, capQty, topN, capOff, capMsg} }."""
+    """Parse the Tiers sheet into { svc_id: {off, capQty, topN, capOff, capPrice} }."""
     tiers = {}
     header_seen = False
     for cells in rows:
@@ -230,13 +232,13 @@ def parse_tiers(rows):
         cap_qty = as_number(cells.get("E", ""))
         top_n = as_number(cells.get("F", ""))
         cap_off = as_number(cells.get("G", ""))
-        cap_msg = (cells.get("H", "") or "").strip()
+        cap_price = as_number(cells.get("H", ""))
         tiers[svc_id] = {
             "off": off,
             "capQty": int(cap_qty) if cap_qty else 5,
             "topN": int(top_n) if top_n else 5,
             "capOff": cap_off if cap_off is not None else 0,
-            "capMsg": cap_msg,
+            "capPrice": cap_price if cap_price is not None else 0,
         }
     return tiers
 
