@@ -53,8 +53,8 @@ window.TIERS = {
     },
     "capQty": 5,
     "topN": 5,
-    "capOff": 1500,
-    "capPrice": 6000
+    "capOff": 2000,
+    "capPrice": 5500
   },
   "mac-soft": {
     "off": {
