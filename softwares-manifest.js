@@ -5,13 +5,11 @@ window.SOFTWARES = {
     {
       "name": "Autocad 2026",
       "row": 2,
-      "link": "https://www.youtube.com/",
       "price": 1500
     },
     {
       "name": "Autocad 2024",
       "row": 3,
-      "link": "https://www.microsoft.com/en-in",
       "price": 1500
     },
     {
@@ -20,7 +18,7 @@ window.SOFTWARES = {
       "price": 1500
     },
     {
-      "name": "3ds Max 2024",
+      "name": "3ds Max 2025",
       "row": 5,
       "price": 1500
     },
@@ -35,7 +33,7 @@ window.SOFTWARES = {
       "price": 1500
     },
     {
-      "name": "Revit 2024",
+      "name": "Revit 2023",
       "row": 8,
       "price": 1500
     },
