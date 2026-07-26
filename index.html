@@ -365,12 +365,12 @@
   }
   .catalog-cta {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 14px;
     margin-top: 22px;
-  }
-  @media (max-width: 640px) {
-    .catalog-cta { grid-template-columns: 1fr; }
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
   }
   .cta-btn {
     appearance: none;
@@ -399,11 +399,6 @@
     font-weight: 500;
     opacity: 0.85;
   }
-  .cta-download {
-    background: var(--brand, #2563eb);
-    color: #fff;
-  }
-  .cta-download:hover:not(:disabled) { background: #1d4ed8; box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28); }
   .cta-remote {
     background: #ecfdf5;
     color: #065f46;
@@ -502,59 +497,6 @@
     flex-shrink: 0;
   }
   .cart-item-remove:hover { background: #fee2e2; color: #991b1b; }
-  .download-links {
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px dashed rgba(16, 185, 129, 0.4);
-  }
-  .download-links-title {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #065f46;
-    margin-bottom: 10px;
-  }
-  .download-links-list {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  .download-link-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 8px 12px;
-    background: #fff;
-    border: 1px solid rgba(16, 185, 129, 0.4);
-    border-radius: 10px;
-    font-size: 14px;
-    color: var(--text-1);
-  }
-  .download-link-btn {
-    appearance: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border: 0;
-    border-radius: 8px;
-    background: #10b981;
-    color: #fff;
-    font: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.12s;
-  }
-  .download-link-btn:hover { background: #059669; }
-  .download-link-missing {
-    font-size: 12.5px;
-    color: var(--muted);
-    font-style: italic;
-  }
   .checkout-summary-total {
     margin-top: 14px;
     padding-top: 12px;
@@ -1418,16 +1360,6 @@
     min-height: 0;
   }
   .sw-suggest .sw-empty:hover { background: transparent; }
-  .email-link-note {
-    background: #e0f2fe;
-    border: 1px solid #bae6fd;
-    color: #075985;
-    padding: 12px 14px;
-    border-radius: 8px;
-    font-size: 14px;
-    margin-top: 8px;
-    font-weight: 500;
-  }
   .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2180,9 +2112,6 @@
     <nav id="catalog-pagination" class="catalog-pagination" aria-label="Catalog pages"></nav>
     <div id="software-details" class="software-details"></div>
     <div class="catalog-cta">
-      <button type="button" class="cta-btn cta-download" id="cta-download" disabled>
-        <span class="cta-title">Download Now</span>
-      </button>
       <button type="button" class="cta-btn cta-remote" id="cta-remote" disabled>
         <span class="cta-title">Book Remote Service</span>
         <span class="cta-sub">Over screen share, at a time you pick</span>
@@ -2215,9 +2144,6 @@
       <div id="time-slot-section">
         <label>Time slot</label>
         <div class="slots" id="slots"></div>
-      </div>
-      <div id="email-link-note" class="email-link-note" style="display: none;">
-        We will provide you the setup link within 3hrs.
       </div>
     </section>
 
@@ -2263,10 +2189,6 @@
         <div>Reference: <span class="ref" id="success-ref"></span></div>
         <div>Payment ID: <span class="ref" id="success-pid"></span></div>
         <div id="success-message" style="margin-top: 8px; font-size: 13px;">A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.</div>
-        <div id="download-links" class="download-links" style="display: none;">
-          <div class="download-links-title">Your downloads</div>
-          <div id="download-links-list" class="download-links-list"></div>
-        </div>
       </div>
       <div class="coupon-section">
         <label for="coupon-input">Discount coupon</label>
@@ -3044,10 +2966,8 @@
   // visible when nothing is selected, enabled + hint hidden otherwise.
   function updateCtaEnabledState() {
     const ready = anyServiceSelected();
-    const dl = document.getElementById("cta-download");
     const rm = document.getElementById("cta-remote");
     const hint = document.getElementById("catalog-cta-hint");
-    if (dl) dl.disabled = !ready;
     if (rm) rm.disabled = !ready;
     if (hint) hint.classList.toggle("is-hidden", ready);
   }
@@ -3532,33 +3452,15 @@
   renderSlots();
 
   // ---- Mode ------------------------------------------------------------
+  // Only one booking flow remains: Book Remote Service (screen-share),
+  // which always requires a date and time slot.
   const timeSlotSection = document.getElementById("time-slot-section");
-  const emailLinkNote = document.getElementById("email-link-note");
   function updateModeUI() {
-    if (state.mode === "email-link") {
-      timeSlotSection.style.display = "none";
-      emailLinkNote.style.display = "";
-      state.time = "";
-      document.querySelectorAll(".slot").forEach(n => n.classList.remove("selected"));
-    } else {
-      timeSlotSection.style.display = "";
-      emailLinkNote.style.display = "none";
-    }
+    timeSlotSection.style.display = "";
     updateSummary();
   }
-  // The mode <select> was removed from Step 2 — the mode is now driven
-  // entirely by the CTA button the customer clicks. Keep the reference
-  // optional so any residual code that queries it still works.
-  const modeSelectEl = document.getElementById("mode");
-  if (modeSelectEl) {
-    modeSelectEl.addEventListener("change", e => {
-      state.mode = e.target.value;
-      updateModeUI();
-      payBtn.textContent = payBtnLabel();
-    });
-  }
   function payBtnLabel() {
-    return state.mode === "email-link" ? "Confirm Payment" : "Confirm Booking";
+    return "Confirm Booking";
   }
 
   // ---- Checkout view swap --------------------------------------------
@@ -3572,10 +3474,8 @@
   const stepDatetimeEl   = document.getElementById("step-datetime");
   function setModeFromCta(mode) {
     state.mode = mode;
-    if (modeSelectEl) modeSelectEl.value = mode;
     updateModeUI();
-    const needsDateTime = mode === "remote";
-    if (stepDatetimeEl) stepDatetimeEl.classList.toggle("step-hidden", !needsDateTime);
+    if (stepDatetimeEl) stepDatetimeEl.classList.remove("step-hidden");
     if (payBtn) payBtn.textContent = payBtnLabel();
     openCheckoutView();
   }
@@ -3640,9 +3540,7 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   if (checkoutBackBtn) checkoutBackBtn.addEventListener("click", closeCheckoutView);
-  const ctaDownloadBtn = document.getElementById("cta-download");
   const ctaRemoteBtn = document.getElementById("cta-remote");
-  if (ctaDownloadBtn) ctaDownloadBtn.addEventListener("click", () => setModeFromCta("email-link"));
   if (ctaRemoteBtn)   ctaRemoteBtn.addEventListener("click", () => setModeFromCta("remote"));
 
   // ---- Payment method picker ------------------------------------------
@@ -3696,18 +3594,11 @@
     document.getElementById("sum-service").textContent = serviceText;
 
     const sumWhenEl = document.getElementById("sum-when");
-    if (state.mode === "email-link") {
-      // Download Now is a straight pay-and-download — no date, no time,
-      // no scheduling copy in the summary.
-      sumWhenEl.textContent = "";
-      sumWhenEl.style.display = "none";
-    } else {
-      sumWhenEl.style.display = "";
-      const displayTime = state.time ? formatSlotLabel(state.time, state.currency) : "";
-      sumWhenEl.textContent = state.date && state.time
-        ? `${state.date} at ${displayTime} (${state.mode})`
-        : "Pick a date and time";
-    }
+    sumWhenEl.style.display = "";
+    const displayTime = state.time ? formatSlotLabel(state.time, state.currency) : "";
+    sumWhenEl.textContent = state.date && state.time
+      ? `${state.date} at ${displayTime} (${state.mode})`
+      : "Pick a date and time";
 
     const sumDiscountEl = document.getElementById("sum-discount");
     const sumTotalEl = document.getElementById("sum-total");
@@ -3789,68 +3680,12 @@
     newBookingBtn.style.display = "";
     paypalContainer.innerHTML = "";
     payLoading.classList.remove("visible");
-    renderDownloadLinks();
     successEl.scrollIntoView({ behavior: "smooth", block: "center" });
     // Record coupon usage so the same email can't reuse it.
     if (currentBooking && currentBooking.couponCode && currentBooking.email) {
       markCouponUsed(currentBooking.email, currentBooking.couponCode);
     }
   }
-  // Look up a software's download link from the manifest.
-  function downloadLinkFor(platform, name) {
-    const list = (window.SOFTWARES && window.SOFTWARES[platform]) || [];
-    const target = (name || "").trim().toLowerCase();
-    const hit = list.find(it => (it.name || "").trim().toLowerCase() === target);
-    return hit && typeof hit.link === "string" && hit.link.trim() ? hit.link.trim() : "";
-  }
-  // Post-payment: render a Download button per selected software when the
-  // customer picked Download Now (email-link mode). For Book Remote Service
-  // bookings we hide the whole block.
-  function renderDownloadLinks() {
-    const wrap = document.getElementById("download-links");
-    const list = document.getElementById("download-links-list");
-    const msg  = document.getElementById("success-message");
-    if (!wrap || !list) return;
-    if (state.mode !== "email-link") {
-      wrap.style.display = "none";
-      list.innerHTML = "";
-      if (msg) msg.innerHTML = "A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.";
-      return;
-    }
-    if (msg) msg.textContent = "Download your softwares by clicking on the below link";
-    list.innerHTML = "";
-    SERVICES.forEach(svc => {
-      const ss = state.services[svc.id];
-      if (!ss || !ss.selected) return;
-      const platform = svc.id === "win-soft" ? "windows" : "macbook";
-      ss.softwareNames.forEach(name => {
-        const row = document.createElement("div");
-        row.className = "download-link-row";
-        const label = document.createElement("span");
-        label.className = "download-link-name";
-        label.textContent = name;
-        row.appendChild(label);
-        const url = downloadLinkFor(platform, name);
-        if (url) {
-          const a = document.createElement("a");
-          a.className = "download-link-btn";
-          a.href = url;
-          a.target = "_blank";
-          a.rel = "noopener noreferrer";
-          a.textContent = "Download";
-          row.appendChild(a);
-        } else {
-          const note = document.createElement("span");
-          note.className = "download-link-missing";
-          note.textContent = "Link coming via email";
-          row.appendChild(note);
-        }
-        list.appendChild(row);
-      });
-    });
-    wrap.style.display = list.children.length ? "" : "none";
-  }
-
   // ---- Validation ------------------------------------------------------
   function validateForm() {
     const sel = selectedServices();
@@ -3881,13 +3716,9 @@
       }
       perService.push({ svc, quantity: ss.quantity, softwareNames: names });
     }
-    // Download Now (email-link) skips the date + time slot — the setup
-    // link is emailed within 3 hours regardless of calendar. Book Remote
-    // Service still requires both.
-    if (state.mode !== "email-link") {
-      if (!state.date) return { ok: false, error: "Please pick a date." };
-      if (!state.time) return { ok: false, error: "Please pick a time slot." };
-    }
+    // Book Remote Service requires a date and a time slot.
+    if (!state.date) return { ok: false, error: "Please pick a date." };
+    if (!state.time) return { ok: false, error: "Please pick a time slot." };
     if (!name) return { ok: false, error: "Please enter your name." };
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: "Please enter a valid email." };
     const phoneCountry = countryByCode(phoneCC);
@@ -3936,10 +3767,8 @@
       couponValue: state.coupon ? state.coupon.value : 0,
       paymentMethod: state.paymentMethod,
       date: state.date,
-      timeIst: state.mode === "email-link" ? "" : state.time,
-      timeDisplay: state.mode === "email-link"
-        ? ""
-        : formatSlotLabel(state.time, state.currency),
+      timeIst: state.time,
+      timeDisplay: formatSlotLabel(state.time, state.currency),
       timezone: CURRENCY_META[state.currency].timezone,
       mode: state.mode,
       name: v.name,
@@ -3990,15 +3819,10 @@
       device_os: booking.device || "(not provided)",
       notes: booking.notes || "(none)",
     };
-    // Scheduling fields only apply to Book Remote Service (screen-share)
-    // bookings. Download Now (email-link) is pay-and-download — omit
-    // Date, Time, and Mode from the notification email.
-    if (booking.mode !== "email-link") {
-      payload.date = booking.date;
-      payload.time_ist = booking.timeIst ? booking.timeIst + " IST" : "(N/A)";
-      payload.time_customer_view = booking.timeDisplay;
-      payload.mode = booking.mode;
-    }
+    payload.date = booking.date;
+    payload.time_ist = booking.timeIst ? booking.timeIst + " IST" : "(N/A)";
+    payload.time_customer_view = booking.timeDisplay;
+    payload.mode = booking.mode;
     const res = await fetch("https://api.web3forms.com/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
