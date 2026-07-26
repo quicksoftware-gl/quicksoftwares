@@ -2,7 +2,7 @@
 // Source: SocialMedia.xlsx. Run ./update-socialmedia.py after editing.
 window.SOCIALS = {
   "INR": {
-    "whatsapp": "https://wa.me/917838127423",
+    "whatsapp": null,
     "instagram": "https://www.instagram.com/quicksoftwares_global?igsh=MTI2dDcyb3kweDZ1NA==",
     "youtube": "https://www.youtube.com/@QuickSoftwares-Global"
   },

@@ -9,12 +9,12 @@ window.COUPONS = {
   },
   "WIN10": {
     "type": "percent",
-    "value": 0.1,
+    "value": 0.15,
     "applies_to": "windows"
   },
   "MAC15": {
     "type": "percent",
-    "value": 0.15,
+    "value": 0.2,
     "applies_to": "macbook"
   },
   "QSZERO": {
