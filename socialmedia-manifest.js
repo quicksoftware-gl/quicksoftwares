@@ -12,3 +12,4 @@ window.SOCIALS = {
     "youtube": "https://youtube.com/@quicksoftwares-prt?feature=shared"
   }
 };
+window.CONTACT_EMAIL = "quicksoftwares.global@gmail.com";

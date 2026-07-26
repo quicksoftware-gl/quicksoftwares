@@ -2189,7 +2189,7 @@
         <h3>Payment successful — booking confirmed</h3>
         <div>Reference: <span class="ref" id="success-ref"></span></div>
         <div>Payment ID: <span class="ref" id="success-pid"></span></div>
-        <div id="success-message" style="margin-top: 8px; font-size: 13px;">A confirmation has been emailed to our team at <strong>quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.</div>
+        <div id="success-message" style="margin-top: 8px; font-size: 13px;">A confirmation has been emailed to our team at <strong class="js-contact-email">quicksoftwares.global@gmail.com</strong>. We'll contact you shortly to confirm the appointment.</div>
       </div>
       <div class="coupon-section">
         <label for="coupon-input">Discount coupon</label>
@@ -2328,7 +2328,7 @@
       <p>These Terms are governed by the laws of India. Any disputes are subject to the exclusive jurisdiction of the courts of the Republic of India.</p>
 
       <h3>10. Contact</h3>
-      <p>For any questions about these terms or your booking, contact us at <strong>quicksoftwares.global@gmail.com</strong> or via WhatsApp at <strong id="terms-wa-number">+91 78381 27423</strong>.</p>
+      <p>For any questions about these terms or your booking, contact us at <strong class="js-contact-email">quicksoftwares.global@gmail.com</strong> or via WhatsApp at <strong id="terms-wa-number">+91 78381 27423</strong>.</p>
 
       <p class="stamp">Last updated: 2026-06-01.</p>
     </div>
@@ -2397,7 +2397,11 @@
   // https://web3forms.com and paste the access key below. Submissions land
   // in that inbox automatically — no SMTP setup needed.
   const WEB3FORMS_ACCESS_KEY = "a3b55082-24f0-4070-906b-5f5ce2ba1a09";
-  const NOTIFY_EMAIL = "quicksoftwares.global@gmail.com";
+  // Contact / notification email — sourced from the "ContactEmail" sheet of
+  // SocialMedia.xlsx (window.CONTACT_EMAIL), with a hardcoded fallback.
+  const NOTIFY_EMAIL = window.CONTACT_EMAIL || "quicksoftwares.global@gmail.com";
+  // Reflect it into the addresses shown in the success message and terms.
+  document.querySelectorAll(".js-contact-email").forEach(el => { el.textContent = NOTIFY_EMAIL; });
 
   // ---- Currency / FX rate ---------------------------------------------
   // Prices are stored in INR. USD is computed from this rate. Edit when needed.
