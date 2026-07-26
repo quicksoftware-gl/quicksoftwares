@@ -3372,25 +3372,40 @@
     const socials = window.SOCIALS || {};
     const m = socials[currency] || socials.INR || {};
     const waFallback = WHATSAPP_BY_CURRENCY[currency] || WHATSAPP_BY_CURRENCY.INR;
+    // Each field is either an explicit value (a link, or null = "NA" = hide)
+    // when the key is present, or the built-in default when the key is absent.
+    const resolve = (key, fallback) =>
+      Object.prototype.hasOwnProperty.call(m, key) ? m[key] : fallback;
     return {
-      whatsapp: m.whatsapp || ("https://wa.me/" + waFallback.wa),
-      instagram: m.instagram || DEFAULT_INSTAGRAM,
-      youtube: m.youtube || DEFAULT_YOUTUBE,
+      whatsapp: resolve("whatsapp", "https://wa.me/" + waFallback.wa),
+      instagram: resolve("instagram", DEFAULT_INSTAGRAM),
+      youtube: resolve("youtube", DEFAULT_YOUTUBE),
     };
+  }
+  // Point an icon at its link, or hide it entirely when the link is null/empty
+  // (the "NA" case from SocialMedia.xlsx).
+  function applySocialLink(id, url) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (url) {
+      el.href = url;
+      el.style.display = "";
+    } else {
+      el.removeAttribute("href");
+      el.style.display = "none";
+    }
   }
   function updateSocialsForCurrency() {
     const links = socialLinksForCurrency(state.currency);
+    applySocialLink("hero-wa", links.whatsapp);
+    applySocialLink("hero-ig", links.instagram);
+    applySocialLink("hero-yt", links.youtube);
     const waLink = document.getElementById("hero-wa");
-    if (waLink) {
-      waLink.href = links.whatsapp;
+    if (waLink && links.whatsapp) {
       waLink.setAttribute("aria-label", "WhatsApp (" + waDisplay(links.whatsapp, state.currency) + ")");
     }
-    const igLink = document.getElementById("hero-ig");
-    if (igLink) igLink.href = links.instagram;
-    const ytLink = document.getElementById("hero-yt");
-    if (ytLink) ytLink.href = links.youtube;
     const termsEl = document.getElementById("terms-wa-number");
-    if (termsEl) termsEl.textContent = waDisplay(links.whatsapp, state.currency);
+    if (termsEl) termsEl.textContent = links.whatsapp ? waDisplay(links.whatsapp, state.currency) : "";
   }
   updateSocialsForCurrency();
 

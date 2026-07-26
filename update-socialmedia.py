@@ -18,14 +18,18 @@ does not matter):
   (with or without + / spaces); a bare number is normalised to a wa.me link.
 - Instagram / Youtube are full profile/channel URLs.
 
-Blank cells are omitted so the frontend falls back to its built-in default
-for that platform. If the sheet or file is missing, an empty manifest is
-written and the site keeps working on its hardcoded defaults.
+Each cell resolves to one of three states:
+- a link          -> that icon is shown, pointing at the link;
+- "NA" / "N/A"    -> emitted as null; the frontend HIDES that icon entirely;
+- blank           -> omitted; the frontend falls back to its built-in default.
+
+If the sheet or file is missing, an empty manifest is written and the site
+keeps working on its hardcoded defaults.
 
 Output shape:
     window.SOCIALS = {
       "INR": { "whatsapp": "...", "instagram": "...", "youtube": "..." },
-      "USD": { ... }
+      "USD": { "whatsapp": "...", "instagram": null, "youtube": "..." }
     };
 """
 import json
@@ -149,6 +153,9 @@ def parse_socials(rows):
                 continue
             val = str(cells.get(col, "") or "").strip()
             if not val:
+                continue  # blank -> omit -> frontend uses its default
+            if val.upper() in ("NA", "N/A"):
+                entry[key] = None  # explicit "hide this icon" signal
                 continue
             entry[key] = normalize_whatsapp(val) if key == "whatsapp" else val
         if entry:
