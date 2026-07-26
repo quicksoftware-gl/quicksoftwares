@@ -7,12 +7,12 @@ window.COUPONS = {
     "applies_to": "both",
     "internal": true
   },
-  "WIN10": {
+  "WIN15": {
     "type": "percent",
     "value": 0.15,
     "applies_to": "windows"
   },
-  "MAC15": {
+  "MAC20": {
     "type": "percent",
     "value": 0.2,
     "applies_to": "macbook"
