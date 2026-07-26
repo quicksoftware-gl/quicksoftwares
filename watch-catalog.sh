@@ -2,10 +2,11 @@
 # Watch all catalog sources and regenerate their manifests on every change.
 # Keep this running in a terminal — Ctrl+C to stop.
 #
-#   catalog/        -> catalog-manifest.js   (update-catalog.sh)
-#   Windows_Pic/    -> pics-manifest.js       (update-pics.py)
-#   Macbook_Pic/    -> pics-manifest.js       (update-pics.py)
-#   Softwares.xlsx  -> softwares-manifest.js  (update-softwares.py)
+#   catalog/          -> catalog-manifest.js      (update-catalog.sh)
+#   Windows_Pic/      -> pics-manifest.js          (update-pics.py)
+#   Macbook_Pic/      -> pics-manifest.js          (update-pics.py)
+#   Softwares.xlsx    -> softwares-manifest.js     (update-softwares.py)
+#   SocialMedia.xlsx  -> socialmedia-manifest.js   (update-socialmedia.py)
 #
 # Requires fswatch:  brew install fswatch
 
@@ -21,11 +22,12 @@ regenerate_all() {
   ./update-catalog.sh
   python3 update-pics.py
   python3 update-softwares.py
+  python3 update-socialmedia.py
 }
 
 # Paths to watch (only those that exist).
 WATCH_PATHS=()
-for p in catalog Windows_Pic Macbook_Pic Softwares.xlsx; do
+for p in catalog Windows_Pic Macbook_Pic Softwares.xlsx SocialMedia.xlsx; do
   [ -e "$p" ] && WATCH_PATHS+=("$p")
 done
 
