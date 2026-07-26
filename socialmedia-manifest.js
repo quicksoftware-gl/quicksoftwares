@@ -3,7 +3,7 @@
 window.SOCIALS = {
   "INR": {
     "whatsapp": "https://wa.me/917838127423",
-    "instagram": "https://www.instagram.com/quicksoftwares_global?igsh=MTI2dDcyb3kweDZ1NA==",
+    "instagram": null,
     "youtube": "https://youtube.com/@quicksoftwares-prt?feature=shared"
   },
   "USD": {
