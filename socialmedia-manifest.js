@@ -2,14 +2,14 @@
 // Source: SocialMedia.xlsx. Run ./update-socialmedia.py after editing.
 window.SOCIALS = {
   "INR": {
-    "whatsapp": null,
+    "whatsapp": "https://wa.me/917838127423",
     "instagram": "https://www.instagram.com/quicksoftwares_global?igsh=MTI2dDcyb3kweDZ1NA==",
-    "youtube": "https://youtube.com/@quicksoftwares-prt?feature=shared"
+    "youtube": "https://www.youtube.com/@QuickSoftwares-Global"
   },
   "USD": {
     "whatsapp": null,
     "instagram": "https://www.instagram.com/quicksoftwares_global?igsh=MTI2dDcyb3kweDZ1NA==",
-    "youtube": "https://youtube.com/@quicksoftwares-prt?feature=shared"
+    "youtube": "https://www.youtube.com/@QuickSoftwares-Global"
   }
 };
 window.CONTACT_EMAIL = "contact@quicksoftwares.net";
