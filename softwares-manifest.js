@@ -5,196 +5,235 @@ window.SOFTWARES = {
     {
       "name": "Autodesk Autocad",
       "row": 2,
+      "link": "https://transfer.it/t/tKKapBklxTKK",
       "price": 1500
     },
     {
       "name": "Autodesk 3ds Max",
       "row": 3,
+      "link": "https://transfer.it/t/5raK4QshhbZS",
       "price": 1500
     },
     {
       "name": "Autodesk Revit",
       "row": 4,
+      "link": "https://transfer.it/t/Lr6fKckxWJhY",
       "price": 1500
     },
     {
       "name": "Autodesk Autocad LT",
       "row": 5,
+      "link": "https://88-99-218-153.top/Getintopc.com/AutoCAD_Architecture_2024_English_Win_64-bit.iso?md5=1TqeAaVel39OXDzWpTLj8w&expires=1787807466",
       "price": 1500
     },
     {
       "name": "Autodesk Autocad Architecture",
       "row": 6,
+      "link": "https://www.mediafire.com/file/nxk93sn95mb087w/ARCHITECTURE_2026.0.1_ADDON_FOR_AUTODESK_AUTOCAD.tar/file",
       "price": 1500
     },
     {
       "name": "Adobe Photoshop",
       "row": 7,
+      "link": "https://www.mediafire.com/file/562drlc3lsayh9g/Adobe+Photoshop+2026+v27.8.0.tar.001/file",
       "price": 1500
     },
     {
       "name": "Adobe Illustrator",
       "row": 8,
+      "link": "https://www.mediafire.com/file/4jrvk4wvgxqozue/Adobe_Illustrator_2026_v30.4.0.226.tar/file",
       "price": 1500
     },
     {
       "name": "Adobe Premier Pro",
       "row": 9,
+      "link": "https://www.mediafire.com/file/jj4zc2k8j7fgzpo/Adobe_Premiere_Pro_2026_v26.3_(x64).tar.001/file",
       "price": 1500
     },
     {
       "name": "Adobe After Effect",
       "row": 10,
+      "link": "https://www.mediafire.com/file/szicm7sha1cfbh1/Adobe-After-Effects+2026+v26.3.tar/file",
       "price": 1500
     },
     {
       "name": "Adobe InDesign",
       "row": 11,
+      "link": "https://www.mediafire.com/file/6vsjv39afiac37x/Adobe_InDesign_2026_v21.4_(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Adobe Media Encoder",
       "row": 12,
+      "link": "https://www.mediafire.com/file/t4i070w34hm7yhk/Adobe_Media_Encoder_2026_v26.3.tar.001/file",
       "price": 1500
     },
     {
       "name": "Adobe Lightroom",
       "row": 13,
+      "link": "https://www.mediafire.com/file/m2e45t89wzsueu1/Adobe-Lightroom-Classic+2026+v15.4.1+(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Adobe XD",
       "row": 14,
+      "link": "https://www.mediafire.com/file/2iuzlwzulabyp1q/Adobe_XD_v61.0.12.tar/file",
       "price": 1500
     },
     {
       "name": "Adobe Acrobat Pro DC",
       "row": 15,
+      "link": "https://www.mediafire.com/file/dy4327sw4c74fn9/Adobe-Acrobat-Pro-DC+2026+V26.1.21677+(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Adobe Audition",
       "row": 16,
+      "link": "https://www.mediafire.com/file/fz0hr8b7dyn72qy/Adobe_Audition_2026_v26.3_(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Adobe Animate",
       "row": 17,
+      "link": "https://www.mediafire.com/file/noede2v600ahqea/Adobe_Animate_2024_24.0.12.tar/file",
       "price": 1500
     },
     {
       "name": "Adobe Bridge",
       "row": 18,
+      "link": "https://www.mediafire.com/file/u50w0ad5ni7jzxo/Adobe_Bridge_2026_v16.0.4_(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Adobe Dreamweaver",
       "row": 19,
+      "link": "https://www.mediafire.com/file/1v22irqpqhhfyu3/ADOBE_DREAMWEAVER_2021_21.6.tar/file",
       "price": 1500
     },
     {
       "name": "Adobe Dimension",
       "row": 20,
+      "link": "https://www.mediafire.com/file/xf86206xqj39vtr/Adobe_Dimension_4.1.8_(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Adobe Premiere Rush",
       "row": 21,
+      "link": "https://www.mediafire.com/file/sp1ycv7803y3q0d/Adobe.Premiere.Rush.v2.10.Multilingual.exe/file",
       "price": 1500
     },
     {
       "name": "Adobe InCopy",
       "row": 22,
+      "link": "https://www.mediafire.com/file/kwpbudvo54cio0a/Adobe_InCopy_2026_v21.4_(x64).tar/file",
       "price": 1500
     },
     {
       "name": "CorelDRAW Graphics Suite",
       "row": 23,
+      "link": "https://www.mediafire.com/file/ofs743ut01470s9/CorelDRAW+Graphics+Suite+2026+27.1.0.129.7z/file",
       "price": 1500
     },
     {
       "name": "Wondershare Filmora",
       "row": 24,
+      "link": "https://www.mediafire.com/file/xu4o0y4u4l2yuhu/Wondershare+Filmora+15.5.3.19727+(x64).tar/file",
       "price": 1500
     },
     {
       "name": "CapCut",
       "row": 25,
+      "link": "https://www.mediafire.com/file/bbeml0ghckc6z0f/CapCut_6.6.0.2586.tar/file",
       "price": 1500
     },
     {
       "name": "Nitro PDF Pro",
       "row": 26,
+      "link": "https://www.mediafire.com/file/x4u3co6wnrmjwfx/Nitro-PDF-Pro+26.1.0.54+(x64)+Enterprise.tar/file",
       "price": 1500
     },
     {
       "name": "SketchUp Pro",
       "row": 27,
+      "link": "https://www.mediafire.com/file/fmnn4r4a18ou03r/SketchUp-Pro+2026+v26.2.243+(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Blender 5",
       "row": 28,
+      "link": "https://www.mediafire.com/file/1ib0odtz2tk2i3v/Blender_4.4.3_(x64).tar/file",
       "price": 1500
     },
     {
       "name": "MS Office 365",
       "row": 29,
+      "link": "https://www.mediafire.com/file/f24sy8w6ydefwc4/Microsoft-Office-2024-LTSC-v2408+Build+17932.20884+(x64).tar/file",
       "price": 1500
     },
     {
       "name": "MS Office Pro",
       "row": 30,
+      "link": "https://www.mediafire.com/file/f24sy8w6ydefwc4/Microsoft-Office-2024-LTSC-v2408+Build+17932.20884+(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Debut Screen Recorder Pro",
       "row": 31,
+      "link": "https://www.mediafire.com/file/a5url0w26v1pz59/NCH_Debut_Professional_12.05.tar/file",
       "price": 1500
     },
     {
       "name": "Mastercam",
       "row": 32,
+      "link": "https://94-130-167-220.top/Getintopc.com/Mastercam_2026_v28.0.7534.rar?md5=yGM16QDKmpvMK5O-ReA48A&expires=1787806465",
       "price": 1500
     },
     {
       "name": "Lumion Pro",
       "row": 33,
+      "link": "https://transfer.it/t/Aeb5S45BBT5D                             and                        https://transfer.it/t/88Xpj6wD1TwJ",
       "price": 1500
     },
     {
       "name": "GRAPHISOFT ArchiCAD",
       "row": 34,
+      "link": "https://94-130-16-162.top/Getintopc.com/GRAPHISOFT_ArchiCAD_29_Build_3000.rar?md5=PZCPx58Jc0wzlTdJU9Oj-Q&expires=1787806945",
       "price": 1500
     },
     {
       "name": "ZWCAD Professional",
       "row": 35,
+      "link": "https://www.mediafire.com/file/q2av0w2f4er4v9c/ZWCADProfessional2024SP1Build2023.10.31x64.zip/file",
       "price": 1500
     },
     {
       "name": "SolidWorks Pro",
       "row": 36,
+      "link": "https://94-130-167-220.top/Getintopc.com/SolidWorks_2026_SP0_Full_Premium_Multilingual-03-01-2026.rar?md5=DltAdCdaOTlYQKz2WHSCMg&expires=1787807079",
       "price": 1500
     },
     {
       "name": "Siemens Solid Edge",
       "row": 37,
+      "link": "https://94-130-16-162.top/Getintopc.com/Siemens_Solid_Edge_2025.2410.rar?md5=SnaNUiOIAOYjAHoUw7zdlg&expires=1787808105",
       "price": 1500
     },
     {
       "name": "Gemvision MatrixGold",
       "row": 38,
+      "link": "https://88-99-162-81.top/Getintopc.com/Gemvision_MatrixGold_v.3.1.22284.1001.rar?md5=q2MYmz-sXT8_RGA42lYJTw&expires=1787808160",
       "price": 1500
     },
     {
       "name": "Rhinoceros",
       "row": 39,
+      "link": "https://www.mediafire.com/file/zdkj7h58sjwkjem/Rhinoceros_8.8.24170.13001.7z/file",
       "price": 1500
     },
     {
       "name": "Chaos V-Ray for Sketchup",
       "row": 40,
+      "link": "https://www.mediafire.com/file/iq7mqfq0fey39hh/Chaos_V-Ray_7.40.00_for_SketchUp.tar/file",
       "price": 1500
     },
     {
@@ -210,6 +249,7 @@ window.SOFTWARES = {
     {
       "name": "Chaos V-Ray Rhino",
       "row": 43,
+      "link": "https://www.mediafire.com/file/ga9czz0k3f187a1/Chaos_V-Ray_7.40.00_for_Rhinoceros.tar/file",
       "price": 1500
     },
     {
@@ -225,31 +265,37 @@ window.SOFTWARES = {
     {
       "name": "Chaos Enscape for Sketchup",
       "row": 46,
+      "link": "https://www.mediafire.com/file/93b254yd5eelkm3/Chaos_Enscape_4.18.1.1579_(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Chaos Enscape for Revit",
       "row": 47,
+      "link": "https://www.mediafire.com/file/93b254yd5eelkm3/Chaos_Enscape_4.18.1.1579_(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Chaos Enscape for Rhino",
       "row": 48,
+      "link": "https://www.mediafire.com/file/93b254yd5eelkm3/Chaos_Enscape_4.18.1.1579_(x64).tar/file",
       "price": 1500
     },
     {
       "name": "Chaos Corona for 3dsmax",
       "row": 49,
+      "link": "https://www.mediafire.com/file/d3gfy2kjsu3u3u7/Corona_Renderer_11_Hotfix_2_for_3DS_MAX_2016-2025.7z/file",
       "price": 1500
     },
     {
       "name": "Parashara's Light Professional 9",
       "row": 50,
+      "link": "https://transfer.it/t/olbK9R0XTDIT",
       "price": 1500
     },
     {
       "name": "Kundli Chakra Professional",
       "row": 51,
+      "link": "https://transfer.it/t/GIheAY1R3bxT",
       "price": 1500
     },
     {
@@ -260,11 +306,13 @@ window.SOFTWARES = {
     {
       "name": "Icecream Screen Recorder",
       "row": 53,
+      "link": "https://www.mediafire.com/file/a6oq6baae1znmoi/Icecream_Screen_Recorder_Pro_7.48_(x64).tar/file",
       "price": 1500
     },
     {
       "name": "WinRAR Professional",
       "row": 54,
+      "link": "https://www.mediafire.com/file/il5azr6sqsj2vxc/WinRAR_7.23_Final_(x64).tar/file",
       "price": 1500
     },
     {
@@ -276,198 +324,187 @@ window.SOFTWARES = {
     {
       "name": "Autodesk Autocad",
       "row": 2,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
-    },
-    {
-      "name": "Autodesk 3ds Max",
-      "row": 3,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
-    },
-    {
-      "name": "Autodesk Revit",
-      "row": 4,
+      "link": "https://transfer.it/t/vfK8cZsBFTyR",
       "price": 7500,
       "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Autodesk Autocad LT",
-      "row": 5,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
-    },
-    {
-      "name": "Autodesk Autocad Architecture",
-      "row": 6,
+      "row": 3,
+      "link": "https://transfer.it/t/eMOm0YknUbpR",
       "price": 7500,
       "message": "Autodesk softwares at ₹7,500 each"
     },
     {
       "name": "Adobe Photoshop",
-      "row": 7,
+      "row": 4,
+      "link": "https://transfer.it/t/2BHPHjhXkJqT",
       "price": 2500
     },
     {
       "name": "Adobe Illustrator",
-      "row": 8,
+      "row": 5,
+      "link": "https://transfer.it/t/qa0Oy6pHVDBR",
       "price": 2500
     },
     {
       "name": "Adobe Premier Pro",
-      "row": 9,
+      "row": 6,
+      "link": "https://transfer.it/t/tjzX22hxXTaY",
       "price": 2500
     },
     {
       "name": "Adobe After Effect",
-      "row": 10,
+      "row": 7,
+      "link": "https://transfer.it/t/x7PttZkzFLqL",
       "price": 2500
     },
     {
       "name": "Adobe InDesign",
-      "row": 11,
+      "row": 8,
+      "link": "https://transfer.it/t/0dTAvv5hnBDJ",
       "price": 2500
     },
     {
       "name": "Adobe Media Encoder",
-      "row": 12,
+      "row": 9,
+      "link": "https://transfer.it/t/qpcONRljEZKK",
       "price": 2500
     },
     {
       "name": "Adobe Lightroom",
-      "row": 13,
+      "row": 10,
+      "link": "https://transfer.it/t/OfmCBY9T2TKC",
       "price": 2500
     },
     {
       "name": "Adobe XD",
-      "row": 14,
+      "row": 11,
+      "link": "https://transfer.it/t/GIZ74z4FwZ6A",
       "price": 2500
     },
     {
       "name": "Adobe Acrobat Pro DC",
-      "row": 15,
+      "row": 12,
+      "link": "https://transfer.it/t/H3clBB53hRSR",
       "price": 2500
     },
     {
       "name": "Adobe Audition",
-      "row": 16,
+      "row": 13,
+      "link": "https://transfer.it/t/i6AmhF8RSbyI",
       "price": 2500
     },
     {
       "name": "Adobe Animate",
-      "row": 17,
+      "row": 14,
+      "link": "https://transfer.it/t/CvsIgd9BlJAb",
       "price": 2500
     },
     {
       "name": "Adobe Bridge",
-      "row": 18,
-      "price": 2500
-    },
-    {
-      "name": "Adobe Dreamweaver",
-      "row": 19,
+      "row": 15,
+      "link": "https://transfer.it/t/jFqLUYlxmLbb",
       "price": 2500
     },
     {
       "name": "Adobe Dimension",
-      "row": 20,
+      "row": 16,
+      "link": "https://transfer.it/t/6BXWIJ0TXbiI",
       "price": 2500
     },
     {
       "name": "Adobe Premiere Rush",
-      "row": 21,
+      "row": 17,
+      "link": "https://transfer.it/t/LWP6cihnmboI",
       "price": 2500
     },
     {
       "name": "Adobe InCopy",
-      "row": 22,
+      "row": 18,
+      "link": "https://transfer.it/t/4roT07olxDrL",
       "price": 2500
     },
     {
       "name": "CorelDRAW Graphics Suite",
-      "row": 23,
+      "row": 19,
+      "link": "https://transfer.it/t/z4kLVUs3TJyC",
       "price": 2500
     },
     {
       "name": "Wondershare Filmora",
-      "row": 24,
+      "row": 20,
+      "link": "https://transfer.it/t/feTGp35lHLiB",
       "price": 2500
     },
     {
       "name": "CapCut",
-      "row": 25,
+      "row": 21,
+      "link": "https://transfer.it/t/C5jCNv5FmRTA",
       "price": 2500
     },
     {
       "name": "Nitro PDF Pro",
-      "row": 26,
+      "row": 22,
+      "link": "https://transfer.it/t/N8R4Q2oV1b7b",
       "price": 2500
     },
     {
       "name": "SketchUp Pro",
-      "row": 27,
+      "row": 23,
+      "link": "https://transfer.it/t/hI68FdsnGDjA",
       "price": 2500
     },
     {
       "name": "Blender 5",
-      "row": 28,
+      "row": 24,
       "price": 2500
     },
     {
       "name": "MS Office 365",
-      "row": 29,
+      "row": 25,
+      "link": "https://transfer.it/t/6xRNNFsFEDqI",
       "price": 2500
     },
     {
       "name": "MS Office Pro",
-      "row": 30,
+      "row": 26,
+      "link": "https://transfer.it/t/6xRNNFsFEDqI",
       "price": 2500
     },
     {
       "name": "Debut Screen Recorder Pro",
-      "row": 31,
+      "row": 27,
+      "link": "https://transfer.it/t/X53UcNlR3JKK",
       "price": 2500
     },
     {
       "name": "GRAPHISOFT ArchiCAD",
-      "row": 32,
+      "row": 28,
       "price": 2500
     },
     {
       "name": "Rhinoceros",
-      "row": 33,
+      "row": 29,
+      "link": "https://transfer.it/t/PbvlJFsTXbDa",
       "price": 2500
     },
     {
       "name": "Parallel Desktop",
-      "row": 34,
+      "row": 30,
+      "link": "https://transfer.it/t/FIiH1I1nAZqR",
       "price": 2500
     },
     {
       "name": "Little Snitch",
-      "row": 35,
-      "price": 2500
-    },
-    {
-      "name": "CleanMyMac",
-      "row": 36,
-      "price": 2500
-    },
-    {
-      "name": "Lumion Pro (Parallel Desktop only)",
-      "row": 37,
+      "row": 31,
+      "link": "https://transfer.it/t/HXbXNvolSBZQ",
       "price": 2500
     },
     {
       "name": "Final Cut Pro",
-      "row": 38,
+      "row": 32,
       "price": 2500
-    },
-    {
-      "name": "Autodesk Navis Work",
-      "row": 39,
-      "price": 7500,
-      "message": "Autodesk softwares at ₹7,500 each"
     }
   ]
 };
