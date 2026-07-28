@@ -17,7 +17,7 @@ window.COUPONS = {
     "value": 0.2,
     "applies_to": "macbook"
   },
-  "QSZERO": {
+  "QSNIL": {
     "type": "percent",
     "value": 1.0,
     "applies_to": "both",
