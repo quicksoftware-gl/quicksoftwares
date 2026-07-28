@@ -2,11 +2,7 @@
 // Source: Windows_Pic/ and Macbook_Pic/. Run ./update-pics.py after
 // adding or removing images.
 window.PICS = {
-  "macbook": {
-    "7": "7.jpg",
-    "8": "8.jpg",
-    "9": "9.jpg"
-  },
+  "macbook": {},
   "windows": {
     "10": "10.jpg",
     "11": "11.jpg",
