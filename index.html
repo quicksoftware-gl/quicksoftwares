@@ -2706,7 +2706,7 @@
         }
       }
       if (msg) {
-        adEl.textContent = msg;
+        adEl.textContent = localizeMessage(msg);
         adEl.classList.remove("is-hidden");
       } else {
         adEl.classList.add("is-hidden");
@@ -2807,6 +2807,17 @@
       maximumFractionDigits: meta.digits,
       minimumFractionDigits: meta.digits,
     }).format(roundForCurrency(amountIn(currency, priceINR), currency));
+  }
+  // Manifest messages (e.g. "Autodesk softwares at ₹7,500 each") carry a
+  // hardcoded INR amount from the sheet. Rewrite each ₹-amount through
+  // formatPrice so the note tracks the selected currency like the price pills
+  // do. Idempotent for INR.
+  function localizeMessage(msg) {
+    if (!msg) return msg;
+    return msg.replace(/₹\s?([\d,]+(?:\.\d+)?)/g, (m, num) => {
+      const inr = parseFloat(num.replace(/,/g, ""));
+      return isFinite(inr) ? formatPrice(inr) : m;
+    });
   }
   function currentPriceINR() {
     const gross = selectedServices().reduce((sum, svc) => {
