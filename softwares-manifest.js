@@ -318,6 +318,11 @@ window.SOFTWARES = {
     {
       "name": "Smart PLS 4",
       "row": 55
+    },
+    {
+      "name": "Smart Plant 3D",
+      "row": 56,
+      "link": "https://138-201-124-163.top/Getintopc.com/Intergraph_SmartPlant_3D_2011_R1_v09.01.30.0055.rar?md5=yB-ziU1NgK90GZFfrwOGEw&expires=1788147891"
     }
   ],
   "macbook": [
