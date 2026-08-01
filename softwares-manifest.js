@@ -299,7 +299,7 @@ window.SOFTWARES = {
       "price": 1500
     },
     {
-      "name": "Navis Work 2026",
+      "name": "Navis Work",
       "row": 52,
       "price": 1500
     },
